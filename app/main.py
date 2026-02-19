@@ -91,3 +91,8 @@ async def login_page(request: Request):
 async def favicon():
     return RedirectResponse(url="/static/favicon.ico")
 
+# В app/main.py
+@app.get("/register.html")
+async def register_page(request: Request):
+    import time
+    return templates.TemplateResponse("register.html", {"request": request, "v": int(time.time())})
