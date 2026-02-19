@@ -81,6 +81,13 @@ async def dashboard(request: Request):
         {"request": request, "v": ver}
     )
 
+# Добавь этот код в main.py
+@app.get("/index.html")
+async def login_page(request: Request):
+    import time
+    return templates.TemplateResponse("index.html", {"request": request, "v": int(time.time())})
+
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
     return RedirectResponse(url="/static/favicon.ico")
+
