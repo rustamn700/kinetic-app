@@ -71,10 +71,9 @@ if os.path.exists("static"):
 
 # --- ГОЛОВНА СТОРІНКА (З АВТО-ВЕРСІЄЮ) ---
 @app.get("/")
-async def main_page(request: Request):
-    import time
-    # Это главная страница. Если юзер не залогинен, JS сам его перекинет дальше.
-    return templates.TemplateResponse("dashboard.html", {"request": request, "v": int(time.time())})
+async def dashboard(request: Request):
+    # Генеруємо унікальну версію на основі часу (щоб телефон не кешував старий код)
+    ver = int(time.time())
     
     # Віддаємо HTML і передаємо туди змінну "v"
     return templates.TemplateResponse(
@@ -82,21 +81,6 @@ async def main_page(request: Request):
         {"request": request, "v": ver}
     )
 
-# Добавь этот код в main.py
-@app.get("/login.html")
-async def login_page(request: Request):
-    import time
-    return templates.TemplateResponse("login.html", {"request": request, "v": int(time.time())})
-
-
-# В app/main.py
-@app.get("/register.html")
-async def register_page(request: Request):
-    import time
-    return templates.TemplateResponse("register.html", {"request": request, "v": int(time.time())})
-
-
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
     return RedirectResponse(url="/static/favicon.ico")
-
