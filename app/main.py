@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from fastapi.middleware.base import BaseHTTPMiddleware
+# Импортируем напрямую из starlette, чтобы избежать ошибки ModuleNotFoundError
+from starlette.middleware.base import BaseHTTPMiddleware
 import os
 
 # Импорты твоих модулей
@@ -13,7 +14,6 @@ from app.services.importer import import_products_from_json
 # Створення таблиць БД
 models.Base.metadata.create_all(bind=database.engine)
 
-# Функція заповнення бази
 def seed_database():
     db = database.SessionLocal()
     try:
@@ -39,7 +39,7 @@ app = FastAPI(
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         response = await call_next(request)
-        # Разрешаем камеру для вашего домена
+        # Это разрешает браузеру использовать камеру на твоем сайте
         response.headers["Permissions-Policy"] = "camera=*"
         return response
 
@@ -62,13 +62,10 @@ app.include_router(ai_search.router, tags=["AI Search"])
 app.include_router(photo_meals.router, prefix="/meals", tags=["AI Photo Analysis"]) 
 app.include_router(categories.router, prefix="/catalog", tags=["Catalog"])
 
-# --- ГОЛОВНА СТОРІНКА ---
-# Віддаємо сторінку авторизації при заході на головну "/"
 @app.get("/")
 async def read_root():
     return FileResponse("static/login.html")
 
 # --- ПІДКЛЮЧЕННЯ СТАТИКИ ---
-# ВАЖЛИВО: Цей блок має бути в САМОМУ КІНЦІ файлу!
 if os.path.exists("static"):
     app.mount("/", StaticFiles(directory="static"), name="static")
