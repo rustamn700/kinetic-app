@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi.middleware.base import BaseHTTPMiddleware
 import os
 
 # Импорты твоих модулей
@@ -34,6 +35,16 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# --- ДОЗВІЛ НА КАМЕРУ ---
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        # Разрешаем камеру для вашего домена
+        response.headers["Permissions-Policy"] = "camera=*"
+        return response
+
+app.add_middleware(SecurityHeadersMiddleware)
+
 # --- НАЛАШТУВАННЯ CORS ---
 app.add_middleware(
     CORSMiddleware,
@@ -59,6 +70,5 @@ async def read_root():
 
 # --- ПІДКЛЮЧЕННЯ СТАТИКИ ---
 # ВАЖЛИВО: Цей блок має бути в САМОМУ КІНЦІ файлу!
-# Роздаємо папку static у корінь сайту, щоб працювали всі шляхи типу /css/... та /js/...
 if os.path.exists("static"):
     app.mount("/", StaticFiles(directory="static"), name="static")
