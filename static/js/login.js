@@ -1,5 +1,5 @@
 // 👇 ВАЖНО: Адрес NGROK
-const API_URL = "https://kinetic-fp1n.onrender.com";
+var API_URL = "https://kinetic-fp1n.onrender.com";
 
 async function login() {
     const email = document.getElementById('email').value;

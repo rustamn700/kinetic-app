@@ -1,4 +1,4 @@
-const API_URL = "https://kinetic-fp1n.onrender.com";
+var API_URL = "https://kinetic-fp1n.onrender.com";
 let allIngredients = [];
 let newRecipe = []; // Тут храним состав нового блюда
 

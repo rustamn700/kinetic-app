@@ -1,4 +1,4 @@
-const API_URL = "https://kinetic-fp1n.onrender.com";
+var API_URL = "https://kinetic-fp1n.onrender.com";
 
 async function triggerAISearch() {
     const aiInput = document.getElementById('dishInput');

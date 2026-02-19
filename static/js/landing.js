@@ -1,5 +1,5 @@
 // 👇 ВАЖНО: Ставим адрес NGROK, а не 192.168...
-const API_URL = "https://kinetic-fp1n.onrender.com";
+var API_URL = "https://kinetic-fp1n.onrender.com";
 
 async function register() {
     const email = document.getElementById('regEmail').value;

@@ -1,4 +1,4 @@
-const API_URL_CAT = "https://kinetic-fp1n.onrender.com";
+var API_URL = "https://kinetic-fp1n.onrender.com";
 
 // 🔥 ОБОВ'ЯЗКОВИЙ ЗАГОЛОВОК ДЛЯ NGROK
 const NGROK_HEADERS_CAT = {

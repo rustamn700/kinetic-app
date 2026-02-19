@@ -1,4 +1,4 @@
-const API_URL = "https://kinetic-fp1n.onrender.com";
+var API_URL = "https://kinetic-fp1n.onrender.com";
 
 async function calculateDish() {
     const input = document.getElementById('dishInput');

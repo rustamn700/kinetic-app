@@ -1,4 +1,4 @@
-const API_URL = "https://kinetic-fp1n.onrender.com";
+var API_URL = "https://kinetic-fp1n.onrender.com";
 
 // 🔥 МАГІЧНИЙ ЗАГОЛОВОК ДЛЯ NGROK (Щоб не було 404 і помилок JSON)
 const NGROK_HEADERS = {
