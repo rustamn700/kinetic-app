@@ -3,6 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import FileResponse
 import time
 import os
 
@@ -84,3 +85,8 @@ async def dashboard(request: Request):
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
     return RedirectResponse(url="/static/favicon.ico")
+
+# Этот кусок говорит серверу: когда заходят на главную ("/"), отдай index.html
+@app.get("/")
+async def read_root():
+    return FileResponse("static/login.html")
