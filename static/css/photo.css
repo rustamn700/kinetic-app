@@ -1,0 +1,227 @@
+.photo-container {
+    max-width: 420px;
+    margin: 0 auto;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    position: relative;
+}
+
+.camera-preview {
+    width: 100%;
+    height: 400px;
+    border-radius: 32px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+#video, .preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.controls-wrapper {
+    margin-top: auto;
+    padding-bottom: 40px;
+}
+
+.search-input-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 24px;
+}
+
+.ios-camera-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.inner-circle {
+    width: 38px;
+    height: 38px;
+    background: #fff;
+    border-radius: 50%;
+    transition: 0.2s;
+}
+
+.ios-camera-btn:active .inner-circle { transform: scale(0.9); opacity: 0.8; }
+
+/* Result Panel */
+.result-panel-ios {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 85vh;
+    background: rgba(28, 28, 30, 0.95);
+    z-index: 1000;
+    border-radius: 32px 32px 0 0;
+    transform: translateY(100%);
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.result-panel-ios.visible { transform: translateY(0); }
+
+.final-meal-img {
+    width: 100%;
+    height: 200px;
+    border-radius: 24px;
+    object-fit: cover;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    margin-bottom: 20px;
+}
+
+.meal-badge {
+    position: absolute; top: 20px; right: 20px;
+    background: var(--accent);
+    padding: 6px 14px; border-radius: 12px; font-weight: 700;
+}
+
+.macros-grid { margin: 25px 0; }
+.macro-bar-item { margin-bottom: 15px; }
+.bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 8px; overflow: hidden; }
+.bar-fill { height: 100%; width: 0; transition: width 1.2s cubic-bezier(0.1, 0, 0.2, 1); }
+
+.prot { background: var(--success); }
+.fats { background: var(--warning); }
+.carb { background: var(--accent); }
+
+.extra-stats { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 25px; }
+.stat-pill { background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 12px; font-size: 13px; }
+
+
+.photo-bottom-area {
+    position: fixed;
+    bottom: 30px;
+    left: 20px;
+    right: 20px;
+    z-index: 100;
+}
+
+.shutter-mini {
+    width: 36px;
+    height: 36px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: transparent;
+}
+
+.shutter-dot {
+    width: 26px;
+    height: 26px;
+    background: #fff;
+    border-radius: 50%;
+    transition: 0.2s;
+}
+
+.shutter-mini:active .shutter-dot {
+    transform: scale(0.8);
+}
+
+/* --- CHAT GPT STYLE PILL --- */
+.search-pill-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 20px auto;
+    position: relative;
+}
+
+.search-pill {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 30px; /* Повна округлість як у ChatGPT */
+    padding: 6px 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-pill:focus-within {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.search-pill input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 16px;
+    padding: 10px 12px;
+    outline: none;
+}
+
+.pill-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8e8e93;
+    transition: 0.2s;
+    text-decoration: none;
+}
+
+.left-icon {
+    padding: 8px;
+    color: #fff; /* Робимо камеру яскравішою */
+}
+
+.left-icon:hover { color: var(--accent); transform: scale(1.1); }
+
+.right-btn {
+    background: #fff; /* Біла кнопка як у ChatGPT */
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    color: #000;
+    cursor: pointer;
+}
+
+.right-btn:disabled { opacity: 0.3; }
+
+.arrow-up {
+    font-size: 18px;
+    font-weight: bold;
+    transform: rotate(-90deg); /* Стрілка вгору */
+}
+
+.photo-bottom-area {
+    position: fixed;
+    bottom: 30px;
+    left: 20px;
+    right: 20px;
+    z-index: 100;
+}
+
+.shutter-mini {
+    width: 36px;
+    height: 36px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: transparent;
+}
+
+.shutter-dot {
+    width: 26px;
+    height: 26px;
+    background: #fff;
+    border-radius: 50%;
+    transition: 0.2s;
+}
+
+.shutter-mini:active .shutter-dot {
+    transform: scale(0.8);
+}

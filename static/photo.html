@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Photo Recognition | Kinetic</title>
+    <link rel="stylesheet" href="css/welcome.css">
+    <link rel="stylesheet" href="css/photo.css">
+</head>
+<body class="apple-dark">
+    <div class="background-glow"></div>
+
+    <div class="photo-container">
+        <div id="cameraView" class="camera-preview glass-card">
+            <video id="video" autoplay playsinline></video>
+            <canvas id="canvas" style="display:none;"></canvas>
+            <img id="photoPreview" class="preview-img" style="display:none;">
+            <div class="camera-overlay"></div>
+        </div>
+
+<div class="photo-bottom-area">
+    <div class="search-pill">
+        <button id="cameraBtn" class="pill-icon left-icon shutter-mini">
+            <div class="shutter-dot"></div>
+        </button>
+        
+        <input type="text" id="descriptionInput" placeholder="Опишіть страву або додайте час...">
+        
+        <button id="sendBtn" class="pill-icon right-btn" disabled>
+            <div class="arrow-up">➜</div>
+        </button>
+    </div>
+</div>
+
+        <div id="resultPanel" class="result-panel-ios glass-card">
+            <div class="panel-handle"></div>
+            <div class="result-scroll">
+                <div class="result-header">
+                    <img id="finalImage" src="" class="final-meal-img">
+                    <div class="meal-badge" id="resTime">12:00</div>
+                </div>
+                
+                <h2 id="resName" class="meal-title">Назва страви</h2>
+                
+                <div class="calories-main">
+                    <span id="resKcal">0</span> <small>ккал</small>
+                </div>
+
+                <div class="macros-grid">
+                    <div class="macro-bar-item">
+                        <label>Білки <span id="resProt">0</span>г</label>
+                        <div class="bar-bg"><div id="barProt" class="bar-fill prot"></div></div>
+                    </div>
+                    <div class="macro-bar-item">
+                        <label>Жири <span id="resFats">0</span>г</label>
+                        <div class="bar-bg"><div id="barFats" class="bar-fill fats"></div></div>
+                    </div>
+                    <div class="macro-bar-item">
+                        <label>Вугл. <span id="resCarb">0</span>г</label>
+                        <div class="bar-bg"><div id="barCarb" class="bar-fill carb"></div></div>
+                    </div>
+                </div>
+
+                <div class="extra-stats">
+                    <div class="stat-pill">🍬 Цукор: <span id="resSugar">0</span>г</div>
+                    <div class="stat-pill">🌾 Клітковина: <span id="resFiber">0</span>г</div>
+                    <div class="stat-pill">⚖️ Вага: <span id="resWeight">0</span>г</div>
+                </div>
+
+                <div class="ingredients-list" id="resIngs"></div>
+
+                <button class="btn-action" onclick="location.reload()">Додати в щоденник</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/photo.js"></script>
+</body>
+</html>

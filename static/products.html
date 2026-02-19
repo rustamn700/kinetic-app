@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Панель Продуктів | Kinetic</title>
+    <link rel="stylesheet" href="css/products.css">
+</head>
+<body>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+        <h1>База Знань Kinetic</h1>
+        <a href="dashboard.html" style="color:var(--accent); text-decoration:none;">← Назад в Трекер</a>
+    </div>
+
+    <div class="container">
+        
+        <div>
+            <h2>1. Створити Продукт</h2>
+            <div class="admin-card">
+                <form id="ingForm" onsubmit="event.preventDefault(); createIngredient()">
+                    <div class="form-group">
+                        <label>Назва (напр. Кіноа)</label>
+                        <input type="text" id="iName" required>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Ккал (на 100г)</label>
+                            <input type="number" id="iKcal" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Білки</label>
+                            <input type="number" id="iProt" step="0.1" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Жири</label>
+                            <input type="number" id="iFats" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Вуглеводи</label>
+                            <input type="number" id="iCarb" step="0.1" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group"><label>Цукор</label><input type="number" id="iSugar" step="0.1"></div>
+                        <div class="form-group"><label>Клітковина</label><input type="number" id="iFiber" step="0.1"></div>
+                    </div>
+                    
+                    <button class="btn">Зберегти Продукт</button>
+                </form>
+            </div>
+
+            <div class="item-list" id="ingList"></div>
+        </div>
+
+        <div>
+            <h2>2. Створити Страву (Рецепт)</h2>
+            <div class="admin-card">
+                <div class="form-group">
+                    <label>Назва страви (напр. Боул з куркою)</label>
+                    <input type="text" id="dName">
+                </div>
+
+                <div style="background:#222; padding:15px; border-radius:12px; margin-bottom:15px;">
+                    <label style="margin-bottom:10px; display:block;">Конструктор:</label>
+                    
+                    <div class="ing-selector">
+                        <select id="ingSelect" style="width:60%"></select>
+                        <input type="number" id="ingWeight" placeholder="г" style="width:30%">
+                    </div>
+                    <button class="btn" style="background:#333; margin-bottom:10px;" onclick="addIngToRecipe()">+ Додати інгредієнт</button>
+                    
+                    <div id="addedIngs"></div>
+                </div>
+
+                <button class="btn" onclick="createDish()">Зберегти Страву</button>
+            </div>
+
+            <div class="item-list" id="dishList"></div>
+        </div>
+
+    </div>
+
+    <script src="js/products.js"></script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kinetic | Добро пожаловать</title>
+    <link rel="stylesheet" href="css/welcome.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#050505">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon.png">
+</head>
+<body>
+
+    <div class="background-glow"></div>
+
+    <nav class="glass-nav">
+        <div class="nav-content">
+            <div class="logo">Kinetic.</div>
+            <div class="nav-actions">
+                <a href="login.html" class="btn-ghost">Войти</a>
+                <a href="login.html" class="btn-primary">Регистрация</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="hero-container">
+                <h1 class="hero-title reveal">
+                    Твоё тело.<br>
+                    <span class="text-gradient">Под контролем.</span>
+                </h1>
+                <p class="hero-subtitle reveal delay-1">
+                    Интеллектуальный трекинг калорий. 
+                    Создан для эстетики, производительности и долголетия.
+                </p>
+                <div class="hero-buttons reveal delay-2">
+                    <a href="login.html" class="btn-primary large">Начать бесплатно</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="preview-section">
+            <div class="tilt-wrapper" id="tiltElement">
+                <div class="glass-dashboard">
+                    <div class="mockup-header">
+                        <div class="traffic-lights">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                    <div class="mockup-body">
+                        <div class="mockup-sidebar">
+                            <div class="skeleton-line w-80"></div>
+                            <div class="skeleton-line w-60"></div>
+                            <div class="skeleton-line w-70"></div>
+                        </div>
+                        <div class="mockup-content">
+                            <div class="mockup-hero-card">
+                                <div class="circle-chart">
+                                    <svg viewBox="0 0 36 36">
+                                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke="#333" stroke-width="2" fill="none"/>
+                                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831" stroke="#5e5ce6" stroke-width="2" stroke-dasharray="75, 100" fill="none" class="chart-anim"/>
+                                    </svg>
+                                    <div class="chart-text">
+                                        <span class="val">2,450</span>
+                                        <span class="label">kcal</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mockup-grid">
+                                <div class="mockup-item"></div>
+                                <div class="mockup-item"></div>
+                                <div class="mockup-item"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="shine-layer"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="feature-grid">
+                <div class="feature-card reveal">
+                    <div class="icon-box">⚡</div>
+                    <h3>Быстрый ввод</h3>
+                    <p>Добавляй еду за секунды.</p>
+                </div>
+                <div class="feature-card reveal delay-1">
+                    <div class="icon-box">🧬</div>
+                    <h3>Биоритмы</h3>
+                    <p>Адаптация под твой режим дня.</p>
+                </div>
+                <div class="feature-card reveal delay-2">
+                    <div class="icon-box">🔒</div>
+                    <h3>Приватность</h3>
+                    <p>Данные только твои. Без рекламы.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+            <span class="copyright">© 2026 Kinetic Inc.</span>
+        </div>
+    </footer>
+
+    <script src="js/welcome.js"></script>
+
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('SW зареєстровано!', reg.scope))
+                .catch(err => console.log('SW помилка:', err));
+        });
+    }
+</script>
+
+
+
+</body>
+</html>

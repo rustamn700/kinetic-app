@@ -1,0 +1,151 @@
+:root {
+    --bg-color: #000000;
+    --card-bg: rgba(28, 28, 30, 0.65);
+    --text-primary: #ffffff;
+    --text-secondary: #8e8e93;
+    --accent-blue: #0a84ff;
+    --accent-green: #30d158;
+    --accent-red: #ff453a;
+    --accent-orange: #ff9f0a;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    padding-top: 50px;
+}
+
+.container {
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 30px;
+    letter-spacing: -0.5px;
+}
+
+/* SEARCH BOX */
+.search-box {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+input {
+    width: 100%;
+    background: #1c1c1e;
+    border: none;
+    padding: 18px 20px;
+    border-radius: 16px;
+    color: white;
+    font-size: 17px;
+    outline: none;
+    transition: transform 0.2s;
+}
+
+input:focus {
+    transform: scale(1.02);
+    background: #2c2c2e;
+}
+
+.btn-calc {
+    width: 100%;
+    margin-top: 15px;
+    padding: 16px;
+    background: var(--accent-blue);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-calc:active { opacity: 0.8; }
+
+/* RESULT CARD */
+.result-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 30px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    display: none; /* Скрыто по умолчанию */
+}
+
+.result-card.active {
+    opacity: 1;
+    transform: translateY(0);
+    display: block;
+}
+
+.dish-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 20px;
+}
+
+.dish-title { font-size: 24px; font-weight: 700; }
+.dish-weight { font-size: 15px; color: var(--text-secondary); }
+
+/* RINGS / BARS */
+.macro-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.macro-item {
+    background: rgba(255,255,255,0.05);
+    padding: 15px;
+    border-radius: 16px;
+}
+
+.macro-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 5px; }
+.macro-val { font-size: 20px; font-weight: 600; }
+
+.bar-container {
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+}
+.bar-fill { height: 100%; width: 0%; transition: width 1s ease-out; }
+
+/* COLORS */
+.c-prot { color: var(--accent-green); }
+.bg-prot { background: var(--accent-green); }
+.c-fats { color: var(--accent-orange); }
+.bg-fats { background: var(--accent-orange); }
+.c-carb { color: var(--accent-blue); }
+.bg-carb { background: var(--accent-blue); }
+.c-kcal { color: var(--accent-red); }
+
+/* INGREDIENTS LIST */
+.ing-list {
+    margin-top: 25px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 15px;
+}
+.ing-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    padding: 8px 0;
+    color: var(--text-secondary);
+}

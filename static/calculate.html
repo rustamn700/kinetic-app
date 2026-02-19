@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Tracker | Kinetic</title>
+    <link rel="stylesheet" href="css/calculate.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Tracker.</h1>
+
+        <div class="search-box">
+            <input type="text" id="dishInput" placeholder="Що ви з'їли? (напр. Плов)">
+            <button onclick="calculateDish()" class="btn-calc">Розрахувати</button>
+        </div>
+
+        <div id="resultCard" class="result-card">
+            <div class="dish-header">
+                <div class="dish-title" id="rName">Назва</div>
+                <div class="dish-weight" id="rWeight">0 г</div>
+            </div>
+
+            <div style="font-size: 48px; font-weight: 800; margin-bottom: 20px; color: var(--accent-red);">
+                <span id="rKcal">0</span> <span style="font-size: 16px; font-weight: 500;">ккал</span>
+            </div>
+
+            <div class="macro-grid">
+                <div class="macro-item">
+                    <div class="macro-label c-prot">БІЛКИ</div>
+                    <div class="macro-val" id="rProt">0 г</div>
+                    <div class="bar-container"><div id="barProt" class="bar-fill bg-prot"></div></div>
+                </div>
+                <div class="macro-item">
+                    <div class="macro-label c-fats">ЖИРИ</div>
+                    <div class="macro-val" id="rFats">0 г</div>
+                    <div class="bar-container"><div id="barFats" class="bar-fill bg-fats"></div></div>
+                </div>
+                <div class="macro-item">
+                    <div class="macro-label c-carb">ВУГЛЕВОДИ</div>
+                    <div class="macro-val" id="rCarb">0 г</div>
+                    <div class="bar-container"><div id="barCarb" class="bar-fill bg-carb"></div></div>
+                </div>
+                <div class="macro-item">
+                    <div class="macro-label">ЦУКОР</div>
+                    <div class="macro-val" id="rSugar">0 г</div>
+                </div>
+            </div>
+
+            <div id="ingList" class="ing-list"></div>
+        </div>
+    </div>
+
+    <script src="js/calculate.js"></script>
+</body>
+</html>

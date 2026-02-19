@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kinetic | Dashboard</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="icon" href="icons/icon-192.png"> 
+    
+    <link rel="stylesheet" href="css/dashboard.css?v={{ v }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    
+    <style>
+        body, .cat-icon, .history-item h4, .suggestion-item span {
+            font-family: 'Inter', 'Noto Color Emoji', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="background-glow"></div>
+
+    <nav class="glass-nav">
+        <div class="nav-content">
+            <div class="logo">Kinetic.</div>
+            <div class="profile-wrapper">
+                <button id="profileBtn" class="profile-icon"><span id="navUserInitials">K</span></button>
+                
+                <div id="profileDropdown" class="profile-dropdown premium-dropdown">
+                    <div class="dropdown-header-premium">
+                        <div class="user-avatar-large">
+                            <span id="dropInitials">K</span>
+                        </div>
+                        <div class="user-info-premium">
+                            <h4 id="dropName">User</h4>
+                            <span id="dropEmail">user@example.com</span>
+                        </div>
+                    </div>
+
+                    <div class="dropdown-stats-row">
+                        <div class="stat-box">
+                            <span class="stat-label" data-i18n="nav_goal">Ціль</span>
+                            <span class="stat-value"><span id="dropGoal">2500</span> <small>ккал</small></span>
+                        </div>
+                        <div class="vertical-divider"></div>
+                        <div class="stat-box">
+                            <span class="stat-label" data-i18n="lbl_weight">Вага</span>
+                            <span class="stat-value"><span id="dropWeightDisplay">--</span> <small data-i18n="unit_g">кг</small></span>
+                        </div>
+                    </div>
+
+                    <div class="menu-divider"></div>
+
+                    <div class="dropdown-menu-list">
+                        <button onclick="openProfileModal()" class="menu-item-premium">
+                            <div class="menu-left">
+                                <div class="icon-box settings-color">⚙️</div>
+                                <span data-i18n="nav_edit_goal">Налаштування</span>
+                            </div>
+                            <span class="chevron">›</span>
+                        </button>
+
+                        <div class="menu-group">
+                            <button onclick="toggleLangSelector()" class="menu-item-premium">
+                                <div class="menu-left">
+                                    <div class="icon-box lang-color">🌍</div>
+                                    <span data-i18n="nav_lang">Мова</span>
+                                </div>
+                                <span id="langArrow" class="chevron" style="font-size: 12px;">▼</span>
+                            </button>
+                            <div id="langSelector" class="lang-selector-row" style="display: none;">
+                                <button onclick="setLanguage('ua')" class="lang-circle-mini" id="lang-ua">🇺🇦</button>
+                                <button onclick="setLanguage('en')" class="lang-circle-mini" id="lang-en">🇬🇧</button>
+                                <button onclick="setLanguage('ru')" class="lang-circle-mini" id="lang-ru">🇷🇺</button>
+                                <button onclick="setLanguage('az')" class="lang-circle-mini" id="lang-az">🇦🇿</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="menu-divider"></div>
+
+                    <button onclick="logout()" class="menu-item-premium logout-item">
+                        <div class="menu-left">
+                            <div class="icon-box logout-color">🚪</div>
+                            <span data-i18n="nav_logout">Вийти</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container reveal">
+        
+        <div id="skeletonLoader" class="loading-overlay active">
+            <div class="glass-card" style="display:flex; flex-direction:column; align-items:center; padding:30px;">
+                <div class="skeleton sk-circle"></div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <div class="skeleton sk-pill"></div>
+                    <div class="skeleton sk-pill"></div>
+                    <div class="skeleton sk-pill"></div>
+                </div>
+            </div>
+            <div style="margin-top:20px;">
+                <div class="skeleton sk-text" style="width: 100px; margin-bottom: 15px;"></div>
+                <div class="skeleton sk-card"></div>
+                <div class="skeleton sk-card"></div>
+                <div class="skeleton sk-card"></div>
+            </div>
+        </div>
+
+        <div class="hero-section glass-card">
+            <div class="progress-container">
+                <svg class="progress-ring-svg" width="220" height="220">
+                    <circle class="bg-ring" cx="110" cy="110" r="90"></circle>
+                    <circle class="progress-ring-stroke" id="heroProgress" cx="110" cy="110" r="90"></circle>
+                </svg>
+                <div class="hero-content">
+                    <span class="hero-label" data-i18n="hero_label">ккал</span>
+                    <span class="hero-value" id="currentCals">0</span>
+                    <span class="hero-percent" id="percentText">0%</span>
+                </div>
+            </div>
+            <div class="macros-pills">
+                <div class="pill pill-prot"><div class="dot"></div> <span id="heroProt">0</span><span data-i18n="unit_g">г</span></div>
+                <div class="pill pill-fat"><div class="dot"></div> <span id="heroFat">0</span><span data-i18n="unit_g">г</span></div>
+                <div class="pill pill-carb"><div class="dot"></div> <span id="heroCarb">0</span><span data-i18n="unit_g">г</span></div>
+            </div>
+
+            <div class="water-card" style="margin-top: 20px; background: rgba(0,122,255,0.15); border-radius: 16px; padding: 15px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,122,255,0.3);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="background: #007aff; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-size: 20px;">💧</div>
+                    <div style="margin-right: 15px;"> 
+                        <div style="font-size: 12px; color: #8ecae6; font-weight: 600;" data-i18n="water_label">Вода</div>
+                        <div style="font-size: 18px; font-weight: 700; color: white; white-space: nowrap;">
+                            <span id="waterCount">0</span> <small style="font-size:12px; font-weight:400;" data-i18n="unit_ml">мл</small>
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 12px;"> 
+                    <button onclick="openWaterModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 42px; height: 42px; border-radius: 12px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;">✏️</button>
+                    <button onclick="addWater(250)" style="background: #007aff; border: none; color: white; width: 42px; height: 42px; border-radius: 12px; font-size: 20px; cursor: pointer; font-weight: bold; transition: 0.2s;">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-container-wrapper">
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handleImageSelect(this)">
+            <input type="file" id="galleryInput" accept="image/*" multiple style="display: none;" onchange="handleImageSelect(this)">
+
+            <div id="imagePreview" class="image-preview hidden">
+                <div id="previewList" class="preview-scroll"></div>
+                <button class="btn-clear-all" onclick="clearAllImages()">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <div class="search-container">
+                <div class="search-pill">
+                    <button class="pill-btn left" id="btnPlus" onclick="toggleActionMenu()">
+                        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </button>
+                    
+                    <input type="text" id="dishInput" data-i18n-placeholder="search_placeholder" placeholder="Що з'їли?" autocomplete="off">
+                    
+                    <button onclick="triggerAISearch()" class="pill-btn right" id="aiBtn">➜</button>
+                </div>
+
+                <div id="actionMenu" class="action-menu">
+                    
+                    <div class="action-item" onclick="startScanner()">
+                        <div class="action-icon barcode">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 5v14"/><path d="M8 5v14"/><path d="M12 5v14"/><path d="M17 5v14"/><path d="M21 5v14"/>
+                            </svg>
+                        </div>
+                        <span data-i18n="btn_barcode">Штрих-код</span>
+                    </div>
+
+                    <div class="action-item" onclick="triggerCamera()">
+                        <div class="action-icon cam">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                        </div>
+                        <span data-i18n="btn_camera">Камера</span>
+                    </div>
+
+                    <div class="action-item" onclick="triggerGallery()">
+                        <div class="action-icon gallery">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        </div>
+                        <span data-i18n="btn_gallery">Галерея</span>
+                    </div>
+
+                    <div class="action-item" onclick="openCreateProductModal()">
+                        <div class="action-icon custom">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </div>
+                        <span data-i18n="btn_custom">Свій продукт</span>
+                    </div>
+
+                    <div class="action-item" onclick="openCatalogFromMenu()">
+                        <div class="action-icon book">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                        </div>
+                        <span data-i18n="btn_catalog">Каталог</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="suggestionsBox" class="suggestions-box"></div>
+
+        <div id="resultCard" class="glass-card result-card" style="display: none;">
+            <div class="card-handle"></div>
+            <div class="result-header">
+                <h3 id="rName">Страва</h3>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span class="meal-time-badge" id="rTime">--:--</span>
+                    <button class="btn-close-result" onclick="closeResultCard()">×</button>
+                </div>
+            </div>
+            
+            <div class="weight-input-wrapper">
+                <input type="number" id="rWeightInput" value="100"> 
+                <span class="unit" id="rUnit" data-i18n="unit_g">г</span>
+            </div>
+            
+            <div class="big-calories"><span id="rKcal">0</span> <small data-i18n="hero_label">ккал</small></div>
+            
+            <div class="macros-grid">
+                <div class="macro-col prot"><div class="bar-container"><div class="bar" id="barProt"></div></div><span data-i18n="input_prot">Б</span><span class="val" id="rProt">0</span></div>
+                <div class="macro-col fat"><div class="bar-container"><div class="bar" id="barFat"></div></div><span data-i18n="input_fat">Ж</span><span class="val" id="rFats">0</span></div>
+                <div class="macro-col carb"><div class="bar-container"><div class="bar" id="barCarb"></div></div><span data-i18n="input_carb">В</span><span class="val" id="rCarb">0</span></div>
+            </div>
+            
+            <button onclick="addToDiary()" class="btn-primary full-width" data-i18n="btn_add">Додати</button>
+        </div>
+
+        <div class="glass-card chart-section">
+            <h4 class="section-title" data-i18n="chart_week">Тиждень</h4>
+            <div class="chart-container"><canvas id="weeklyChart"></canvas></div>
+        </div>
+
+        <div class="history-section">
+            <div class="date-navigator" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; padding: 0 10px;">
+                <button onclick="changeDate(-1)" style="background:none; border:none; color:var(--text-primary); font-size:24px; cursor:pointer; padding:5px;">❮</button>
+                <h2 id="currentDateDisplay" style="margin:0; font-size:18px;" data-i18n="history_today">Сьогодні</h2>
+                <button onclick="changeDate(1)" style="background:none; border:none; color:var(--text-primary); font-size:24px; cursor:pointer; padding:5px;">❯</button>
+            </div>
+            <div id="mealsList" class="history-list"></div>
+        </div>
+    </div>
+
+    <div id="profileModal" class="modal-backdrop">
+        <div class="modal-content glass-card premium-modal">
+            <div class="modal-header">
+                <h3 data-i18n="modal_profile_title">Налаштування</h3>
+                <button onclick="closeProfileModal()" class="btn-close-icon">×</button>
+            </div>
+            <div class="profile-scroll-content">
+                <div class="form-section">
+                    <label data-i18n="lbl_gender" class="section-label">Стать</label>
+                    <div class="segmented-control" id="genderSelector">
+                        <div class="segment-option active" data-value="male" onclick="selectGender(this, 'male')">
+                            <span class="icon">👨</span><span data-i18n="lbl_male">Чол</span>
+                        </div>
+                        <div class="segment-option" data-value="female" onclick="selectGender(this, 'female')">
+                            <span class="icon">👩</span><span data-i18n="lbl_female">Жін</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="profGender" value="male">
+                </div>
+                <div class="form-section">
+                    <div class="biometrics-grid">
+                        <div class="bio-input-group"><label data-i18n="lbl_age">Вік</label><input type="number" id="profAge" class="big-glass-input" placeholder="25"></div>
+                        <div class="bio-input-group"><label data-i18n="lbl_weight">Вага</label><div class="input-wrapper"><input type="number" id="profWeight" class="big-glass-input" placeholder="70"><span class="unit-label">кг</span></div></div>
+                        <div class="bio-input-group"><label data-i18n="lbl_height">Зріст</label><div class="input-wrapper"><input type="number" id="profHeight" class="big-glass-input" placeholder="175"><span class="unit-label">см</span></div></div>
+                    </div>
+                </div>
+                <div class="form-section">
+                    <label data-i18n="lbl_activity" class="section-label">Активність</label>
+                    <div class="activity-grid" id="activitySelector">
+                        <div class="activity-card" onclick="selectActivity(this, 1.2)"><div class="act-icon">🛋️</div><div class="act-info"><span class="act-name" data-i18n="act_sedentary">Сидячий</span><span class="act-val">1.2</span></div></div>
+                        <div class="activity-card" onclick="selectActivity(this, 1.375)"><div class="act-icon">🚶</div><div class="act-info"><span class="act-name" data-i18n="act_light">Легка</span><span class="act-val">1.38</span></div></div>
+                        <div class="activity-card" onclick="selectActivity(this, 1.55)"><div class="act-icon">🏃</div><div class="act-info"><span class="act-name" data-i18n="act_moderate">Помірна</span><span class="act-val">1.55</span></div></div>
+                        <div class="activity-card" onclick="selectActivity(this, 1.725)"><div class="act-icon">🔥</div><div class="act-info"><span class="act-name" data-i18n="act_active">Активна</span><span class="act-val">1.73</span></div></div>
+                    </div>
+                    <input type="hidden" id="profActivity" value="1.2">
+                </div>
+                <div class="form-section">
+                    <label data-i18n="lbl_goal_type" class="section-label">Ваша мета</label>
+                    <div class="goal-stack" id="goalSelector">
+                        <div class="goal-card" data-goal="lose" onclick="selectGoal(this, 'lose')"><div class="goal-icon">📉</div><span data-i18n="goal_lose">Схуднення</span><div class="goal-check"></div></div>
+                        <div class="goal-card" data-goal="maintain" onclick="selectGoal(this, 'maintain')"><div class="goal-icon">⚖️</div><span data-i18n="goal_maintain">Підтримка</span><div class="goal-check"></div></div>
+                        <div class="goal-card" data-goal="gain" onclick="selectGoal(this, 'gain')"><div class="goal-icon">💪</div><span data-i18n="goal_gain">Набір маси</span><div class="goal-check"></div></div>
+                    </div>
+                    <input type="hidden" id="profGoalType" value="maintain">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="saveProfile()" class="btn-premium-save" data-i18n="btn_calc_save">Розрахувати та Зберегти</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="scannerModal" class="modal-backdrop" style="background: black;">
+        <div class="modal-content" style="background: transparent; box-shadow: none; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center;">
+            <div id="reader" style="width: 100%; border-radius: 20px; overflow: hidden; border: 2px solid #007aff;"></div>
+            <button onclick="stopScanner()" class="btn-text" style="color: white; margin-top: 20px; font-size: 18px;">Закрити камеру</button>
+        </div>
+    </div>
+
+    <div id="waterModal" class="modal-backdrop">
+        <div class="modal-content glass-card" style="text-align: center;">
+            <h3 data-i18n="modal_water_title">Вода (мл)</h3>
+            <input type="number" id="waterInput" class="glass-input-lg" placeholder="1500" style="text-align: center; font-size: 24px;">
+            <div class="modal-actions" style="margin-top: 20px;">
+                <button onclick="closeWaterModal()" class="btn-text" data-i18n="btn_cancel">Скасувати</button>
+                <button onclick="saveWaterEdit()" class="btn-primary" data-i18n="btn_save">Зберегти</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="createProductModal" class="modal-backdrop">
+        <div class="modal-content glass-card">
+            <h3 data-i18n="modal_create_title">Новий продукт</h3>
+            
+            <input type="hidden" id="cpBarcode">
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <input type="text" id="cpName" data-i18n-placeholder="input_name" placeholder="Назва" class="glass-input-sm" style="text-align: left;">
+                <label style="font-size: 12px; color: #888; margin-bottom: -5px;">100 <span data-i18n="unit_g">г</span>:</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <input type="number" id="cpKcal" data-i18n-placeholder="input_kcal" placeholder="Ккал" class="glass-input-sm">
+                    <input type="number" id="cpProt" data-i18n-placeholder="input_prot" placeholder="Білки" class="glass-input-sm">
+                    <input type="number" id="cpFat" data-i18n-placeholder="input_fat" placeholder="Жири" class="glass-input-sm">
+                    <input type="number" id="cpCarb" data-i18n-placeholder="input_carb" placeholder="Вугл." class="glass-input-sm">
+                </div>
+            </div>
+            <div class="modal-actions" style="margin-top: 20px;">
+                <button onclick="closeCreateProductModal()" class="btn-text" data-i18n="btn_cancel">Скасувати</button>
+                <button onclick="saveCustomProduct()" class="btn-primary" data-i18n="btn_create">Створити</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="catalogModal" class="modal-sheet-backdrop">
+        <div class="modal-sheet">
+            <div class="sheet-handle"></div>
+            <div class="sheet-header">
+                <button id="btnBackCat" class="btn-icon-round" onclick="backToRoot()" style="display:none">←</button>
+                <h3 id="sheetTitle" data-i18n="btn_catalog">Каталог</h3>
+                <button onclick="closeCatalogModal()" class="btn-close-sheet" data-i18n="btn_cancel">Закрити</button>
+            </div>
+            <div id="viewRoot" class="catalog-view fade-in">
+                <div id="categoriesGrid" class="categories-grid"></div>
+            </div>
+            <div id="viewProducts" class="catalog-view fade-in" style="display: none;">
+                <div class="sheet-search">
+                    <input type="text" id="catSearchInput" data-i18n-placeholder="search_placeholder" placeholder="Пошук..." class="glass-input-sm">
+                </div>
+                <div id="subcatsScroll" class="subcats-scroll"></div>
+                <div id="sheetProductsList" class="sheet-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="aiCameraModal" style="display: none;">
+    <div class="camera-interface">
+        <video id="cameraFeed" autoplay playsinline></video>
+        
+        <div id="photoLimitBadge" class="limit-badge">
+            <span class="limit-icon">⚡️</span> 
+            <span id="limitText">...</span>
+        </div>
+        <div class="scan-overlay">
+                <div class="corner t-l"></div>
+                <div class="corner t-r"></div>
+                <div class="corner b-l"></div>
+                <div class="corner b-r"></div>
+                <div class="scan-line"></div>
+            </div>
+
+            <div class="camera-controls">
+                <button class="btn-icon-round" onclick="closeAiCamera()">✕</button>
+                
+                <div class="btn-shutter" onclick="takeAiSnapshot()">
+                    <div class="shutter-inner"></div>
+                </div>
+
+                <div style="width: 44px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="aiResultModal" style="display: none;">
+        <div style="position: relative; width: 100%; max-width: 400px;">
+            <button onclick="closeAiResult()" 
+                    style="position: absolute; top: -40px; right: 0; background: rgba(255,255,255,0.2); border: none; color: white; width: 30px; height: 30px; border-radius: 50%; font-size: 18px; cursor: pointer;">
+                ✕
+            </button>
+
+            <div id="aiResultContent">
+                </div>
+        </div>
+    </div>
+
+    <script src="js/translations.js"></script>
+    <script src="js/dashboard.js?v={{ v }}"></script>
+    <script src="js/categories.js"></script>
+    
+
+</body>
+</html>

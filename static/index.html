@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Реєстрація | Kinetic</title>
+    <link rel="stylesheet" href="css/welcome.css?v=2">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="background-glow"></div>
+
+    <div class="login-container">
+        <div class="glass-card">
+            <h2>Створити акаунт</h2>
+            
+            <div class="input-group">
+                <input type="email" id="regEmail" class="glass-input" placeholder="Email">
+            </div>
+            
+            <div class="input-group">
+                <input type="password" id="regPassword" class="glass-input" placeholder="Пароль">
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="regConfirmPassword" class="glass-input" placeholder="Повторіть пароль">
+            </div>
+
+            <button onclick="register()" class="btn-primary">Зареєструватися</button>
+
+            <div class="links">
+                Вже є акаунт? <a href="login.html">Увійти</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/landing.js"></script>
+</body>
+</html>

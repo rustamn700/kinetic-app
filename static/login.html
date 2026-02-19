@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вхід | Kinetic</title>
+    <link rel="stylesheet" href="css/welcome.css"> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/welcome.css?v=2">
+
+    
+</head>
+<body>
+
+    <div class="background-glow"></div>
+
+    <div class="login-container">
+        <div class="glass-card">
+            <h2>З поверненням</h2>
+            
+            <div id="error" class="error-msg"></div>
+
+            <div class="input-group">
+                <input type="email" id="email" class="glass-input" placeholder="Email" value="test@gmail.com">
+            </div>
+            
+            <div class="input-group">
+                <input type="password" id="password" class="glass-input" placeholder="Пароль">
+            </div>
+
+            <button onclick="login()" class="btn-primary">Увійти</button>
+
+            <div class="links">
+                Ще не маєте акаунту? <a href="index.html">Реєстрація</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/login.js"></script>
+</body>
+</html>
