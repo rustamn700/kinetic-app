@@ -11,7 +11,7 @@ let currentAiData = null;
 let GLOBAL_FOOD_DB = [];
 let SELECTED_DATE = new Date();
 let currentLang = localStorage.getItem('appLang') || 'ua';
-let attachedFiles = []; // 🔥 ОГОЛОШЕНО ТІЛЬКИ ТУТ
+let attachedFiles = []; 
 let html5QrcodeScanner = null;
 let aiStream = null;
 
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         weightInput.addEventListener('input', recalculateResultCard);
     }
 
-    // --- 🔥 ВИПРАВЛЕННЯ: КНОПКА ПРОФІЛЮ ---
+    // --- КНОПКА ПРОФІЛЮ ---
     const profileBtn = document.getElementById('profileBtn');
     const dropdown = document.getElementById('profileDropdown');
 
@@ -114,7 +114,7 @@ function applyLanguage(lang) {
 function checkAuth(res) {
     if (res.status === 401) {
         localStorage.removeItem('access_token');
-        window.location.href = 'index.html';
+        window.location.href = '/login.html';
         return false;
     }
     return true;
@@ -150,7 +150,7 @@ function getFormattedDate() {
     return date.toISOString().split('T')[0];
 }
 
-// --- DATA LOADERS (З виправленими заголовками) ---
+// --- DATA LOADERS ---
 async function loadDashboardData() {
     const loader = document.getElementById('skeletonLoader');
     if(loader) loader.classList.add('active');
@@ -377,21 +377,51 @@ function recalculateResultCard() {
     document.getElementById('barCarb').style.height = Math.min(c, 60) + 'px';
 }
 
+// 🔥 ОБНОВЛЕННАЯ ФУНКЦИЯ: Теперь она отправляет фото из галереи в общую нейросеть
 async function triggerAISearch() {
     const input = document.getElementById('dishInput');
     const query = input.value.trim();
     const btn = document.getElementById('aiBtn');
-    if (query.length === 0 && attachedFiles.length === 0) return;
-    const originalBtn = btn.innerHTML; btn.innerHTML = "🔍";
+    
+    // 1. Якщо прикріплено фото (галерея) — запускаємо АНАЛІЗ ІІ
+    if (attachedFiles && attachedFiles.length > 0) {
+        const fileToAnalyze = attachedFiles[0]; // Беремо перше фото
+        
+        const originalBtn = btn.innerHTML; 
+        btn.innerHTML = '<div class="spinner" style="width:14px; height:14px; border:2px solid white; border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;"></div>';
+        
+        // Викликаємо ту саму функцію, що і для камери
+        await analyzeImageFile(fileToAnalyze);
+        
+        // Очищаємо після відправки
+        clearAllImages();
+        input.value = '';
+        document.getElementById('actionMenu').classList.remove('active');
+        document.getElementById('btnPlus').classList.remove('active');
+        btn.innerHTML = originalBtn; 
+        updateSendButtonState();
+        
+        return; // ВАЖЛИВО: Виходимо з функції, щоб не відкрити порожню картку!
+    }
+
+    // 2. Якщо фото НЕМАЄ, робимо звичайний ТЕКСТОВИЙ пошук
+    if (query.length === 0) return;
+    
+    const originalBtn = btn.innerHTML; 
+    btn.innerHTML = "🔍";
     
     const match = GLOBAL_FOOD_DB.find(f => f.name.toLowerCase() === query.toLowerCase());
-    if (match) openResultCardFromDB(match);
-    else openResultCardFromDB({ name: query, calories: 0, protein: 0, fat: 0, carbs: 0, unit: 'г', ingredients: "Не знайдено в базі.", cuisine: 'Other', weight_per_piece: 0 });
+    if (match) {
+        openResultCardFromDB(match);
+    } else {
+        openResultCardFromDB({ name: query, calories: 0, protein: 0, fat: 0, carbs: 0, unit: 'г', ingredients: "Не знайдено в базі.", cuisine: 'Other', weight_per_piece: 0 });
+    }
     
-    input.value = ''; clearAllImages();
+    input.value = ''; 
     document.getElementById('actionMenu').classList.remove('active');
     document.getElementById('btnPlus').classList.remove('active');
-    btn.innerHTML = originalBtn; updateSendButtonState();
+    btn.innerHTML = originalBtn; 
+    updateSendButtonState();
 }
 
 async function addToDiary() {
@@ -462,7 +492,6 @@ function triggerCamera() { if(attachedFiles.length >= 10) return; toggleActionMe
 function triggerGallery() { if(attachedFiles.length >= 10) return; toggleActionMenu(); document.getElementById('galleryInput').click(); }
 function handleImageSelect(input) { if (input.files) { Array.from(input.files).forEach(f => attachedFiles.push(f)); renderPreviews(); input.value=''; updateSendButtonState(); } }
 
-// 🔥 ВИПРАВЛЕНО (Тут була помилка синтаксису)
 function renderPreviews() {
     const box = document.getElementById('imagePreview'); 
     const list = document.getElementById('previewList');
@@ -472,7 +501,6 @@ function renderPreviews() {
         const reader = new FileReader();
         reader.onload = e => {
             const div = document.createElement('div'); div.className = 'thumb-wrapper';
-            // Додано зворотні лапки `
             div.innerHTML = `<img src="${e.target.result}" class="thumb-img"><div class="btn-remove-one" onclick="removeOneImage(${index})">×</div>`;
             list.appendChild(div);
         }
@@ -583,7 +611,6 @@ async function saveCustomProduct() {
     const fat = parseFloat(document.getElementById('cpFat').value) || 0;
     const carb = parseFloat(document.getElementById('cpCarb').value) || 0;
     
-    // Берем штрих-код из скрытого поля (если он там есть)
     const barcode = document.getElementById('cpBarcode').value || null;
 
     if (!name || isNaN(kcal)) {
@@ -722,7 +749,7 @@ async function saveProfile() {
 
 function logout() {
     localStorage.removeItem('access_token');
-    window.location.href = 'index.html';
+    window.location.href = '/login.html';
 }
 
 // --- 📷 СКАНЕР ШТРИХ-КОДОВ ---
@@ -779,7 +806,61 @@ async function onScanSuccess(decodedText, decodedResult) {
     }
 }
 
-// --- 🧠 AI VISION LOGIC (FIXED) ---
+// --- 🧠 AI VISION LOGIC ---
+
+// 🔥 НОВАЯ ОБЩАЯ ФУНКЦИЯ: Анализирует любой файл (и с камеры, и с галереи)
+async function analyzeImageFile(file) {
+    const resultModal = document.getElementById('aiResultModal');
+    const contentBox = document.getElementById('aiResultContent');
+    resultModal.style.display = 'flex'; 
+
+    contentBox.innerHTML = `
+        <div style="text-align:center; padding: 40px;">
+            <div class="skeleton sk-circle" style="width:80px; height:80px; margin:0 auto 20px;"></div>
+            <h3 style="color:white;">Аналізую...</h3>
+            <p style="color:#888;">Нейромережа розглядає фото 🧐</p>
+        </div>
+    `;
+
+    const formData = new FormData();
+    formData.append('file', file, file.name || 'image.jpg');
+
+    try {
+        const token = localStorage.getItem('access_token');
+        const res = await fetch(`${API_URL}/meals/analyze-photo`, {
+            method: 'POST',
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                ...NGROK_HEADERS
+            },
+            body: formData
+        });
+
+        const data = await res.json();
+        
+        if (data.limit_reached) {
+            contentBox.innerHTML = `
+                <div style="text-align:center; padding: 30px;">
+                    <div style="font-size: 50px; margin-bottom: 20px;">🛑</div>
+                    <h3 style="color:#ff453a; margin-bottom: 10px;">Ліміт вичерпано</h3>
+                    <p style="color:#ccc; line-height: 1.5;">На сьогодні все. Спробуйте завтра!</p>
+                    <button onclick="closeAiResult()" class="btn-text" style="margin-top: 20px;">Зрозуміло</button>
+                </div>
+            `;
+            return;
+        }
+
+        if (data.error) {
+            contentBox.innerHTML = `<p style="color: #ff6b6b; text-align: center; padding: 20px;">${data.error}</p>`;
+            setTimeout(() => closeAiResult(), 3000);
+        } else {
+            renderAiResults(data);
+        }
+    } catch (e) {
+        alert("Помилка з'єднання: " + e);
+        closeAiResult();
+    }
+}
 
 // 1. Відкрити камеру
 async function triggerCamera() {
@@ -789,7 +870,6 @@ async function triggerCamera() {
     document.getElementById('actionMenu').classList.remove('active');
     document.getElementById('btnPlus').classList.remove('active');
 
-    // 👇 ЗАПРАШИВАЕМ ЛИМИТЫ
     updateCameraLimits(); 
 
     try {
@@ -826,7 +906,6 @@ async function updateCameraLimits() {
     if(!text) return;
 
     try {
-        // Запрос к нашему новому эндпоинту
         const res = await fetch(`${API_URL}/meals/limits`, { 
             headers: { 
                 'Authorization': `Bearer ${token}`,
@@ -835,23 +914,22 @@ async function updateCameraLimits() {
         });
         
        if (res.ok) {
-    const data = await res.json();
-    // На экране будет: "20 з 20"
-    text.innerText = `${data.remaining} з ${data.limit}`;
-    
-    if (data.remaining === 0) {
-        badge.classList.add('low');
-        text.innerText = "Ліміт 0";
-    } else {
-        badge.classList.remove('low');
-    }
-}
+            const data = await res.json();
+            text.innerText = `${data.remaining} з ${data.limit}`;
+            
+            if (data.remaining === 0) {
+                badge.classList.add('low');
+                text.innerText = "Ліміт 0";
+            } else {
+                badge.classList.remove('low');
+            }
+        }
     } catch (e) {
         console.error("Ошибка лимитов:", e);
     }
 }
 
-// 3. Зробити знімок
+// 🔥 ОБНОВЛЕННАЯ ФУНКЦИЯ: Зробити знімок і відправити в загальну функцію
 async function takeAiSnapshot() {
     const video = document.getElementById('cameraFeed');
     const canvas = document.createElement('canvas');
@@ -861,58 +939,8 @@ async function takeAiSnapshot() {
     
     canvas.toBlob(async (blob) => {
         closeAiCamera();
-        
-        const resultModal = document.getElementById('aiResultModal');
-        const contentBox = document.getElementById('aiResultContent');
-        resultModal.style.display = 'flex'; 
-        
-        contentBox.innerHTML = `
-            <div style="text-align:center; padding: 40px;">
-                <div class="skeleton sk-circle" style="width:80px; height:80px; margin:0 auto 20px;"></div>
-                <h3 style="color:white;">Аналізую...</h3>
-                <p style="color:#888;">Нейромережа розглядає фото 🧐</p>
-            </div>
-        `;
-
-        const formData = new FormData();
-        formData.append('file', blob, 'snapshot.jpg');
-
-        try {
-            const token = localStorage.getItem('access_token');
-            const res = await fetch(`${API_URL}/meals/analyze-photo`, {
-                method: 'POST',
-                headers: { 
-                    'Authorization': `Bearer ${token}`,
-                    ...NGROK_HEADERS
-                },
-                body: formData
-            });
-
-            const data = await res.json();
-            
-            // 👇 ОБРАБОТКА ЛИМИТА
-            if (data.limit_reached) {
-                contentBox.innerHTML = `
-                    <div style="text-align:center; padding: 30px;">
-                        <div style="font-size: 50px; margin-bottom: 20px;">🛑</div>
-                        <h3 style="color:#ff453a; margin-bottom: 10px;">Ліміт вичерпано</h3>
-                        <p style="color:#ccc; line-height: 1.5;">На сьогодні все. Спробуйте завтра!</p>
-                        <button onclick="closeAiResult()" class="btn-text" style="margin-top: 20px;">Зрозуміло</button>
-                    </div>
-                `;
-                return;
-            }
-
-            if (data.error) {
-                contentBox.innerHTML = `<p style="color: #ff6b6b; text-align: center; padding: 20px;">${data.error}</p>`;
-                setTimeout(() => closeAiResult(), 3000);
-            } else {
-                renderAiResults(data);
-            }
-        } catch (e) {
-            alert("Помилка з'єднання: " + e);
-            closeAiResult();
-        }
+        // Просто передаем Blob в нашу новую общую функцию
+        await analyzeImageFile(blob);
     }, 'image/jpeg', 0.9);
 }
 
@@ -1047,14 +1075,4 @@ async function addAllAiItems() {
 
 function closeAiResult() {
     document.getElementById('aiResultModal').style.display = 'none';
-}
-
-function toggleActionMenu() { document.getElementById('actionMenu').classList.toggle('active'); document.getElementById('btnPlus').classList.toggle('active'); }
-
-
-function openCatalogFromMenu() { 
-    toggleActionMenu(); 
-    if(window.openCatalogRoot) {
-        openCatalogRoot(); 
-    }
 }
