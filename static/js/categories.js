@@ -1,4 +1,4 @@
-const API_URL_CAT = '/catalog';
+var API_URL = "https://kinetic-fp1n.onrender.com";
 
 // 🔥 ОБОВ'ЯЗКОВИЙ ЗАГОЛОВОК ДЛЯ NGROK
 const NGROK_HEADERS_CAT = {
@@ -23,7 +23,8 @@ async function loadCategories() {
     grid.innerHTML = '<div style="text-align:center;color:#fff;">Завантаження...</div>';
 
     try {
-        const res = await fetch(`${API_URL_CAT}/catalog/categories`, {
+        // ВИПРАВЛЕНО: Використовуємо API_URL замість неіснуючої API_URL_CAT
+        const res = await fetch(`${API_URL}/catalog/categories`, {
              headers: { 
                  'Authorization': `Bearer ${token}`,
                  ...NGROK_HEADERS_CAT 
@@ -37,7 +38,7 @@ async function loadCategories() {
         grid.innerHTML = '';
         cats.forEach(c => {
             const div = document.createElement('div');
-            div.className = 'category-card'; // Проверь, чтобы класс совпадал с CSS
+            div.className = 'category-card'; 
             div.onclick = () => openCategoryView(c.id, c.name);
             div.innerHTML = `
                 <div class="cat-icon emoji-icon" style="font-size:30px;">${c.icon || '📁'}</div>
@@ -55,10 +56,8 @@ async function loadCategories() {
 function openCatalogRoot() {
     const modal = document.getElementById('catalogModal');
     if (modal) {
-        // 1. Сначала делаем видимым блок
         modal.style.display = 'flex'; 
         
-        // 2. Даем небольшую паузу и добавляем класс active (чтобы сработала анимация выезда)
         setTimeout(() => {
             modal.classList.add('active');
         }, 10);
@@ -77,10 +76,8 @@ function openCatalogRoot() {
 function closeCatalogModal() {
     const modal = document.getElementById('catalogModal');
     if (modal) {
-        // Убираем класс (окно уезжает вниз)
         modal.classList.remove('active');
         
-        // Ждем пока уедет, потом скрываем
         setTimeout(() => {
             modal.style.display = 'none';
         }, 300);
@@ -114,10 +111,10 @@ async function loadSubcategories(parentId) {
     const scroll = document.getElementById('subcatsScroll');
     const token = localStorage.getItem('access_token');
     try {
-        // 🔥 ВИПРАВЛЕНО: Прибрав /catalog
-        const res = await fetch(`${API_URL_CAT}/catalog/categories/${parentId}/subcategories`, { 
-        headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS_CAT }
-    });
+        // ВИПРАВЛЕНО: Використовуємо API_URL замість неіснуючої API_URL_CAT
+        const res = await fetch(`${API_URL}/catalog/categories/${parentId}/subcategories`, { 
+            headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS_CAT }
+        });
         const subs = await res.json();
         
         scroll.innerHTML = '';
@@ -149,10 +146,10 @@ async function loadProducts(catId) {
     
     const token = localStorage.getItem('access_token');
     try {
-        // 🔥 ВИПРАВЛЕНО: Прибрав /catalog
-        const res = await fetch(`${API_URL_CAT}/catalog/categories/${catId}/products`, { 
-        headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS_CAT }
-    });
+        // ВИПРАВЛЕНО: Використовуємо API_URL замість неіснуючої API_URL_CAT
+        const res = await fetch(`${API_URL}/catalog/categories/${catId}/products`, { 
+            headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS_CAT }
+        });
         const products = await res.json();
         
         list.innerHTML = '';
