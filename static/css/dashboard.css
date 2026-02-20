@@ -1168,3 +1168,57 @@ body, .history-item h4, .suggestion-item span, .catalog-card h4 {
     border-color: #ff453a;
     color: #ff453a;
 }
+
+/* --- ДОДАЙ ЦЕ В КІНЕЦЬ dashboard.css АБО ЗАМІНИ ВІДПОВІДНІ БЛОКИ --- */
+
+:root {
+    /* Додаємо динамічні кольори кільця */
+    --ring-green: #30d158;
+    --ring-yellow: #ff9f0a;
+    --ring-red: #ff453a;
+}
+
+body {
+    /* Адаптація під "чубчики" та смуги навігації сучасних телефонів */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: calc(90px + env(safe-area-inset-bottom));
+}
+
+/* Тактильний відгук: всі кнопки "просідають" при натисканні */
+button, .action-item, .category-card, .pill-btn, .goal-card, .activity-card {
+    transition: transform 0.1s var(--ease-apple), filter 0.2s !important;
+}
+
+button:active, .action-item:active, .category-card:active, .pill-btn:active {
+    transform: scale(0.94) !important;
+    filter: brightness(0.8);
+}
+
+/* Glassmorphism: більше розмиття та тонкі межі */
+.glass-card {
+    background: rgba(28, 28, 30, 0.5) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Плавний градієнт для графіка */
+.chart-section {
+    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+}
+
+/* Оновлення кільця: додаємо світіння */
+.progress-ring-stroke {
+    filter: drop-shadow(0 0 8px var(--accent));
+    transition: stroke-dashoffset 1.5s var(--ease-apple), stroke 0.5s ease !important;
+}
+
+/* Анімація появи карток */
+.reveal {
+    animation: revealSlide 0.6s var(--ease-apple) forwards;
+}
+
+@keyframes revealSlide {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}

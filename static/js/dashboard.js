@@ -177,6 +177,27 @@ async function loadDashboardData() {
     }
 }
 
+// 1. Анімація лічильника цифр (плавний перехід)
+function animateValue(id, start, end, duration) {
+    const obj = document.getElementById(id);
+    if (!obj) return;
+
+    let startTimestamp = null;
+
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+
+        obj.innerHTML = Math.floor(progress * (end - start) + start);
+
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        }
+    };
+
+    window.requestAnimationFrame(step);
+}
+
 async function updateHeroStats() {
     const token = localStorage.getItem('access_token');
     if(!token) return;
@@ -188,47 +209,84 @@ async function updateHeroStats() {
                 ...NGROK_HEADERS 
             }
         });
+
         if (!checkAuth(userRes)) return;
 
         if(userRes.ok) {
             const u = await userRes.json();
             
             const goal = u.daily_goal || 2500;
-            if(document.getElementById('dropGoal')) document.getElementById('dropGoal').innerText = goal;
-            if(document.getElementById('dropWeightDisplay')) document.getElementById('dropWeightDisplay').innerText = u.weight || '--';
-            if(document.getElementById('dropName')) document.getElementById('dropName').innerText = u.email.split('@')[0];
-            if(document.getElementById('dropEmail')) document.getElementById('dropEmail').innerText = u.email;
+
+            if(document.getElementById('dropGoal')) 
+                document.getElementById('dropGoal').innerText = goal;
+
+            if(document.getElementById('dropWeightDisplay')) 
+                document.getElementById('dropWeightDisplay').innerText = u.weight || '--';
+
+            if(document.getElementById('dropName')) 
+                document.getElementById('dropName').innerText = u.email.split('@')[0];
+
+            if(document.getElementById('dropEmail')) 
+                document.getElementById('dropEmail').innerText = u.email;
             
             const initials = u.email[0].toUpperCase();
-            if(document.getElementById('dropInitials')) document.getElementById('dropInitials').innerText = initials;
-            if(document.getElementById('navUserInitials')) document.getElementById('navUserInitials').innerText = initials;
+
+            if(document.getElementById('dropInitials')) 
+                document.getElementById('dropInitials').innerText = initials;
+
+            if(document.getElementById('navUserInitials')) 
+                document.getElementById('navUserInitials').innerText = initials;
             
             const dateStr = getFormattedDate();
+            
             const mealsRes = await fetch(`${API_URL}/meals/stats?date=${dateStr}`, { 
                 headers: { 
                     'Authorization': `Bearer ${token}`,
                     ...NGROK_HEADERS 
                 }
             });
-            
+
             if(mealsRes.ok) {
-                const data = await mealsRes.json(); 
-                document.getElementById('currentCals').innerText = data.total;
+                const data = await mealsRes.json();
+                const current = data.total || 0;
+
+                // 🔥 АНИМАЦИЯ КАЛОРИЙ
+                animateValue('currentCals', 0, current, 1200);
+                
                 document.getElementById('heroProt').innerText = Math.round(data.protein || 0);
                 document.getElementById('heroFat').innerText = Math.round(data.fats || 0);
                 document.getElementById('heroCarb').innerText = Math.round(data.carbs || 0);
 
-                const percent = Math.min((data.total / goal) * 100, 100);
-                document.getElementById('percentText').innerText = Math.round(percent) + '%';
+                const percentRaw = (current / goal) * 100;
+                const percent = Math.min(percentRaw, 120);
+
+                document.getElementById('percentText').innerText = 
+                    Math.round(percentRaw) + '%';
                 
                 const circle = document.getElementById('heroProgress');
+
                 if (circle) {
-                    const circumference = 2 * Math.PI * 90; 
-                    circle.style.strokeDashoffset = circumference - (percent / 100) * circumference;
+                    const circumference = 2 * Math.PI * 90;
+
+                    circle.style.strokeDashoffset =
+                        circumference - (Math.min(percent, 100) / 100) * circumference;
+                    
+                    // 🔥 Цветовая логика
+                    if (percent > 105) {
+                        circle.style.stroke = "#ff453a"; // перебор
+                    }
+                    else if (percent > 85) {
+                        circle.style.stroke = "#ff9f0a"; // близко к цели
+                    }
+                    else {
+                        circle.style.stroke = "#30d158"; // норма
+                    }
                 }
             }
         }
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        console.error(e); 
+    }
 }
 
 async function loadDailyHistory() {
@@ -267,6 +325,7 @@ async function loadDailyHistory() {
 
 async function loadWeeklyChart() {
     const token = localStorage.getItem('access_token');
+
     try {
         const res = await fetch(`${API_URL}/meals/week`, { 
             headers: { 
@@ -274,20 +333,64 @@ async function loadWeeklyChart() {
                 ...NGROK_HEADERS
             }
         });
+
         if (!checkAuth(res)) return;
+
         if(res.ok) {
             const data = await res.json();
             const ctx = document.getElementById('weeklyChart').getContext('2d');
-            if(window.myWeeklyChart) window.myWeeklyChart.destroy();
-            const gradient = ctx.createLinearGradient(0, 0, 0, 200);
-            gradient.addColorStop(0, '#ff453a'); gradient.addColorStop(1, '#ff9f0a');
+
+            const dayNames = {
+                'ua': ['Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+                'en': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                'az': ['Baz', 'B.E', 'Ç.A', 'Çər', 'C.A', 'Cum', 'Şən']
+            };
+
+            if(window.myWeeklyChart) 
+                window.myWeeklyChart.destroy();
+            
             window.myWeeklyChart = new Chart(ctx, {
                 type: 'bar',
-                data: { labels: data.map(d => d.date.slice(5)), datasets: [{ label: 'Ккал', data: data.map(d => d.total), backgroundColor: gradient, borderRadius: 4 }] },
-                options: { responsive: true, scales: { x: { display: false }, y: { display: false } }, plugins: { legend: { display: false } } }
+                data: {
+                    labels: data.map(d => {
+                        const date = new Date(d.date);
+                        return dayNames[currentLang][date.getDay()];
+                    }),
+                    datasets: [{
+                        data: data.map(d => d.total),
+                        backgroundColor: (context) => {
+                            const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+                            gradient.addColorStop(0, '#0a84ff');
+                            gradient.addColorStop(1, 'rgba(10, 132, 255, 0.1)');
+                            return gradient;
+                        },
+                        borderRadius: 12,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { 
+                            grid: { display: false }, 
+                            border: { display: false }, 
+                            ticks: { 
+                                color: '#86868b', 
+                                font: { size: 12, weight: '600' } 
+                            } 
+                        },
+                        y: { display: false }
+                    },
+                    plugins: { 
+                        legend: { display: false } 
+                    }
+                }
             });
         }
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        console.error(e); 
+    }
 }
 
 async function loadFoodDatabase() {
