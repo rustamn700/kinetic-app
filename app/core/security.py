@@ -1,10 +1,16 @@
+import os
+from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-# Секретний ключ (у реальному проекті зберігай у .env)
-SECRET_KEY = "MY_SUPER_SECRET_KEY_KINETIK" 
+# Загружаем скрытые переменные
+load_dotenv()
+
+# Теперь берем ключ из безопасного места. 
+# Если его там нет (например, ты забыл добавить), используем запасной.
+SECRET_KEY = os.getenv("SECRET_KEY", "fallback_secret_key_change_me") 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 7
 
