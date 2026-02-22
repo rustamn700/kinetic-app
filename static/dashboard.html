@@ -13,9 +13,7 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js').then(registration => {
-                    // При кожному заході на сторінку примусово перевіряємо, чи не змінився код на сервері
                     registration.update(); 
-                    console.log('ServiceWorker зареєстровано успішно!');
                 }).catch(err => {
                     console.log('Помилка реєстрації ServiceWorker: ', err);
                 });
@@ -31,7 +29,7 @@
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="icon" href="icons/icon-192.png"> 
     
-    <link rel="stylesheet" href="/css/dashboard.css?v=1.2">
+    <link rel="stylesheet" href="/css/dashboard.css?v=1.3">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -45,11 +43,9 @@
 </head>
 <body>
     
-
     <div id="splashScreen" class="splash-screen">
         <div class="splash-logo">Kinetic.</div>
     </div>
-
 
     <div class="background-glow"></div>
 
@@ -338,6 +334,35 @@
         </div>
     </div>
 
+    <div id="editMealModal" class="modal-backdrop">
+        <div class="modal-content glass-card">
+            <h3 data-i18n="modal_edit_meal" style="margin-bottom: 20px; text-align: center;">Редагувати запис</h3>
+            
+            <div style="text-align: left; margin-bottom: 15px;">
+                <label style="font-size: 12px; color: #888; margin-bottom: 6px; display: block;">Назва страви</label>
+                <input type="text" id="editMealNameInput" class="glass-input-sm" style="width: 100%; font-size: 16px; padding: 12px;">
+            </div>
+            
+            <div style="text-align: left; margin-bottom: 10px;">
+                <label style="font-size: 12px; color: #888; margin-bottom: 6px; display: block;">Кількість</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="editMealAmount" class="glass-input-sm" style="flex: 1; font-size: 18px; font-weight: bold; text-align: center;" placeholder="100">
+                    
+                    <select id="editMealUnit" class="glass-input-sm" style="width: 80px; font-size: 16px; font-weight: bold; text-align: center; appearance: none; background-color: rgba(255,255,255,0.05); cursor: pointer;">
+                        <option value="г" style="color: black;">г</option>
+                        <option value="мл" style="color: black;">мл</option>
+                        <option value="шт" style="color: black;">шт</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="modal-actions" style="margin-top: 25px;">
+                <button onclick="closeEditMealModal()" class="btn-text" data-i18n="btn_cancel">Скасувати</button>
+                <button onclick="saveMealEdit()" class="btn-primary" data-i18n="btn_save">Зберегти</button>
+            </div>
+        </div>
+    </div>
+
     <div id="scannerModal" class="modal-backdrop" style="background: black;">
         <div class="modal-content" style="background: transparent; box-shadow: none; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center;">
             <div id="reader" style="width: 100%; border-radius: 20px; overflow: hidden; border: 2px solid #007aff;"></div>
@@ -440,24 +465,7 @@
         </div>
     </div>
 
-<div id="editMealModal" class="modal-backdrop">
-        <div class="modal-content glass-card" style="text-align: center;">
-            <h3 data-i18n="modal_edit_meal">Змінити порцію</h3>
-            <p id="editMealName" style="color: #888; font-size: 14px; margin-bottom: 15px;">Назва страви</p>
-            
-            <div class="input-wrapper" style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 10px;">
-                <input type="number" id="editMealGrams" class="glass-input-lg" style="width: 140px; text-align: center; padding: 15px; font-size: 28px;" placeholder="100">
-                <span style="font-size: 20px; color: #888; font-weight: 600;">г</span>
-            </div>
-            
-            <div class="modal-actions" style="margin-top: 20px;">
-                <button onclick="closeEditMealModal()" class="btn-text" data-i18n="btn_cancel">Скасувати</button>
-                <button onclick="saveMealEdit()" class="btn-primary" data-i18n="btn_save">Зберегти</button>
-            </div>
-        </div>
-    </div>
-
-   <script src="/js/dashboard.js?v=1.2"></script>
+   <script src="/js/dashboard.js?v=1.3"></script>
     <script src="/js/categories.js"></script>
     <script src="/js/translations.js"></script>
     

@@ -1,11 +1,11 @@
 var API_URL = "https://kinetic-fp1n.onrender.com";
 
-// 🔥 МАГІЧНИЙ ЗАГОЛОВОК ДЛЯ NGROK (Щоб не було 404 і помилок JSON)
+// 🔥 МАГІЧНИЙ ЗАГОЛОВОК ДЛЯ NGROK
 const NGROK_HEADERS = {
     'ngrok-skip-browser-warning': 'true'
 };
 
-// --- ГЛОБАЛЬНІ ЗМІННІ (Оголошені один раз!) ---
+// --- ГЛОБАЛЬНІ ЗМІННІ ---
 let currentAIResult = null;
 let currentAiData = null;
 let GLOBAL_FOOD_DB = [];
@@ -17,21 +17,16 @@ let aiStream = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 🚀 ЛОГІКА SPLASH SCREEN ---
     setTimeout(() => {
         const splash = document.getElementById('splashScreen');
-        if (splash) {
-            splash.classList.add('hidden');
-        }
-    }, 1500); // 1500 мілісекунд = 1.5 секунди
+        if (splash) splash.classList.add('hidden');
+    }, 1500); 
     
-    // 1. Ініціалізація
     applyLanguage(currentLang);
     updateDateDisplay();
     loadDashboardData();
     loadFoodDatabase();
     
-    // 2. Обробка пошуку
     const input = document.getElementById('dishInput');
     const box = document.getElementById('suggestionsBox');
 
@@ -53,7 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
         weightInput.addEventListener('input', recalculateResultCard);
     }
 
-    // --- КНОПКА ПРОФІЛЮ ---
     const profileBtn = document.getElementById('profileBtn');
     const dropdown = document.getElementById('profileDropdown');
 
@@ -61,8 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
         profileBtn.addEventListener('click', (e) => {
             e.stopPropagation(); 
             dropdown.classList.toggle('active');
-            
-            // Ховаємо мову при відкритті профілю
             const langSel = document.getElementById('langSelector');
             if(langSel) langSel.style.display = 'none';
         });
@@ -75,11 +67,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// --- 🌍 ФУНКЦІЇ МОВИ ---
 function toggleLangSelector() {
     const selector = document.getElementById('langSelector');
     const arrow = document.getElementById('langArrow');
-    
     if (selector.style.display === 'none') {
         selector.style.display = 'flex';
         arrow.style.transform = 'rotate(180deg)';
@@ -99,17 +89,14 @@ function setLanguage(lang) {
 function applyLanguage(lang) {
     const t = translations[lang];
     if (!t) return;
-
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (t[key]) el.innerText = t[key];
     });
-
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
         const key = el.getAttribute('data-i18n-placeholder');
         if (t[key]) el.placeholder = t[key];
     });
-
     document.querySelectorAll('.lang-circle-mini').forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.getElementById(`lang-${lang}`);
     if(activeBtn) activeBtn.classList.add('active');
@@ -124,7 +111,6 @@ function checkAuth(res) {
     return true;
 }
 
-// --- 📅 РОБОТА З ДАТОЮ ---
 function changeDate(offset) {
     SELECTED_DATE.setDate(SELECTED_DATE.getDate() + offset);
     updateDateDisplay();
@@ -134,13 +120,11 @@ function changeDate(offset) {
 function updateDateDisplay() {
     const display = document.getElementById('currentDateDisplay');
     const today = new Date();
-    
     const d1 = new Date(SELECTED_DATE); d1.setHours(0,0,0,0);
     const d2 = new Date(today); d2.setHours(0,0,0,0);
-    
     const t = translations[currentLang]; 
 
-    if (d1 === d2) {
+    if (d1.getTime() === d2.getTime()) {
         display.innerText = t.history_today || "Сьогодні";
     } else {
         const langMap = {'en': 'en-GB', 'ru': 'ru-RU', 'az': 'az-AZ', 'ua': 'uk-UA'};
@@ -154,11 +138,9 @@ function getFormattedDate() {
     return date.toISOString().split('T')[0];
 }
 
-// --- DATA LOADERS ---
 async function loadDashboardData() {
     const loader = document.getElementById('skeletonLoader');
     if(loader) loader.classList.add('active');
-
     try {
         await Promise.all([
             updateHeroStats(),
@@ -181,24 +163,16 @@ async function loadDashboardData() {
     }
 }
 
-// 1. Анімація лічильника цифр (плавний перехід)
 function animateValue(id, start, end, duration) {
     const obj = document.getElementById(id);
     if (!obj) return;
-
     let startTimestamp = null;
-
     const step = (timestamp) => {
         if (!startTimestamp) startTimestamp = timestamp;
         const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-
         obj.innerHTML = Math.floor(progress * (end - start) + start);
-
-        if (progress < 1) {
-            window.requestAnimationFrame(step);
-        }
+        if (progress < 1) window.requestAnimationFrame(step);
     };
-
     window.requestAnimationFrame(step);
 }
 
@@ -208,53 +182,31 @@ async function updateHeroStats() {
 
     try {
         const userRes = await fetch(`${API_URL}/auth/me`, { 
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                ...NGROK_HEADERS 
-            }
+            headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
         });
-
         if (!checkAuth(userRes)) return;
 
         if(userRes.ok) {
             const u = await userRes.json();
-            
             const goal = u.daily_goal || 2500;
 
-            if(document.getElementById('dropGoal')) 
-                document.getElementById('dropGoal').innerText = goal;
-
-            if(document.getElementById('dropWeightDisplay')) 
-                document.getElementById('dropWeightDisplay').innerText = u.weight || '--';
-
-            if(document.getElementById('dropName')) 
-                document.getElementById('dropName').innerText = u.email.split('@')[0];
-
-            if(document.getElementById('dropEmail')) 
-                document.getElementById('dropEmail').innerText = u.email;
+            if(document.getElementById('dropGoal')) document.getElementById('dropGoal').innerText = goal;
+            if(document.getElementById('dropWeightDisplay')) document.getElementById('dropWeightDisplay').innerText = u.weight || '--';
+            if(document.getElementById('dropName')) document.getElementById('dropName').innerText = u.email.split('@')[0];
+            if(document.getElementById('dropEmail')) document.getElementById('dropEmail').innerText = u.email;
             
             const initials = u.email[0].toUpperCase();
-
-            if(document.getElementById('dropInitials')) 
-                document.getElementById('dropInitials').innerText = initials;
-
-            if(document.getElementById('navUserInitials')) 
-                document.getElementById('navUserInitials').innerText = initials;
+            if(document.getElementById('dropInitials')) document.getElementById('dropInitials').innerText = initials;
+            if(document.getElementById('navUserInitials')) document.getElementById('navUserInitials').innerText = initials;
             
             const dateStr = getFormattedDate();
-            
             const mealsRes = await fetch(`${API_URL}/meals/stats?date=${dateStr}`, { 
-                headers: { 
-                    'Authorization': `Bearer ${token}`,
-                    ...NGROK_HEADERS 
-                }
+                headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
             });
 
             if(mealsRes.ok) {
                 const data = await mealsRes.json();
                 const current = data.total || 0;
-
-                // 🔥 АНИМАЦИЯ КАЛОРИЙ
                 animateValue('currentCals', 0, current, 1200);
                 
                 document.getElementById('heroProt').innerText = Math.round(data.protein || 0);
@@ -263,37 +215,22 @@ async function updateHeroStats() {
 
                 const percentRaw = (current / goal) * 100;
                 const percent = Math.min(percentRaw, 120);
-
-                document.getElementById('percentText').innerText = 
-                    Math.round(percentRaw) + '%';
+                document.getElementById('percentText').innerText = Math.round(percentRaw) + '%';
                 
                 const circle = document.getElementById('heroProgress');
-
                 if (circle) {
                     const circumference = 2 * Math.PI * 90;
-
-                    circle.style.strokeDashoffset =
-                        circumference - (Math.min(percent, 100) / 100) * circumference;
-                    
-                    // 🔥 Цветовая логика
-                    if (percent > 105) {
-                        circle.style.stroke = "#ff453a"; // перебор
-                    }
-                    else if (percent > 85) {
-                        circle.style.stroke = "#ff9f0a"; // близко к цели
-                    }
-                    else {
-                        circle.style.stroke = "#30d158"; // норма
-                    }
+                    circle.style.strokeDashoffset = circumference - (Math.min(percent, 100) / 100) * circumference;
+                    if (percent > 105) circle.style.stroke = "#ff453a"; 
+                    else if (percent > 85) circle.style.stroke = "#ff9f0a"; 
+                    else circle.style.stroke = "#30d158"; 
                 }
             }
         }
-    } catch (e) { 
-        console.error(e); 
-    }
+    } catch (e) { console.error(e); }
 }
 
-// ЗАМІНЮЄМО СТАРУ ФУНКЦІЮ:
+// --- 🌟 ОНОВЛЕНЕ ЗАВАНТАЖЕННЯ ІСТОРІЇ ---
 async function loadDailyHistory() {
     const token = localStorage.getItem('access_token');
     try {
@@ -305,7 +242,7 @@ async function loadDailyHistory() {
 
         if(res.ok) {
             const meals = await res.json();
-            window.TODAY_MEALS = meals; // Зберігаємо глобально для швидкого редагування
+            window.TODAY_MEALS = meals; 
 
             const list = document.getElementById('mealsList');
             list.innerHTML = '';
@@ -323,37 +260,23 @@ async function loadDailyHistory() {
             meals.slice().reverse().forEach((m, index) => {
                 const badge = m.cuisine === 'Azerbaijani' ? '🇦🇿' : (m.cuisine === 'Ukrainian' ? '🇺🇦' : '');
                 
-                // Розумний розподіл іконок (Сніданок, Обід, Вечеря)
                 let timeIcon = '🍽️';
                 let timeColor = 'rgba(255,255,255,0.05)';
                 
-                // Якщо сервер повертає час, використовуємо його. Інакше - красиво розподіляємо по списку
                 if (m.created_at) {
                     const hour = new Date(m.created_at).getHours();
-                    if (hour >= 5 && hour < 12) { timeIcon = '🍳'; timeColor = 'rgba(255, 159, 10, 0.15)'; } // Сніданок
-                    else if (hour >= 12 && hour < 17) { timeIcon = '🍲'; timeColor = 'rgba(48, 209, 88, 0.15)'; } // Обід
-                    else { timeIcon = '🥗'; timeColor = 'rgba(10, 132, 255, 0.15)'; } // Вечеря
-                } else {
-                    const icons = ['🍳', '🍲', '🥗'];
-                    const colors = ['rgba(255, 159, 10, 0.15)', 'rgba(48, 209, 88, 0.15)', 'rgba(10, 132, 255, 0.15)'];
-                    const realIndex = meals.length - 1 - index; // Оскільки ми перевернули масив
-                    if (realIndex < meals.length / 3) { timeIcon = icons[0]; timeColor = colors[0]; }
-                    else if (realIndex < (meals.length / 3) * 2) { timeIcon = icons[1]; timeColor = colors[1]; }
-                    else { timeIcon = icons[2]; timeColor = colors[2]; }
+                    if (hour >= 5 && hour < 12) { timeIcon = '🍳'; timeColor = 'rgba(255, 159, 10, 0.15)'; }
+                    else if (hour >= 12 && hour < 17) { timeIcon = '🍲'; timeColor = 'rgba(48, 209, 88, 0.15)'; }
+                    else { timeIcon = '🥗'; timeColor = 'rgba(10, 132, 255, 0.15)'; }
                 }
 
-                // Захист від лапок у назві страви
-                const safeName = m.name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-
                 list.innerHTML += `
-                    <div class="history-item">
+                    <div class="history-item" onclick="openEditMealModal(${m.id})">
                         <div class="h-icon-box" style="background: ${timeColor};">${timeIcon}</div>
                         <div class="h-info">
                             <h4>${badge} ${m.name}</h4>
                             <p>
-                                <span class="h-grams" onclick="openEditMealModal(${m.id}, '${safeName}', ${m.grams})">
-                                    ✏️ ${m.grams} г
-                                </span>
+                                <span class="h-grams">${m.grams} г</span>
                                 <span class="h-macros">
                                     Б:${Math.round(m.total_protein)} Ж:${Math.round(m.total_fats)} В:${Math.round(m.total_carbs)}
                                 </span>
@@ -361,7 +284,7 @@ async function loadDailyHistory() {
                         </div>
                         <div class="h-right">
                             <span class="h-cal">${m.total_kcal} <small>ккал</small></span>
-                            <button onclick="deleteMeal(${m.id})" class="btn-del-new">×</button>
+                            <button onclick="deleteMeal(event, ${m.id})" class="btn-del-new">×</button>
                         </div>
                     </div>`;
             });
@@ -369,14 +292,36 @@ async function loadDailyHistory() {
     } catch (e) { console.error(e); }
 }
 
-// ДОДАЙ ЦЕЙ БЛОК ОДРАЗУ ПІД ФУНКЦІЄЮ ВИЩЕ:
-// --- ✏️ РЕДАГУВАННЯ ПОРЦІЇ ---
+// --- ❌ ОНОВЛЕНЕ ВИДАЛЕННЯ (зупиняємо клік) ---
+async function deleteMeal(event, id) {
+    if(event) event.stopPropagation(); 
+    if(!confirm("Видалити?")) return;
+    const token = localStorage.getItem('access_token');
+    await fetch(`${API_URL}/meals/${id}`, { 
+        method: 'DELETE', 
+        headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
+    });
+    updateHeroStats(); loadDailyHistory();
+}
+
+// --- ✏️ ОНОВЛЕНЕ РЕДАГУВАННЯ (Назва + Кількість + Одиниці) ---
 let currentEditMealId = null;
 
-function openEditMealModal(id, name, currentGrams) {
+function openEditMealModal(id) {
+    const meal = window.TODAY_MEALS.find(m => m.id === id);
+    if (!meal) return;
+    
     currentEditMealId = id;
-    document.getElementById('editMealName').innerText = name;
-    document.getElementById('editMealGrams').value = currentGrams;
+    
+    let cleanName = meal.name.replace(/🇦🇿 |🇺🇦 /g, ''); 
+    let unit = 'г';
+    if (cleanName.includes('(мл)')) { unit = 'мл'; cleanName = cleanName.replace(' (мл)', ''); }
+    else if (cleanName.includes('(шт)')) { unit = 'шт'; cleanName = cleanName.replace(' (шт)', ''); }
+    
+    document.getElementById('editMealNameInput').value = cleanName;
+    document.getElementById('editMealAmount').value = meal.grams;
+    document.getElementById('editMealUnit').value = unit;
+    
     document.getElementById('editMealModal').style.display = 'flex';
 }
 
@@ -387,20 +332,25 @@ function closeEditMealModal() {
 
 async function saveMealEdit() {
     if (!currentEditMealId) return;
-    const newGrams = parseInt(document.getElementById('editMealGrams').value);
-    if (isNaN(newGrams) || newGrams <= 0) return alert('Введіть коректну вагу');
+    
+    const newName = document.getElementById('editMealNameInput').value.trim();
+    const newAmount = parseFloat(document.getElementById('editMealAmount').value);
+    const unit = document.getElementById('editMealUnit').value;
 
-    // Знаходимо старий запис у пам'яті
+    if (!newName || isNaN(newAmount) || newAmount <= 0) return alert('Введіть коректні дані');
+
     const mealToEdit = window.TODAY_MEALS.find(m => m.id === currentEditMealId);
     if (!mealToEdit) return;
 
-    // Рахуємо нову пропорцію (наприклад, було 100г стало 200г = коефіцієнт 2)
-    const ratio = newGrams / mealToEdit.grams;
+    const ratio = newAmount / mealToEdit.grams;
     
-    // Формуємо нові макроси
+    let finalName = newName;
+    if (unit === 'мл' && !finalName.toLowerCase().includes('мл')) finalName += ' (мл)';
+    if (unit === 'шт' && !finalName.toLowerCase().includes('шт')) finalName += ' (шт)';
+
     const payload = {
-        product_name: mealToEdit.name,
-        grams: newGrams,
+        product_name: finalName,
+        grams: newAmount, 
         total_kcal: Math.round(mealToEdit.total_kcal * ratio),
         total_protein: mealToEdit.total_protein * ratio,
         total_fats: mealToEdit.total_fats * ratio,
@@ -414,7 +364,6 @@ async function saveMealEdit() {
     btn.innerText = '⏳';
 
     try {
-        // Хитрий хід: додаємо новий перерахований запис
         const postRes = await fetch(`${API_URL}/meals/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS },
@@ -422,50 +371,37 @@ async function saveMealEdit() {
         });
 
         if (postRes.ok) {
-            // Якщо успішно зберегли новий - видаляємо старий
             await fetch(`${API_URL}/meals/${currentEditMealId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
             });
-            
             closeEditMealModal();
             updateHeroStats();
             loadDailyHistory();
         } else {
             alert('Помилка оновлення');
         }
-    } catch (e) { 
-        console.error(e); 
-    } finally { 
-        btn.innerText = 'Зберегти'; 
-    }
+    } catch (e) { console.error(e); } 
+    finally { btn.innerText = 'Зберегти'; }
 }
 
 async function loadWeeklyChart() {
     const token = localStorage.getItem('access_token');
-
     try {
         const res = await fetch(`${API_URL}/meals/week`, { 
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                ...NGROK_HEADERS
-            }
+            headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
         });
-
         if (!checkAuth(res)) return;
-
         if(res.ok) {
             const data = await res.json();
             const ctx = document.getElementById('weeklyChart').getContext('2d');
-
             const dayNames = {
                 'ua': ['Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
                 'en': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
                 'az': ['Baz', 'B.E', 'Ç.A', 'Çər', 'C.A', 'Cum', 'Şən']
             };
 
-            if(window.myWeeklyChart) 
-                window.myWeeklyChart.destroy();
+            if(window.myWeeklyChart) window.myWeeklyChart.destroy();
             
             window.myWeeklyChart = new Chart(ctx, {
                 type: 'bar',
@@ -490,25 +426,14 @@ async function loadWeeklyChart() {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { 
-                            grid: { display: false }, 
-                            border: { display: false }, 
-                            ticks: { 
-                                color: '#86868b', 
-                                font: { size: 12, weight: '600' } 
-                            } 
-                        },
+                        x: { grid: { display: false }, border: { display: false }, ticks: { color: '#86868b', font: { size: 12, weight: '600' } } },
                         y: { display: false }
                     },
-                    plugins: { 
-                        legend: { display: false } 
-                    }
+                    plugins: { legend: { display: false } }
                 }
             });
         }
-    } catch (e) { 
-        console.error(e); 
-    }
+    } catch (e) { console.error(e); }
 }
 
 async function loadFoodDatabase() {
@@ -516,10 +441,7 @@ async function loadFoodDatabase() {
     if (!token) return;
     try {
         const res = await fetch(`${API_URL}/meals/database`, { 
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                ...NGROK_HEADERS
-            }
+            headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
         });
         if(res.ok) GLOBAL_FOOD_DB = await res.json();
     } catch(e) { console.error(e); }
@@ -598,34 +520,27 @@ function recalculateResultCard() {
     document.getElementById('barCarb').style.height = Math.min(c, 60) + 'px';
 }
 
-// 🔥 ОБНОВЛЕННАЯ ФУНКЦИЯ: Теперь она отправляет фото из галереи в общую нейросеть
 async function triggerAISearch() {
     const input = document.getElementById('dishInput');
     const query = input.value.trim();
     const btn = document.getElementById('aiBtn');
     
-    // 1. Якщо прикріплено фото (галерея) — запускаємо АНАЛІЗ ІІ
     if (attachedFiles && attachedFiles.length > 0) {
-        const fileToAnalyze = attachedFiles[0]; // Беремо перше фото
-        
+        const fileToAnalyze = attachedFiles[0]; 
         const originalBtn = btn.innerHTML; 
         btn.innerHTML = '<div class="spinner" style="width:14px; height:14px; border:2px solid white; border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;"></div>';
         
-        // Викликаємо ту саму функцію, що і для камери
         await analyzeImageFile(fileToAnalyze);
         
-        // Очищаємо після відправки
         clearAllImages();
         input.value = '';
         document.getElementById('actionMenu').classList.remove('active');
         document.getElementById('btnPlus').classList.remove('active');
         btn.innerHTML = originalBtn; 
         updateSendButtonState();
-        
-        return; // ВАЖЛИВО: Виходимо з функції, щоб не відкрити порожню картку!
+        return; 
     }
 
-    // 2. Якщо фото НЕМАЄ, робимо звичайний ТЕКСТОВИЙ пошук
     if (query.length === 0) return;
     
     const originalBtn = btn.innerHTML; 
@@ -668,11 +583,7 @@ async function addToDiary() {
     try {
         const res = await fetch(`${API_URL}/meals/`, {
             method: 'POST', 
-            headers: { 
-                'Content-Type': 'application/json', 
-                'Authorization': `Bearer ${token}`,
-                ...NGROK_HEADERS
-            },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS },
             body: JSON.stringify(payload)
         });
         if (!checkAuth(res)) return;
@@ -687,19 +598,6 @@ function closeResultCard() {
     document.getElementById('dishInput').value = '';
 }
 
-async function deleteMeal(id) {
-    if(!confirm("Видалити?")) return;
-    const token = localStorage.getItem('access_token');
-    await fetch(`${API_URL}/meals/${id}`, { 
-        method: 'DELETE', 
-        headers: { 
-            'Authorization': `Bearer ${token}`,
-            ...NGROK_HEADERS
-        }
-    });
-    updateHeroStats(); loadDailyHistory();
-}
-
 function updateSendButtonState() {
     const input = document.getElementById('dishInput');
     const btn = document.getElementById('aiBtn');
@@ -708,7 +606,6 @@ function updateSendButtonState() {
     } else { btn.classList.remove('ready'); btn.style.opacity = "0.5"; btn.style.pointerEvents = "none"; }
 }
 
-// --- 🔥 КАМЕРА ТА ФАЙЛИ ---
 function triggerCamera() { if(attachedFiles.length >= 10) return; toggleActionMenu(); document.getElementById('cameraInput').click(); }
 function triggerGallery() { if(attachedFiles.length >= 10) return; toggleActionMenu(); document.getElementById('galleryInput').click(); }
 function handleImageSelect(input) { if (input.files) { Array.from(input.files).forEach(f => attachedFiles.push(f)); renderPreviews(); input.value=''; updateSendButtonState(); } }
@@ -734,16 +631,12 @@ function clearAllImages() { attachedFiles = []; renderPreviews(); updateSendButt
 function toggleActionMenu() { document.getElementById('actionMenu').classList.toggle('active'); document.getElementById('btnPlus').classList.toggle('active'); }
 function openCatalogFromMenu() { toggleActionMenu(); if(window.openCatalogRoot) openCatalogRoot(); }
 
-// --- 💧 ВОДА ---
 async function loadWater() {
     const token = localStorage.getItem('access_token');
     const dateStr = getFormattedDate();
     try {
         const res = await fetch(`${API_URL}/meals/water/today?date=${dateStr}`, { 
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                ...NGROK_HEADERS
-            }
+            headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
         });
         if (res.ok) {
             const data = await res.json();
@@ -757,16 +650,10 @@ async function addWater(amount) {
     try {
         const res = await fetch(`${API_URL}/meals/water`, {
             method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json', 
-                'Authorization': `Bearer ${token}`,
-                ...NGROK_HEADERS
-            },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS },
             body: JSON.stringify({ amount: amount })
         });
-        if (res.ok) {
-            loadWater(); 
-        }
+        if (res.ok) { loadWater(); }
     } catch (e) { console.error(e); }
 }
 
@@ -785,32 +672,19 @@ async function saveWaterEdit() {
     const newVal = parseInt(document.getElementById('waterInput').value);
     const dateStr = getFormattedDate();
 
-    if (isNaN(newVal) || newVal < 0) {
-        alert("Введіть коректне число");
-        return;
-    }
+    if (isNaN(newVal) || newVal < 0) { alert("Введіть коректне число"); return; }
 
     try {
         const res = await fetch(`${API_URL}/meals/water?date=${dateStr}`, {
             method: 'PUT',
-            headers: { 
-                'Content-Type': 'application/json', 
-                'Authorization': `Bearer ${token}`,
-                ...NGROK_HEADERS
-            },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS },
             body: JSON.stringify({ amount: newVal })
         });
-
-        if (res.ok) {
-            closeWaterModal();
-            loadWater();
-        } else {
-            alert("Помилка збереження");
-        }
+        if (res.ok) { closeWaterModal(); loadWater(); } 
+        else { alert("Помилка збереження"); }
     } catch (e) { console.error(e); }
 }
 
-// --- ➕ СВІЙ ПРОДУКТ ---
 function openCreateProductModal() {
     toggleActionMenu();
     document.getElementById('createProductModal').style.display = 'flex';
@@ -831,47 +705,28 @@ async function saveCustomProduct() {
     const prot = parseFloat(document.getElementById('cpProt').value) || 0;
     const fat = parseFloat(document.getElementById('cpFat').value) || 0;
     const carb = parseFloat(document.getElementById('cpCarb').value) || 0;
-    
     const barcode = document.getElementById('cpBarcode').value || null;
 
-    if (!name || isNaN(kcal)) {
-        alert("Введіть назву та калорії!");
-        return;
-    }
+    if (!name || isNaN(kcal)) { alert("Введіть назву та калорії!"); return; }
 
-    const payload = {
-        name: name,
-        calories: kcal,
-        protein: prot,
-        fat: fat,
-        carbs: carb,
-        barcode: barcode 
-    };
-
+    const payload = { name: name, calories: kcal, protein: prot, fat: fat, carbs: carb, barcode: barcode };
     const token = localStorage.getItem('access_token');
+    
     try {
         const res = await fetch(`${API_URL}/meals/custom`, {
             method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json', 
-                'Authorization': `Bearer ${token}`,
-                ...NGROK_HEADERS
-            },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS },
             body: JSON.stringify(payload)
         });
-
         if (res.ok) {
             closeCreateProductModal();
             document.getElementById('cpBarcode').value = ""; 
             await loadFoodDatabase(); 
             alert(`Продукт "${name}" збережено!`);
-        } else {
-            alert("Помилка створення");
-        }
+        } else { alert("Помилка створення"); }
     } catch (e) { console.error(e); }
 }
 
-// --- ⚙️ ПРЕМІУМ ПРОФІЛЬ ---
 function selectGender(element, value) {
     document.querySelectorAll('#genderSelector .segment-option').forEach(el => el.classList.remove('active'));
     element.classList.add('active');
@@ -917,10 +772,7 @@ async function openProfileModal() {
     const token = localStorage.getItem('access_token');
     try {
         const res = await fetch(`${API_URL}/auth/me`, { 
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                ...NGROK_HEADERS
-            }
+            headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
         });
         if(res.ok) {
             const u = await res.json();
@@ -936,7 +788,6 @@ function closeProfileModal() {
 
 async function saveProfile() {
     const token = localStorage.getItem('access_token');
-    
     const payload = {
         gender: document.getElementById('profGender').value,
         age: parseInt(document.getElementById('profAge').value),
@@ -949,22 +800,15 @@ async function saveProfile() {
     try {
         const res = await fetch(`${API_URL}/auth/update-profile`, {
             method: 'PUT',
-            headers: { 
-                'Content-Type': 'application/json', 
-                'Authorization': `Bearer ${token}`,
-                ...NGROK_HEADERS
-            },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS },
             body: JSON.stringify(payload)
         });
-
         if (res.ok) {
             const data = await res.json();
             alert(`Вашу нову ціль розраховано: ${data.new_goal} ккал`);
             closeProfileModal();
             updateHeroStats(); 
-        } else {
-            alert("Помилка збереження");
-        }
+        } else { alert("Помилка збереження"); }
     } catch(e) { console.error(e); }
 }
 
@@ -973,17 +817,13 @@ function logout() {
     window.location.href = '/login.html';
 }
 
-// --- 📷 СКАНЕР ШТРИХ-КОДОВ ---
 function startScanner() {
     document.getElementById('scannerModal').style.display = 'flex';
     html5QrcodeScanner = new Html5Qrcode("reader");
     const config = { fps: 10, qrbox: { width: 250, height: 250 } };
     
     html5QrcodeScanner.start(
-        { facingMode: "environment" }, 
-        config,
-        onScanSuccess,
-        (errorMessage) => { /* ignoring errors */ }
+        { facingMode: "environment" }, config, onScanSuccess, (err) => {}
     ).catch(err => {
         alert("Помилка камери: " + err);
         stopScanner();
@@ -996,19 +836,15 @@ function stopScanner() {
             document.getElementById('scannerModal').style.display = 'none';
             html5QrcodeScanner.clear();
         }).catch(err => console.error(err));
-    } else {
-        document.getElementById('scannerModal').style.display = 'none';
-    }
+    } else { document.getElementById('scannerModal').style.display = 'none'; }
 }
 
 async function onScanSuccess(decodedText, decodedResult) {
     if (navigator.vibrate) navigator.vibrate(200);
     stopScanner();
-    
     try {
         const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`);
         const data = await res.json();
-
         if (data.status === 1) {
             openCreateProductModal();
             const p = data.product;
@@ -1022,14 +858,9 @@ async function onScanSuccess(decodedText, decodedResult) {
             openCreateProductModal();
             document.getElementById('cpName').placeholder = "Введіть назву (напр. Beta Tea Strawberry)";
         }
-    } catch (e) {
-        alert("Помилка мережі");
-    }
+    } catch (e) { alert("Помилка мережі"); }
 }
 
-// --- 🧠 AI VISION LOGIC ---
-
-// 🔥 НОВАЯ ОБЩАЯ ФУНКЦИЯ: Анализирует любой файл (и с камеры, и с галереи)
 async function analyzeImageFile(file) {
     const resultModal = document.getElementById('aiResultModal');
     const contentBox = document.getElementById('aiResultContent');
@@ -1050,10 +881,7 @@ async function analyzeImageFile(file) {
         const token = localStorage.getItem('access_token');
         const res = await fetch(`${API_URL}/meals/analyze-photo`, {
             method: 'POST',
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                ...NGROK_HEADERS
-            },
+            headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS },
             body: formData
         });
 
@@ -1074,20 +902,16 @@ async function analyzeImageFile(file) {
         if (data.error) {
             contentBox.innerHTML = `<p style="color: #ff6b6b; text-align: center; padding: 20px;">${data.error}</p>`;
             setTimeout(() => closeAiResult(), 3000);
-        } else {
-            renderAiResults(data);
-        }
+        } else { renderAiResults(data); }
     } catch (e) {
         alert("Помилка з'єднання: " + e);
         closeAiResult();
     }
 }
 
-// 1. Відкрити камеру
-async function triggerCamera() {
+async function triggerCameraAI() {
     const modal = document.getElementById('aiCameraModal');
     const video = document.getElementById('cameraFeed');
-    
     document.getElementById('actionMenu').classList.remove('active');
     document.getElementById('btnPlus').classList.remove('active');
 
@@ -1095,26 +919,17 @@ async function triggerCamera() {
 
     try {
         aiStream = await navigator.mediaDevices.getUserMedia({ 
-            video: { 
-                facingMode: "environment",
-                width: { ideal: 1920 },
-                height: { ideal: 1080 }
-            } 
+            video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } } 
         });
         video.srcObject = aiStream;
         modal.style.display = 'flex';
-    } catch (err) {
-        alert("Не вдалося відкрити камеру: " + err);
-    }
+    } catch (err) { alert("Не вдалося відкрити камеру: " + err); }
 }
 
 function closeAiCamera() {
     const modal = document.getElementById('aiCameraModal');
     const video = document.getElementById('cameraFeed');
-    
-    if (aiStream) {
-        aiStream.getTracks().forEach(track => track.stop());
-    }
+    if (aiStream) aiStream.getTracks().forEach(track => track.stop());
     video.srcObject = null;
     modal.style.display = 'none';
 }
@@ -1123,34 +938,21 @@ async function updateCameraLimits() {
     const badge = document.getElementById('photoLimitBadge');
     const text = document.getElementById('limitText');
     const token = localStorage.getItem('access_token');
-    
     if(!text) return;
 
     try {
         const res = await fetch(`${API_URL}/meals/limits`, { 
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                ...NGROK_HEADERS 
-            }
+            headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
         });
-        
-       if (res.ok) {
+        if (res.ok) {
             const data = await res.json();
             text.innerText = `${data.remaining} з ${data.limit}`;
-            
-            if (data.remaining === 0) {
-                badge.classList.add('low');
-                text.innerText = "Ліміт 0";
-            } else {
-                badge.classList.remove('low');
-            }
+            if (data.remaining === 0) { badge.classList.add('low'); text.innerText = "Ліміт 0"; } 
+            else { badge.classList.remove('low'); }
         }
-    } catch (e) {
-        console.error("Ошибка лимитов:", e);
-    }
+    } catch (e) { console.error(e); }
 }
 
-// 🔥 ОБНОВЛЕННАЯ ФУНКЦИЯ: Зробити знімок і відправити в загальну функцію
 async function takeAiSnapshot() {
     const video = document.getElementById('cameraFeed');
     const canvas = document.createElement('canvas');
@@ -1160,14 +962,11 @@ async function takeAiSnapshot() {
     
     canvas.toBlob(async (blob) => {
         closeAiCamera();
-        // Просто передаем Blob в нашу новую общую функцию
         await analyzeImageFile(blob);
     }, 'image/jpeg', 0.9);
 }
 
-// 4. Відобразити результати
 function renderAiResults(data) {
-    console.log("AI Data Received:", data);
     const contentBox = document.getElementById('aiResultContent');
     contentBox.innerHTML = ''; 
 
@@ -1187,7 +986,6 @@ function renderAiResults(data) {
     }
 
     let html = '<div class="ai-items-list" style="max-height: 300px; overflow-y: auto;">';
-    
     data.items.forEach((item, index) => {
         const kcal = item.calories || 0;
         const grams = item.grams || 100;
@@ -1225,11 +1023,9 @@ function renderAiResults(data) {
             </button>
         `;
     }
-
     contentBox.innerHTML += html;
 }
 
-// 5. Функції додавання
 async function addAiItemToDiary(index) {
     if (!currentAiData || !currentAiData.items[index]) return;
     const item = currentAiData.items[index];
@@ -1239,59 +1035,34 @@ async function addAiItemToDiary(index) {
     btn.innerHTML = '<div class="spinner" style="width:14px; height:14px; border:2px solid #4CAF50; border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;"></div>';
 
     const payload = {
-        product_name: item.name,
-        grams: item.grams,
-        total_kcal: item.calories,
-        total_protein: item.protein,
-        total_fats: item.fat,
-        total_carbs: item.carbs,
-        cuisine: "AI",
-        confidence: 1.0
+        product_name: item.name, grams: item.grams, total_kcal: item.calories,
+        total_protein: item.protein, total_fats: item.fat, total_carbs: item.carbs,
+        cuisine: "AI", confidence: 1.0
     };
 
     try {
         const res = await fetch(`${API_URL}/meals/`, {
             method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json', 
-                'Authorization': `Bearer ${token}`,
-                ...NGROK_HEADERS
-            },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS },
             body: JSON.stringify(payload)
         });
-
         if (res.ok) {
-            btn.innerHTML = '✓';
-            btn.style.background = '#4CAF50';
-            btn.style.color = 'white';
-            updateHeroStats();
-            loadDailyHistory();
-        } else {
-            alert("Помилка збереження");
-            btn.innerHTML = '+';
-        }
-    } catch (e) {
-        console.error(e);
-        btn.innerHTML = '+';
-    }
+            btn.innerHTML = '✓'; btn.style.background = '#4CAF50'; btn.style.color = 'white';
+            updateHeroStats(); loadDailyHistory();
+        } else { alert("Помилка збереження"); btn.innerHTML = '+'; }
+    } catch (e) { console.error(e); btn.innerHTML = '+'; }
 }
 
 async function addAllAiItems() {
     if (!currentAiData) return;
     const btn = document.querySelector('button[onclick="addAllAiItems()"]');
-    const originalText = btn.innerText;
-    btn.innerText = "Зберігаю...";
-    btn.disabled = true;
+    btn.innerText = "Зберігаю..."; btn.disabled = true;
 
     for (let i = 0; i < currentAiData.items.length; i++) {
         await addAiItemToDiary(i);
     }
-
     btn.innerText = "Готово!";
-    setTimeout(() => {
-        closeAiResult();
-        closeAiCamera();
-    }, 1000);
+    setTimeout(() => { closeAiResult(); closeAiCamera(); }, 1000);
 }
 
 function closeAiResult() {
