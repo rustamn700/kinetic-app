@@ -293,38 +293,152 @@ async function updateHeroStats() {
     }
 }
 
+// ЗАМІНЮЄМО СТАРУ ФУНКЦІЮ:
 async function loadDailyHistory() {
     const token = localStorage.getItem('access_token');
     try {
         const dateStr = getFormattedDate();
         const res = await fetch(`${API_URL}/meals/?date=${dateStr}`, { 
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                ...NGROK_HEADERS
-            }
+            headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
         });
         if (!checkAuth(res)) return;
 
         if(res.ok) {
             const meals = await res.json();
+            window.TODAY_MEALS = meals; // Зберігаємо глобально для швидкого редагування
+
             const list = document.getElementById('mealsList');
             list.innerHTML = '';
             
             if(meals.length === 0) {
-                list.innerHTML = '<div style="text-align:center; color:#666; padding:20px;">...</div>';
+                list.innerHTML = `
+                    <div style="text-align:center; padding: 40px 20px; background: rgba(255,255,255,0.02); border-radius: 20px; border: 1px dashed rgba(255,255,255,0.1);">
+                        <div style="font-size:48px; margin-bottom:12px;">🍽️</div>
+                        <h4 style="color:white; margin-bottom:6px; font-size:18px;">Жодного запису</h4>
+                        <p style="font-size:14px; color:#888;">Час щось з'їсти та записати!</p>
+                    </div>`;
                 return;
             }
 
-            meals.slice().reverse().forEach(m => {
+            meals.slice().reverse().forEach((m, index) => {
                 const badge = m.cuisine === 'Azerbaijani' ? '🇦🇿' : (m.cuisine === 'Ukrainian' ? '🇺🇦' : '');
+                
+                // Розумний розподіл іконок (Сніданок, Обід, Вечеря)
+                let timeIcon = '🍽️';
+                let timeColor = 'rgba(255,255,255,0.05)';
+                
+                // Якщо сервер повертає час, використовуємо його. Інакше - красиво розподіляємо по списку
+                if (m.created_at) {
+                    const hour = new Date(m.created_at).getHours();
+                    if (hour >= 5 && hour < 12) { timeIcon = '🍳'; timeColor = 'rgba(255, 159, 10, 0.15)'; } // Сніданок
+                    else if (hour >= 12 && hour < 17) { timeIcon = '🍲'; timeColor = 'rgba(48, 209, 88, 0.15)'; } // Обід
+                    else { timeIcon = '🥗'; timeColor = 'rgba(10, 132, 255, 0.15)'; } // Вечеря
+                } else {
+                    const icons = ['🍳', '🍲', '🥗'];
+                    const colors = ['rgba(255, 159, 10, 0.15)', 'rgba(48, 209, 88, 0.15)', 'rgba(10, 132, 255, 0.15)'];
+                    const realIndex = meals.length - 1 - index; // Оскільки ми перевернули масив
+                    if (realIndex < meals.length / 3) { timeIcon = icons[0]; timeColor = colors[0]; }
+                    else if (realIndex < (meals.length / 3) * 2) { timeIcon = icons[1]; timeColor = colors[1]; }
+                    else { timeIcon = icons[2]; timeColor = colors[2]; }
+                }
+
+                // Захист від лапок у назві страви
+                const safeName = m.name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+
                 list.innerHTML += `
                     <div class="history-item">
-                        <div class="h-info"><h4>${badge} ${m.name}</h4><p>${m.grams} г • P:${m.total_protein} F:${m.total_fats} C:${m.total_carbs}</p></div>
-                        <div style="display:flex; align-items:center;"><span class="h-cal">${m.total_kcal}</span><button onclick="deleteMeal(${m.id})" class="btn-del">×</button></div>
+                        <div class="h-icon-box" style="background: ${timeColor};">${timeIcon}</div>
+                        <div class="h-info">
+                            <h4>${badge} ${m.name}</h4>
+                            <p>
+                                <span class="h-grams" onclick="openEditMealModal(${m.id}, '${safeName}', ${m.grams})">
+                                    ✏️ ${m.grams} г
+                                </span>
+                                <span class="h-macros">
+                                    Б:${Math.round(m.total_protein)} Ж:${Math.round(m.total_fats)} В:${Math.round(m.total_carbs)}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="h-right">
+                            <span class="h-cal">${m.total_kcal} <small>ккал</small></span>
+                            <button onclick="deleteMeal(${m.id})" class="btn-del-new">×</button>
+                        </div>
                     </div>`;
             });
         }
     } catch (e) { console.error(e); }
+}
+
+// ДОДАЙ ЦЕЙ БЛОК ОДРАЗУ ПІД ФУНКЦІЄЮ ВИЩЕ:
+// --- ✏️ РЕДАГУВАННЯ ПОРЦІЇ ---
+let currentEditMealId = null;
+
+function openEditMealModal(id, name, currentGrams) {
+    currentEditMealId = id;
+    document.getElementById('editMealName').innerText = name;
+    document.getElementById('editMealGrams').value = currentGrams;
+    document.getElementById('editMealModal').style.display = 'flex';
+}
+
+function closeEditMealModal() {
+    document.getElementById('editMealModal').style.display = 'none';
+    currentEditMealId = null;
+}
+
+async function saveMealEdit() {
+    if (!currentEditMealId) return;
+    const newGrams = parseInt(document.getElementById('editMealGrams').value);
+    if (isNaN(newGrams) || newGrams <= 0) return alert('Введіть коректну вагу');
+
+    // Знаходимо старий запис у пам'яті
+    const mealToEdit = window.TODAY_MEALS.find(m => m.id === currentEditMealId);
+    if (!mealToEdit) return;
+
+    // Рахуємо нову пропорцію (наприклад, було 100г стало 200г = коефіцієнт 2)
+    const ratio = newGrams / mealToEdit.grams;
+    
+    // Формуємо нові макроси
+    const payload = {
+        product_name: mealToEdit.name,
+        grams: newGrams,
+        total_kcal: Math.round(mealToEdit.total_kcal * ratio),
+        total_protein: mealToEdit.total_protein * ratio,
+        total_fats: mealToEdit.total_fats * ratio,
+        total_carbs: mealToEdit.total_carbs * ratio,
+        cuisine: mealToEdit.cuisine || "Updated",
+        confidence: 1.0
+    };
+
+    const token = localStorage.getItem('access_token');
+    const btn = document.querySelector('#editMealModal .btn-primary');
+    btn.innerText = '⏳';
+
+    try {
+        // Хитрий хід: додаємо новий перерахований запис
+        const postRes = await fetch(`${API_URL}/meals/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS },
+            body: JSON.stringify(payload)
+        });
+
+        if (postRes.ok) {
+            // Якщо успішно зберегли новий - видаляємо старий
+            await fetch(`${API_URL}/meals/${currentEditMealId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
+            });
+            
+            closeEditMealModal();
+            updateHeroStats();
+            loadDailyHistory();
+        } else {
+            alert('Помилка оновлення');
+        }
+    } catch (e) { 
+        console.error(e); 
+    } finally { 
+        btn.innerText = 'Зберегти'; 
+    }
 }
 
 async function loadWeeklyChart() {

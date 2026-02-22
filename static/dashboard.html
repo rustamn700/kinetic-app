@@ -31,7 +31,7 @@
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="icon" href="icons/icon-192.png"> 
     
-    <link rel="stylesheet" href="/css/dashboard.css?v=1.1">
+    <link rel="stylesheet" href="/css/dashboard.css?v=1.2">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -440,7 +440,24 @@
         </div>
     </div>
 
-   <script src="/js/dashboard.js?v=1.1"></script>
+<div id="editMealModal" class="modal-backdrop">
+        <div class="modal-content glass-card" style="text-align: center;">
+            <h3 data-i18n="modal_edit_meal">Змінити порцію</h3>
+            <p id="editMealName" style="color: #888; font-size: 14px; margin-bottom: 15px;">Назва страви</p>
+            
+            <div class="input-wrapper" style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <input type="number" id="editMealGrams" class="glass-input-lg" style="width: 140px; text-align: center; padding: 15px; font-size: 28px;" placeholder="100">
+                <span style="font-size: 20px; color: #888; font-weight: 600;">г</span>
+            </div>
+            
+            <div class="modal-actions" style="margin-top: 20px;">
+                <button onclick="closeEditMealModal()" class="btn-text" data-i18n="btn_cancel">Скасувати</button>
+                <button onclick="saveMealEdit()" class="btn-primary" data-i18n="btn_save">Зберегти</button>
+            </div>
+        </div>
+    </div>
+
+   <script src="/js/dashboard.js?v=1.2"></script>
     <script src="/js/categories.js"></script>
     <script src="/js/translations.js"></script>
     
