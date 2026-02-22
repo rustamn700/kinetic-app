@@ -16,10 +16,14 @@ let html5QrcodeScanner = null;
 let aiStream = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+    
+    // --- 🚀 ЛОГІКА SPLASH SCREEN ---
     setTimeout(() => {
-        const container = document.querySelector('.main-container');
-        if(container) container.classList.add('reveal');
-    }, 100);
+        const splash = document.getElementById('splashScreen');
+        if (splash) {
+            splash.classList.add('hidden');
+        }
+    }, 1500); // 1500 мілісекунд = 1.5 секунди
     
     // 1. Ініціалізація
     applyLanguage(currentLang);

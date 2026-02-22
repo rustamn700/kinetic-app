@@ -1222,3 +1222,42 @@ button:active, .action-item:active, .category-card:active, .pill-btn:active {
     from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* =========================================
+   🚀 SPLASH SCREEN (СТАРТОВИЙ ЕКРАН)
+   ========================================= */
+.splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #050505; /* Такий самий колір, як фон додатка */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999; /* Поверх усього взагалі */
+    transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.6s;
+}
+
+.splash-logo {
+    font-size: 48px;
+    font-weight: 800;
+    color: white;
+    letter-spacing: -1.5px;
+    /* Легка анімація пульсації логотипу під час завантаження */
+    animation: splashPulse 1.5s infinite var(--ease-apple); 
+}
+
+@keyframes splashPulse {
+    0% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 15px rgba(10, 132, 255, 0.5)); }
+    100% { transform: scale(1); opacity: 0.7; }
+}
+
+/* Клас, який приховає екран */
+.splash-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
