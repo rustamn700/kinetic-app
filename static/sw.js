@@ -1,5 +1,5 @@
 // Змінюємо версію кешу, щоб змусити телефон оновитися
-const CACHE_NAME = 'kinetic-v5-login-fix';
+const CACHE_NAME = 'kinetic-v6-login-fix';
 
 const urlsToCache = [
   '/static/dashboard.html',
