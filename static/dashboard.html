@@ -29,7 +29,7 @@
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="icon" href="icons/icon-192.png"> 
     
-    <link rel="stylesheet" href="/css/dashboard.css?v=1.3">
+    <link rel="stylesheet" href="/css/dashboard.css?v=1.4">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -268,8 +268,13 @@
         </div>
 
         <div class="glass-card chart-section">
-            <h4 class="section-title" data-i18n="chart_week">Тиждень</h4>
-            <div class="chart-container"><canvas id="weeklyChart"></canvas></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h4 class="section-title" style="margin: 0;">Динаміка ваги</h4>
+                <div style="background: rgba(48, 209, 88, 0.15); color: #30d158; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; border: 1px solid rgba(48, 209, 88, 0.3);">
+                    Мета: <span id="targetWeightDisplay">75</span> кг
+                </div>
+            </div>
+            <div class="chart-container"><canvas id="weightChart"></canvas></div>
         </div>
 
         <div class="history-section">
@@ -465,7 +470,7 @@
         </div>
     </div>
 
-   <script src="/js/dashboard.js?v=1.3"></script>
+   <script src="/js/dashboard.js?v=1.4"></script>
     <script src="/js/categories.js"></script>
     <script src="/js/translations.js"></script>
     

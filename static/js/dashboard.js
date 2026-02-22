@@ -145,6 +145,7 @@ async function loadDashboardData() {
         await Promise.all([
             updateHeroStats(),
             loadWeeklyChart(),
+            loadWeightChart(), // <--- ДОДАЛИ ЗАВАНТАЖЕННЯ ГРАФІКА ВАГИ
             loadDailyHistory(),
             loadWater()
         ]);
@@ -1067,4 +1068,76 @@ async function addAllAiItems() {
 
 function closeAiResult() {
     document.getElementById('aiResultModal').style.display = 'none';
+}
+
+// --- 📈 ІНТЕРАКТИВНИЙ ГРАФІК ВАГИ ---
+async function loadWeightChart() {
+    const ctx = document.getElementById('weightChart').getContext('2d');
+    
+    // Створюємо красивий зелений градієнт для лінії
+    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+    gradient.addColorStop(0, 'rgba(48, 209, 88, 0.4)');
+    gradient.addColorStop(1, 'rgba(48, 209, 88, 0)');
+
+    // ❗️ ПОКИ ЩО ВИКОРИСТОВУЄМО ДЕМО-ДАНІ (Твій прогрес від 52 до 60)
+    // У наступному кроці ми підключимо сюди реальну історію з бази Neon
+    const demoDates = ['Січ', 'Лют', 'Бер', 'Квіт', 'Трав', 'Зараз'];
+    const demoWeights = [52.0, 53.5, 55.1, 57.0, 58.8, 60.0];
+
+    if(window.myWeightChart) window.myWeightChart.destroy();
+    
+    window.myWeightChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: demoDates,
+            datasets: [{
+                label: 'Вага (кг)',
+                data: demoWeights,
+                borderColor: '#30d158',
+                backgroundColor: gradient,
+                borderWidth: 3,
+                pointBackgroundColor: '#1c1c1e', // Темна серединка точки
+                pointBorderColor: '#30d158',     // Зелена обводка
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                fill: true,
+                tension: 0.4 // Робить лінію плавною і вигнутою
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { 
+                    grid: { display: false }, 
+                    border: { display: false },
+                    ticks: { color: '#86868b', font: { size: 11, weight: '600' } } 
+                },
+                y: { 
+                    grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, 
+                    border: { display: false },
+                    ticks: { color: '#86868b', font: { size: 11 } },
+                    // Робимо так, щоб графік не починався з 0, а фокусувався на прогресі
+                    min: 50, 
+                    max: 80
+                }
+            },
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(28, 28, 30, 0.9)',
+                    titleColor: '#888',
+                    bodyFont: { size: 14, weight: 'bold' },
+                    padding: 12,
+                    cornerRadius: 8,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) { return context.parsed.y + ' кг'; }
+                    }
+                }
+            },
+            interaction: { intersect: false, mode: 'index' }
+        }
+    });
 }
