@@ -789,10 +789,12 @@ function closeProfileModal() {
 
 async function saveProfile() {
     const token = localStorage.getItem('access_token');
+    const weightVal = parseFloat(document.getElementById('profWeight').value);
+    
     const payload = {
         gender: document.getElementById('profGender').value,
         age: parseInt(document.getElementById('profAge').value),
-        weight: parseFloat(document.getElementById('profWeight').value),
+        weight: weightVal,
         height: parseInt(document.getElementById('profHeight').value),
         activity_level: parseFloat(document.getElementById('profActivity').value),
         goal_type: document.getElementById('profGoalType').value
@@ -804,11 +806,20 @@ async function saveProfile() {
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS },
             body: JSON.stringify(payload)
         });
+        
+        // 🔥 ОДРАЗУ ЗБЕРІГАЄМО НОВУ ВАГУ В ІСТОРІЮ
+        await fetch(`${API_URL}/weight/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS },
+            body: JSON.stringify({ weight: weightVal })
+        });
+
         if (res.ok) {
             const data = await res.json();
             alert(`Вашу нову ціль розраховано: ${data.new_goal} ккал`);
             closeProfileModal();
             updateHeroStats(); 
+            loadWeightChart(); // Графік оновиться прямо на очах!
         } else { alert("Помилка збереження"); }
     } catch(e) { console.error(e); }
 }
@@ -1070,74 +1081,71 @@ function closeAiResult() {
     document.getElementById('aiResultModal').style.display = 'none';
 }
 
-// --- 📈 ІНТЕРАКТИВНИЙ ГРАФІК ВАГИ ---
+// --- 📈 ІНТЕРАКТИВНИЙ ГРАФІК ВАГИ (З БАЗИ ДАНИХ) ---
 async function loadWeightChart() {
-    const ctx = document.getElementById('weightChart').getContext('2d');
-    
-    // Створюємо красивий зелений градієнт для лінії
-    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
-    gradient.addColorStop(0, 'rgba(48, 209, 88, 0.4)');
-    gradient.addColorStop(1, 'rgba(48, 209, 88, 0)');
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
 
-    // ❗️ ПОКИ ЩО ВИКОРИСТОВУЄМО ДЕМО-ДАНІ (Твій прогрес від 52 до 60)
-    // У наступному кроці ми підключимо сюди реальну історію з бази Neon
-    const demoDates = ['Січ', 'Лют', 'Бер', 'Квіт', 'Трав', 'Зараз'];
-    const demoWeights = [52.0, 53.5, 55.1, 57.0, 58.8, 60.0];
+    try {
+        const res = await fetch(`${API_URL}/weight/history`, { 
+            headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
+        });
+        
+        if (res.ok) {
+            const data = await res.json();
+            const dates = data.map(d => d.date);
+            const weights = data.map(d => d.weight);
 
-    if(window.myWeightChart) window.myWeightChart.destroy();
-    
-    window.myWeightChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: demoDates,
-            datasets: [{
-                label: 'Вага (кг)',
-                data: demoWeights,
-                borderColor: '#30d158',
-                backgroundColor: gradient,
-                borderWidth: 3,
-                pointBackgroundColor: '#1c1c1e', // Темна серединка точки
-                pointBorderColor: '#30d158',     // Зелена обводка
-                pointBorderWidth: 2,
-                pointRadius: 5,
-                pointHoverRadius: 7,
-                fill: true,
-                tension: 0.4 // Робить лінію плавною і вигнутою
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { 
-                    grid: { display: false }, 
-                    border: { display: false },
-                    ticks: { color: '#86868b', font: { size: 11, weight: '600' } } 
+            const ctx = document.getElementById('weightChart').getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+            gradient.addColorStop(0, 'rgba(48, 209, 88, 0.4)');
+            gradient.addColorStop(1, 'rgba(48, 209, 88, 0)');
+
+            if(window.myWeightChart) window.myWeightChart.destroy();
+            
+            window.myWeightChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Вага (кг)',
+                        data: weights,
+                        borderColor: '#30d158',
+                        backgroundColor: gradient,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#1c1c1e', 
+                        pointBorderColor: '#30d158',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        fill: true,
+                        tension: 0.4 
+                    }]
                 },
-                y: { 
-                    grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, 
-                    border: { display: false },
-                    ticks: { color: '#86868b', font: { size: 11 } },
-                    // Робимо так, щоб графік не починався з 0, а фокусувався на прогресі
-                    min: 50, 
-                    max: 80
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { display: false }, border: { display: false }, ticks: { color: '#86868b', font: { size: 11, weight: '600' } } },
+                        y: { 
+                            grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, 
+                            border: { display: false }, 
+                            ticks: { color: '#86868b', font: { size: 11 } },
+                            min: 50, 
+                            max: 80 // Видно твою ціль 75!
+                        }
+                    },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(28, 28, 30, 0.9)', titleColor: '#888', bodyFont: { size: 14, weight: 'bold' },
+                            padding: 12, cornerRadius: 8, displayColors: false,
+                            callbacks: { label: function(context) { return context.parsed.y + ' кг'; } }
+                        }
+                    },
+                    interaction: { intersect: false, mode: 'index' }
                 }
-            },
-            plugins: { 
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: 'rgba(28, 28, 30, 0.9)',
-                    titleColor: '#888',
-                    bodyFont: { size: 14, weight: 'bold' },
-                    padding: 12,
-                    cornerRadius: 8,
-                    displayColors: false,
-                    callbacks: {
-                        label: function(context) { return context.parsed.y + ' кг'; }
-                    }
-                }
-            },
-            interaction: { intersect: false, mode: 'index' }
+            });
         }
-    });
+    } catch (e) { console.error("Помилка графіка:", e); }
 }

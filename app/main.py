@@ -7,7 +7,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 import os
 
 # Импорты твоих модулей
-from app.api import auth, meals, dishes, ai_search, photo_meals, categories
+from app.api import auth, meals, dishes, ai_search, photo_meals, categories, weight
 from app.db import models, database
 from app.services.importer import import_products_from_json
 
@@ -61,6 +61,8 @@ app.include_router(dishes.router, tags=["Dishes"])
 app.include_router(ai_search.router, tags=["AI Search"])
 app.include_router(photo_meals.router, prefix="/meals", tags=["AI Photo Analysis"]) 
 app.include_router(categories.router, prefix="/catalog", tags=["Catalog"])
+app.include_router(weight.router, prefix="/weight", tags=["Weight History"])
+
 
 @app.get("/")
 async def read_root():

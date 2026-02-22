@@ -4,6 +4,7 @@ from datetime import datetime
 from app.db.database import Base
 
 class User(Base):
+    
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -28,6 +29,9 @@ class User(Base):
     water_logs = relationship("WaterIntake", back_populates="user")
     favorites = relationship("UserFavorite", back_populates="user")
     custom_products = relationship("CustomProduct", back_populates="owner")
+
+# --- Связь с историей веса (ДОБАВЛЕНО) ---
+    weight_history = relationship("WeightHistory", back_populates="user")
 
 class Meal(Base):
     __tablename__ = "meals"
@@ -131,3 +135,13 @@ class DishIngredient(Base):
     weight_g = Column(Integer)
     dish = relationship("Dish", back_populates="ingredients")
     ingredient = relationship("Ingredient")
+
+class WeightHistory(Base):
+    __tablename__ = "weight_history"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    weight = Column(Float)
+    date = Column(Date, default=datetime.now) # Сохраняем дату взвешивания
+    
+    user = relationship("User", back_populates="weight_history")
+    
