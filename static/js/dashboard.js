@@ -1149,3 +1149,87 @@ async function loadWeightChart() {
         }
     } catch (e) { console.error("Помилка графіка:", e); }
 }
+
+// =========================================
+// 🔔 РОЗУМНІ СПОВІЩЕННЯ (PWA)
+// =========================================
+
+// Запускаємо перевірку при старті, якщо вони вже увімкнені
+document.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('notifications_enabled') === 'true') {
+        updateNotificationButton(true);
+        startReminders();
+    }
+});
+
+async function enableNotifications() {
+    if (!("Notification" in window)) {
+        alert("Ваш браузер не підтримує сповіщення");
+        return;
+    }
+
+    const perm = await Notification.requestPermission();
+    if (perm === "granted") {
+        localStorage.setItem('notifications_enabled', 'true');
+        updateNotificationButton(true);
+        
+        // Відправляємо тестове сповіщення
+        sendLocalNotification("Kinetic 🎉", "Сповіщення успішно увімкнено! Тепер ми будемо нагадувати вам про воду та їжу.");
+        startReminders();
+    } else {
+        alert("Ви відхилили сповіщення. Дозвольте їх у налаштуваннях системи.");
+        updateNotificationButton(false);
+    }
+}
+
+function updateNotificationButton(isEnabled) {
+    const btn = document.getElementById('btnEnableNotifications');
+    if (!btn) return;
+    if (isEnabled) {
+        btn.innerText = "✅ Нагадування увімкнено";
+        btn.style.background = "rgba(48, 209, 88, 0.1)";
+        btn.style.borderColor = "rgba(48, 209, 88, 0.3)";
+        btn.style.color = "#30d158";
+    }
+}
+
+function startReminders() {
+    // Перевіряємо статус кожну годину (3600000 мс)
+    setInterval(() => {
+        checkAndSendReminders();
+    }, 3600000);
+}
+
+function checkAndSendReminders() {
+    const hour = new Date().getHours();
+    
+    // Не турбувати вночі (з 22:00 до 08:00)
+    if (hour < 8 || hour >= 22) return;
+
+    // 1. НАГАДУВАННЯ ПРО ВОДУ
+    const waterVal = parseInt(document.getElementById('waterCount').innerText) || 0;
+    // Якщо вже 15:00, а випито менше 1000 мл
+    if (hour >= 15 && waterVal < 1000) {
+        sendLocalNotification("Час попити води! 💧", `Ви випили лише ${waterVal} мл. Ваш організм потребує гідратації.`);
+    }
+
+    // 2. НАГАДУВАННЯ ПРО ЇЖУ
+    const cals = parseInt(document.getElementById('currentCals').innerText) || 0;
+    // Якщо вже 14:00, а з'їдено менше 500 ккал (пропуск обіду)
+    if (hour >= 14 && cals < 500) {
+        sendLocalNotification("Ви забули поїсти? 🍽️", "Ви спожили дуже мало калорій сьогодні. Не забувайте набирати масу!");
+    }
+}
+
+function sendLocalNotification(title, body) {
+    if (Notification.permission === 'granted' && navigator.serviceWorker) {
+        navigator.serviceWorker.ready.then(function(registration) {
+            registration.showNotification(title, {
+                body: body,
+                icon: '/icons/icon-192.png', // Показуватиме логотип твого додатка
+                badge: '/icons/icon-192.png',
+                vibrate: [200, 100, 200]     // Вібрація (тільки для Android)
+            });
+        });
+    }
+}

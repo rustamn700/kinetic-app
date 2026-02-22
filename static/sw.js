@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kinetic-dynamic-cache-v1';
+const CACHE_NAME = 'kinetic-dynamic-cache-v7';
 
 // Встановлення: примушуємо новий Service Worker відразу почати роботу
 self.addEventListener('install', (event) => {
@@ -37,5 +37,25 @@ self.addEventListener('fetch', (event) => {
                 // 2. Якщо інтернету немає взагалі — дістаємо з кешу
                 return caches.match(event.request);
             })
+    );
+});
+
+// --- ОБРОБКА КЛІКУ ПО СПОВІЩЕННЮ ---
+self.addEventListener('notificationclick', function(event) {
+    event.notification.close(); // Закриваємо сповіщення
+    
+    // Перевіряємо, чи додаток вже відкритий. Якщо так - фокусуємось на ньому, якщо ні - відкриваємо
+    event.waitUntil(
+        clients.matchAll({ type: 'window' }).then(windowClients => {
+            for (var i = 0; i < windowClients.length; i++) {
+                var client = windowClients[i];
+                if (client.url.indexOf('/') !== -1 && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            if (clients.openWindow) {
+                return clients.openWindow('/');
+            }
+        })
     );
 });

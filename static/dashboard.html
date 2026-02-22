@@ -29,7 +29,7 @@
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="icon" href="icons/icon-192.png"> 
     
-    <link rel="stylesheet" href="/css/dashboard.css?v=1.5">
+    <link rel="stylesheet" href="/css/dashboard.css?v=1.6">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -323,7 +323,7 @@
                     </div>
                     <input type="hidden" id="profActivity" value="1.2">
                 </div>
-                <div class="form-section">
+            <div class="form-section">
                     <label data-i18n="lbl_goal_type" class="section-label">Ваша мета</label>
                     <div class="goal-stack" id="goalSelector">
                         <div class="goal-card" data-goal="lose" onclick="selectGoal(this, 'lose')"><div class="goal-icon">📉</div><span data-i18n="goal_lose">Схуднення</span><div class="goal-check"></div></div>
@@ -332,12 +332,19 @@
                     </div>
                     <input type="hidden" id="profGoalType" value="maintain">
                 </div>
-            </div>
-            <div class="modal-footer">
+
+                <div class="form-section">
+                    <label class="section-label">Сповіщення (PWA)</label>
+                    <button id="btnEnableNotifications" onclick="enableNotifications()" type="button" style="width: 100%; background: rgba(10, 132, 255, 0.1); border: 1px solid rgba(10, 132, 255, 0.3); color: #0a84ff; padding: 14px; border-radius: 16px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s;">
+                        🔔 Увімкнути нагадування
+                    </button>
+                    <p style="font-size: 11px; color: #666; margin-top: 8px; text-align: center;">Отримуйте нагадування про воду та прийоми їжі</p>
+                </div>
+
+            </div> <div class="modal-footer">
                 <button onclick="saveProfile()" class="btn-premium-save" data-i18n="btn_calc_save">Розрахувати та Зберегти</button>
             </div>
-        </div>
-    </div>
+        </div> </div>
 
     <div id="editMealModal" class="modal-backdrop">
         <div class="modal-content glass-card">
@@ -470,7 +477,7 @@
         </div>
     </div>
 
-   <script src="/js/dashboard.js?v=1.5"></script>
+   <script src="/js/dashboard.js?v=1.6"></script>
     <script src="/js/categories.js"></script>
     <script src="/js/translations.js"></script>
     
