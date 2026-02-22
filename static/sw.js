@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kinetic-dynamic-cache-v7';
+const CACHE_NAME = 'kinetic-dynamic-cache-v8';
 
 // Встановлення: примушуємо новий Service Worker відразу почати роботу
 self.addEventListener('install', (event) => {

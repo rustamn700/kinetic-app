@@ -1381,3 +1381,62 @@ button:active, .action-item:active, .category-card:active, .pill-btn:active {
     background: #ff453a; 
     color: white; 
 }
+
+/* =========================================
+   🏆 СИСТЕМА ДОСЯГНЕНЬ
+   ========================================= */
+.badges-container { 
+    display: flex; 
+    gap: 12px; 
+    overflow-x: auto; 
+    padding-bottom: 10px; 
+    scrollbar-width: none; /* Ховаємо скроллбар */
+}
+.badges-container::-webkit-scrollbar { display: none; }
+
+.badge-card {
+    min-width: 100px; 
+    background: rgba(255, 255, 255, 0.02); 
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px; 
+    padding: 15px 10px; 
+    text-align: center; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 8px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Сіра іконка, якщо ачівка ще закрита */
+.badge-icon { 
+    font-size: 32px; 
+    filter: grayscale(1); 
+    opacity: 0.3; 
+    transition: 0.4s; 
+}
+
+.badge-title { 
+    font-size: 11px; 
+    font-weight: 600; 
+    color: #666; 
+    line-height: 1.2; 
+}
+
+/* 🌟 КОЛИ АЧІВКА РОЗБЛОКОВАНА 🌟 */
+.badge-card.unlocked {
+    background: linear-gradient(135deg, rgba(255, 159, 10, 0.15), rgba(255, 214, 10, 0.05));
+    border-color: rgba(255, 159, 10, 0.4);
+    box-shadow: 0 4px 15px rgba(255, 159, 10, 0.2);
+    transform: translateY(-2px);
+}
+
+.badge-card.unlocked .badge-icon { 
+    filter: grayscale(0); 
+    opacity: 1; 
+    transform: scale(1.15); 
+}
+
+.badge-card.unlocked .badge-title { 
+    color: #ffd60a; 
+}
