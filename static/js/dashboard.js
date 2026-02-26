@@ -1,11 +1,6 @@
 var API_URL = "https://kinetic-fp1n.onrender.com";
+const NGROK_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
 
-// 🔥 МАГІЧНИЙ ЗАГОЛОВОК ДЛЯ NGROK
-const NGROK_HEADERS = {
-    'ngrok-skip-browser-warning': 'true'
-};
-
-// --- ГЛОБАЛЬНІ ЗМІННІ ---
 let currentAIResult = null;
 let currentAiData = null;
 let GLOBAL_FOOD_DB = [];
@@ -15,8 +10,41 @@ let attachedFiles = [];
 let html5QrcodeScanner = null;
 let aiStream = null;
 
+// --- 1️⃣ ТАКТИЛЬНА ВІБРАЦІЯ (HAPTIC) ---
+function vibrate(pattern = 50) {
+    if (navigator.vibrate) {
+        navigator.vibrate(pattern);
+    }
+}
+
+// --- 2️⃣ PWA БАННЕР ВСТАНОВЛЕННЯ ---
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const banner = document.getElementById('installBanner');
+    if (localStorage.getItem('hideInstallBanner') !== 'true' && banner) {
+        setTimeout(() => { banner.classList.add('active'); }, 3000); // Показуємо через 3 секунди
+    }
+});
+
+function installPWA() {
+    vibrate();
+    const banner = document.getElementById('installBanner');
+    if (banner) banner.classList.remove('active');
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+    }
+}
+
+function dismissInstallBanner() {
+    const banner = document.getElementById('installBanner');
+    if(banner) banner.classList.remove('active');
+    localStorage.setItem('hideInstallBanner', 'true');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    
     setTimeout(() => {
         const splash = document.getElementById('splashScreen');
         if (splash) splash.classList.add('hidden');
@@ -149,8 +177,6 @@ async function loadDashboardData() {
             loadDailyHistory(),
             loadWater()
         ]);
-        // Запускаємо перевірку ачівок ПІСЛЯ того, як завантажились інші дані
-        checkAchievements(); 
     } catch (e) {
         console.error("Помилка завантаження:", e);
     } finally {
@@ -179,6 +205,7 @@ function animateValue(id, start, end, duration) {
     window.requestAnimationFrame(step);
 }
 
+// --- 3️⃣ САЛЮТ ПРИ ДОСЯГНЕННІ ЦІЛІ ---
 async function updateHeroStats() {
     const token = localStorage.getItem('access_token');
     if(!token) return;
@@ -224,16 +251,61 @@ async function updateHeroStats() {
                 if (circle) {
                     const circumference = 2 * Math.PI * 90;
                     circle.style.strokeDashoffset = circumference - (Math.min(percent, 100) / 100) * circumference;
-                    if (percent > 105) circle.style.stroke = "#ff453a"; 
-                    else if (percent > 85) circle.style.stroke = "#ff9f0a"; 
-                    else circle.style.stroke = "#30d158"; 
+                    
+                    if (percent >= 100) {
+                        circle.style.stroke = "#30d158"; // Зелений, якщо досягли
+                        
+                        // Запускаємо конфетті, якщо сьогодні ще не було
+                        const todayStr = getFormattedDate();
+                        if (localStorage.getItem('confettiFired') !== todayStr && typeof confetti === 'function') {
+                            confetti({
+                                particleCount: 150, spread: 80, origin: { y: 0.6 },
+                                colors: ['#30d158', '#0a84ff', '#ff9f0a', '#ffd60a'],
+                                disableForReducedMotion: true
+                            });
+                            vibrate([100, 50, 100, 50, 100]); // Переможна вібрація!
+                            localStorage.setItem('confettiFired', todayStr);
+                        }
+                    } else if (percent > 85) {
+                        circle.style.stroke = "#ff9f0a"; 
+                    } else {
+                        circle.style.stroke = "#0a84ff"; 
+                    }
                 }
             }
         }
     } catch (e) { console.error(e); }
 }
 
-// --- 🌟 ОНОВЛЕНЕ ЗАВАНТАЖЕННЯ ІСТОРІЇ ---
+// --- 4️⃣ СВАЙП ДЛЯ ВИДАЛЕННЯ ЇЖІ ---
+let touchStartX = 0;
+let currentSwipedEl = null;
+
+function handleTouchStart(e) {
+    touchStartX = e.touches[0].clientX;
+}
+
+function handleTouchMove(e) {
+    if (!touchStartX) return;
+    let currentX = e.touches[0].clientX;
+    let diff = touchStartX - currentX;
+    let el = e.currentTarget;
+
+    // Свайп вліво (більше 40 пікселів)
+    if (diff > 40) {
+        if(currentSwipedEl && currentSwipedEl !== el) {
+            currentSwipedEl.style.transform = 'translateX(0)';
+        }
+        el.style.transform = 'translateX(-80px)';
+        currentSwipedEl = el;
+    } 
+    // Свайп вправо (закрити)
+    else if (diff < -30) {
+        el.style.transform = 'translateX(0)';
+        if(currentSwipedEl === el) currentSwipedEl = null;
+    }
+}
+
 async function loadDailyHistory() {
     const token = localStorage.getItem('access_token');
     try {
@@ -247,15 +319,9 @@ async function loadDailyHistory() {
             const meals = await res.json();
             window.TODAY_MEALS = meals; 
 
-            // --- 🔥 ПОЧАТОК НОВОГО КОДУ ДЛЯ ВОГНИКА ---
             const fireIcon = document.getElementById('streakFire');
-            // Якщо сьогодні є хоча б один запис їжі - запалюємо вогонь!
-            if (meals.length > 0) {
-                fireIcon.classList.add('active');
-            } else {
-                fireIcon.classList.remove('active');
-            }
-            // --- 🔥 КІНЕЦЬ НОВОГО КОДУ ---
+            if (meals.length > 0) { fireIcon.classList.add('active'); } 
+            else { fireIcon.classList.remove('active'); }
 
             const list = document.getElementById('mealsList');
             list.innerHTML = '';
@@ -272,7 +338,6 @@ async function loadDailyHistory() {
 
             meals.slice().reverse().forEach((m, index) => {
                 const badge = m.cuisine === 'Azerbaijani' ? '🇦🇿' : (m.cuisine === 'Ukrainian' ? '🇺🇦' : '');
-                
                 let timeIcon = '🍽️';
                 let timeColor = 'rgba(255,255,255,0.05)';
                 
@@ -283,21 +348,22 @@ async function loadDailyHistory() {
                     else { timeIcon = '🥗'; timeColor = 'rgba(10, 132, 255, 0.15)'; }
                 }
 
+                // 🔥 ВАЖЛИВО: Нова структура для Свайпу
                 list.innerHTML += `
-                    <div class="history-item" onclick="openEditMealModal(${m.id})">
-                        <div class="h-icon-box" style="background: ${timeColor};">${timeIcon}</div>
-                        <div class="h-info">
-                            <h4>${badge} ${m.name}</h4>
-                            <p>
-                                <span class="h-grams">${m.grams} г</span>
-                                <span class="h-macros">
-                                    Б:${Math.round(m.total_protein)} Ж:${Math.round(m.total_fats)} В:${Math.round(m.total_carbs)}
-                                </span>
-                            </p>
-                        </div>
-                        <div class="h-right">
-                            <span class="h-cal">${m.total_kcal} <small>ккал</small></span>
-                            <button onclick="deleteMeal(event, ${m.id})" class="btn-del-new">×</button>
+                    <div class="swipe-container">
+                        <div class="swipe-action" onclick="vibrate(); deleteMeal(event, ${m.id})">🗑️</div>
+                        <div class="swipe-content" onclick="openEditMealModal(${m.id})" ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event)">
+                            <div class="h-icon-box" style="background: ${timeColor};">${timeIcon}</div>
+                            <div class="h-info">
+                                <h4>${badge} ${m.name}</h4>
+                                <p>
+                                    <span class="h-grams">${m.grams} г</span>
+                                    <span class="h-macros">Б:${Math.round(m.total_protein)} Ж:${Math.round(m.total_fats)} В:${Math.round(m.total_carbs)}</span>
+                                </p>
+                            </div>
+                            <div class="h-right">
+                                <span class="h-cal">${m.total_kcal} <small>ккал</small></span>
+                            </div>
                         </div>
                     </div>`;
             });
@@ -305,10 +371,12 @@ async function loadDailyHistory() {
     } catch (e) { console.error(e); }
 }
 
-// --- ❌ ОНОВЛЕНЕ ВИДАЛЕННЯ (зупиняємо клік) ---
 async function deleteMeal(event, id) {
     if(event) event.stopPropagation(); 
-    if(!confirm("Видалити?")) return;
+    if(!confirm("Видалити?")) {
+        if(currentSwipedEl) currentSwipedEl.style.transform = 'translateX(0)';
+        return;
+    }
     const token = localStorage.getItem('access_token');
     await fetch(`${API_URL}/meals/${id}`, { 
         method: 'DELETE', 
@@ -317,15 +385,19 @@ async function deleteMeal(event, id) {
     updateHeroStats(); loadDailyHistory();
 }
 
-// --- ✏️ ОНОВЛЕНЕ РЕДАГУВАННЯ (Назва + Кількість + Одиниці) ---
 let currentEditMealId = null;
 
 function openEditMealModal(id) {
+    if(currentSwipedEl) {
+        currentSwipedEl.style.transform = 'translateX(0)';
+        currentSwipedEl = null;
+        return; 
+    }
+
     const meal = window.TODAY_MEALS.find(m => m.id === id);
     if (!meal) return;
     
     currentEditMealId = id;
-    
     let cleanName = meal.name.replace(/🇦🇿 |🇺🇦 /g, ''); 
     let unit = 'г';
     if (cleanName.includes('(мл)')) { unit = 'мл'; cleanName = cleanName.replace(' (мл)', ''); }
@@ -356,7 +428,6 @@ async function saveMealEdit() {
     if (!mealToEdit) return;
 
     const ratio = newAmount / mealToEdit.grams;
-    
     let finalName = newName;
     if (unit === 'мл' && !finalName.toLowerCase().includes('мл')) finalName += ' (мл)';
     if (unit === 'шт' && !finalName.toLowerCase().includes('шт')) finalName += ' (шт)';
@@ -436,8 +507,7 @@ async function loadWeeklyChart() {
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     scales: {
                         x: { grid: { display: false }, border: { display: false }, ticks: { color: '#86868b', font: { size: 12, weight: '600' } } },
                         y: { display: false }
@@ -447,6 +517,54 @@ async function loadWeeklyChart() {
             });
         }
     } catch (e) { console.error(e); }
+}
+
+async function loadWeightChart() {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+        const res = await fetch(`${API_URL}/weight/history`, { 
+            headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
+        });
+        
+        if (res.ok) {
+            const data = await res.json();
+            const dates = data.map(d => d.date);
+            const weights = data.map(d => d.weight);
+
+            const ctx = document.getElementById('weightChart').getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+            gradient.addColorStop(0, 'rgba(48, 209, 88, 0.4)');
+            gradient.addColorStop(1, 'rgba(48, 209, 88, 0)');
+
+            if(window.myWeightChart) window.myWeightChart.destroy();
+            
+            window.myWeightChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Вага (кг)', data: weights, borderColor: '#30d158', backgroundColor: gradient,
+                        borderWidth: 3, pointBackgroundColor: '#1c1c1e', pointBorderColor: '#30d158',
+                        pointBorderWidth: 2, pointRadius: 5, pointHoverRadius: 7, fill: true, tension: 0.4 
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { display: false }, border: { display: false }, ticks: { color: '#86868b', font: { size: 11, weight: '600' } } },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, border: { display: false }, ticks: { color: '#86868b', font: { size: 11 } }, min: 50, max: 80 }
+                    },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { backgroundColor: 'rgba(28, 28, 30, 0.9)', titleColor: '#888', bodyFont: { size: 14, weight: 'bold' }, padding: 12, cornerRadius: 8, displayColors: false, callbacks: { label: function(context) { return context.parsed.y + ' кг'; } } }
+                    },
+                    interaction: { intersect: false, mode: 'index' }
+                }
+            });
+        }
+    } catch (e) { console.error("Помилка графіка:", e); }
 }
 
 async function loadFoodDatabase() {
@@ -632,7 +750,7 @@ function renderPreviews() {
         const reader = new FileReader();
         reader.onload = e => {
             const div = document.createElement('div'); div.className = 'thumb-wrapper';
-            div.innerHTML = `<img src="${e.target.result}" class="thumb-img"><div class="btn-remove-one" onclick="removeOneImage(${index})">×</div>`;
+            div.innerHTML = `<img src="${e.target.result}" class="thumb-img"><div class="btn-remove-one" onclick="vibrate(); removeOneImage(${index})">×</div>`;
             list.appendChild(div);
         }
         reader.readAsDataURL(file);
@@ -644,6 +762,7 @@ function clearAllImages() { attachedFiles = []; renderPreviews(); updateSendButt
 function toggleActionMenu() { document.getElementById('actionMenu').classList.toggle('active'); document.getElementById('btnPlus').classList.toggle('active'); }
 function openCatalogFromMenu() { toggleActionMenu(); if(window.openCatalogRoot) openCatalogRoot(); }
 
+// --- 5️⃣ АНІМАЦІЯ ВОДИ ---
 async function loadWater() {
     const token = localStorage.getItem('access_token');
     const dateStr = getFormattedDate();
@@ -654,6 +773,11 @@ async function loadWater() {
         if (res.ok) {
             const data = await res.json();
             document.getElementById('waterCount').innerText = data.total_ml;
+            
+            // Анімація колби
+            const fillPercentage = Math.min((data.total_ml / 2500) * 100, 100); 
+            const fillLayer = document.getElementById('waterCardFill');
+            if (fillLayer) fillLayer.style.height = `${fillPercentage}%`;
         }
     } catch (e) { console.error(e); }
 }
@@ -819,7 +943,6 @@ async function saveProfile() {
             body: JSON.stringify(payload)
         });
         
-        // 🔥 ОДРАЗУ ЗБЕРІГАЄМО НОВУ ВАГУ В ІСТОРІЮ
         await fetch(`${API_URL}/weight/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS },
@@ -831,7 +954,7 @@ async function saveProfile() {
             alert(`Вашу нову ціль розраховано: ${data.new_goal} ккал`);
             closeProfileModal();
             updateHeroStats(); 
-            loadWeightChart(); // Графік оновиться прямо на очах!
+            loadWeightChart(); 
         } else { alert("Помилка збереження"); }
     } catch(e) { console.error(e); }
 }
@@ -864,7 +987,7 @@ function stopScanner() {
 }
 
 async function onScanSuccess(decodedText, decodedResult) {
-    if (navigator.vibrate) navigator.vibrate(200);
+    vibrate(200);
     stopScanner();
     try {
         const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`);
@@ -926,7 +1049,7 @@ async function analyzeImageFile(file) {
         if (data.error) {
             contentBox.innerHTML = `<p style="color: #ff6b6b; text-align: center; padding: 20px;">${data.error}</p>`;
             setTimeout(() => closeAiResult(), 3000);
-        } else { renderAiResults(data); }
+        } else { renderAiResults(data); vibrate(); }
     } catch (e) {
         alert("Помилка з'єднання: " + e);
         closeAiResult();
@@ -1029,7 +1152,7 @@ function renderAiResults(data) {
                         </div>
                     </div>
                 </div>
-                <button onclick="addAiItemToDiary(${index})" 
+                <button onclick="vibrate(); addAiItemToDiary(${index})" 
                         class="btn-add-ai"
                         style="background: transparent; color: #4CAF50; border: 1px solid #4CAF50; border-radius: 50%; width: 36px; height: 36px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
                     +
@@ -1041,7 +1164,7 @@ function renderAiResults(data) {
 
     if (data.items.length > 1) {
         html += `
-            <button onclick="addAllAiItems()" 
+            <button onclick="vibrate(); addAllAiItems()" 
                     style="width: 100%; margin-top: 20px; padding: 14px; background: #4CAF50; color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 16px; cursor: pointer; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);">
                 Додати все разом (${data.total.calories} ккал)
             </button>
@@ -1093,155 +1216,14 @@ function closeAiResult() {
     document.getElementById('aiResultModal').style.display = 'none';
 }
 
-// --- 📈 ІНТЕРАКТИВНИЙ ГРАФІК ВАГИ (З БАЗИ ДАНИХ) ---
-async function loadWeightChart() {
-    const token = localStorage.getItem('access_token');
-    if (!token) return;
-
-    try {
-        const res = await fetch(`${API_URL}/weight/history`, { 
-            headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
-        });
-        
-        if (res.ok) {
-            const data = await res.json();
-            const dates = data.map(d => d.date);
-            const weights = data.map(d => d.weight);
-
-            const ctx = document.getElementById('weightChart').getContext('2d');
-            const gradient = ctx.createLinearGradient(0, 0, 0, 200);
-            gradient.addColorStop(0, 'rgba(48, 209, 88, 0.4)');
-            gradient.addColorStop(1, 'rgba(48, 209, 88, 0)');
-
-            if(window.myWeightChart) window.myWeightChart.destroy();
-            
-            window.myWeightChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: dates,
-                    datasets: [{
-                        label: 'Вага (кг)',
-                        data: weights,
-                        borderColor: '#30d158',
-                        backgroundColor: gradient,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#1c1c1e', 
-                        pointBorderColor: '#30d158',
-                        pointBorderWidth: 2,
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
-                        fill: true,
-                        tension: 0.4 
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { grid: { display: false }, border: { display: false }, ticks: { color: '#86868b', font: { size: 11, weight: '600' } } },
-                        y: { 
-                            grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, 
-                            border: { display: false }, 
-                            ticks: { color: '#86868b', font: { size: 11 } },
-                            min: 50, 
-                            max: 80 // Видно твою ціль 75!
-                        }
-                    },
-                    plugins: { 
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(28, 28, 30, 0.9)', titleColor: '#888', bodyFont: { size: 14, weight: 'bold' },
-                            padding: 12, cornerRadius: 8, displayColors: false,
-                            callbacks: { label: function(context) { return context.parsed.y + ' кг'; } }
-                        }
-                    },
-                    interaction: { intersect: false, mode: 'index' }
-                }
-            });
-        }
-    } catch (e) { console.error("Помилка графіка:", e); }
-}
-
-// =========================================
-// 🔔 РОЗУМНІ СПОВІЩЕННЯ (PWA)
-// =========================================
-
-// Запускаємо перевірку при старті, якщо вони вже увімкнені
-document.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem('notifications_enabled') === 'true') {
-        updateNotificationButton(true);
-        startReminders();
-    }
-});
-
 async function enableNotifications() {
     if (!("Notification" in window)) {
         alert("Ваш браузер не підтримує сповіщення");
         return;
     }
-
     const perm = await Notification.requestPermission();
     if (perm === "granted") {
         localStorage.setItem('notifications_enabled', 'true');
-        updateNotificationButton(true);
-        
-        // Відправляємо тестове сповіщення
-        sendLocalNotification("Kinetic 🎉", "Сповіщення успішно увімкнено! Тепер ми будемо нагадувати вам про воду та їжу.");
-        startReminders();
-    } else {
-        alert("Ви відхилили сповіщення. Дозвольте їх у налаштуваннях системи.");
-        updateNotificationButton(false);
-    }
-}
-
-function updateNotificationButton(isEnabled) {
-    const btn = document.getElementById('btnEnableNotifications');
-    if (!btn) return;
-    if (isEnabled) {
-        btn.innerText = "✅ Нагадування увімкнено";
-        btn.style.background = "rgba(48, 209, 88, 0.1)";
-        btn.style.borderColor = "rgba(48, 209, 88, 0.3)";
-        btn.style.color = "#30d158";
-    }
-}
-
-function startReminders() {
-    // Перевіряємо статус кожну годину (3600000 мс)
-    setInterval(() => {
-        checkAndSendReminders();
-    }, 3600000);
-}
-
-function checkAndSendReminders() {
-    const hour = new Date().getHours();
-    
-    // Не турбувати вночі (з 22:00 до 08:00)
-    if (hour < 8 || hour >= 22) return;
-
-    // 1. НАГАДУВАННЯ ПРО ВОДУ
-    const waterVal = parseInt(document.getElementById('waterCount').innerText) || 0;
-    // Якщо вже 15:00, а випито менше 1000 мл
-    if (hour >= 15 && waterVal < 1000) {
-        sendLocalNotification("Час попити води! 💧", `Ви випили лише ${waterVal} мл. Ваш організм потребує гідратації.`);
-    }
-
-    // 2. НАГАДУВАННЯ ПРО ЇЖУ
-    const cals = parseInt(document.getElementById('currentCals').innerText) || 0;
-    // Якщо вже 14:00, а з'їдено менше 500 ккал (пропуск обіду)
-    if (hour >= 14 && cals < 500) {
-        sendLocalNotification("Ви забули поїсти? 🍽️", "Ви спожили дуже мало калорій сьогодні. Не забувайте набирати масу!");
-    }
-}
-
-function sendLocalNotification(title, body) {
-    if (Notification.permission === 'granted' && navigator.serviceWorker) {
-        navigator.serviceWorker.ready.then(function(registration) {
-            registration.showNotification(title, {
-                body: body,
-                icon: '/icons/icon-192.png', // Показуватиме логотип твого додатка
-                badge: '/icons/icon-192.png',
-                vibrate: [200, 100, 200]     // Вібрація (тільки для Android)
-            });
-        });
+        alert("Сповіщення увімкнено!");
     }
 }
