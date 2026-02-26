@@ -6,6 +6,7 @@ from app.db import database, models
 from app.core import security
 from pydantic import BaseModel
 from typing import Optional
+import re  # <-- ДОБАВИЛИ ИМПОРТ ДЛЯ ПРОВЕРКИ EMAIL
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
@@ -36,8 +37,19 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
 @router.post("/register")
 def register(user: UserCreate, db: Session = Depends(database.get_db)):
+    # --- 🛡️ 1. ПРОВЕРКА ПАРОЛЯ (Минимум 8 символов) ---
+    if len(user.password) < 8:
+        raise HTTPException(status_code=400, detail="Пароль должен содержать минимум 8 символов")
+        
+    # --- 🛡️ 2. ПРОВЕРКА EMAIL (Наличие @ и точки) ---
+    email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    if not re.match(email_regex, user.email):
+        raise HTTPException(status_code=400, detail="Введите действительный адрес электронной почты")
+
+    # --- 3. Проверка, не занят ли Email ---
     if db.query(models.User).filter(models.User.email == user.email).first():
-        raise HTTPException(status_code=400, detail="Email registered")
+        raise HTTPException(status_code=400, detail="Этот Email уже зарегистрирован")
+        
     hashed_pw = security.get_password_hash(user.password)
     new_user = models.User(email=user.email, hashed_password=hashed_pw)
     db.add(new_user)
@@ -66,10 +78,10 @@ def read_users_me(current_user: models.User = Depends(get_current_user)):
         "goal_type": current_user.goal_type
     }
 
-# --- 🔥 ОНОВЛЕННЯ ПРОФІЛЮ ТА РОЗРАХУНОК КАЛОРІЙ ---
+# --- 🔥 ОБНОВЛЕНИЕ ПРОФИЛЯ И РАСЧЕТ КАЛОРИЙ ---
 @router.put("/update-profile")
 def update_profile(data: UserProfileUpdate, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
-    # 1. Зберігаємо дані
+    # 1. Сохраняем данные
     current_user.gender = data.gender
     current_user.age = data.age
     current_user.weight = data.weight
@@ -77,21 +89,20 @@ def update_profile(data: UserProfileUpdate, db: Session = Depends(database.get_d
     current_user.activity_level = data.activity_level
     current_user.goal_type = data.goal_type
 
-    # 2. Формула Міффліна-Сан Жера
-    # BMR = 10*вага + 6.25*зріст - 5*вік + s (s=+5 для чоловіків, s=-161 для жінок)
+    # 2. Формула Миффлина-Сан Жеора
     s = 5 if data.gender == 'male' else -161
     bmr = (10 * data.weight) + (6.25 * data.height) - (5 * data.age) + s
     
-    # 3. TDEE (З урахуванням активності)
+    # 3. TDEE (С учетом активности)
     tdee = bmr * data.activity_level
 
-    # 4. Коригування під ціль
+    # 4. Корректировка под цель
     if data.goal_type == 'lose':
-        final_goal = int(tdee * 0.80) # Дефіцит 20%
+        final_goal = int(tdee * 0.80) # Дефицит 20%
     elif data.goal_type == 'gain':
-        final_goal = int(tdee * 1.15) # Профіцит 15%
+        final_goal = int(tdee * 1.15) # Профицит 15%
     else:
-        final_goal = int(tdee)        # Підтримка
+        final_goal = int(tdee)        # Поддержка
 
     current_user.daily_goal = final_goal
     db.commit()

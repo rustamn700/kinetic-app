@@ -1,19 +1,31 @@
-// 👇 ВАЖНО: Адрес NGROK
 var API_URL = "https://kinetic-fp1n.onrender.com";
 
 async function login() {
-    const email = document.getElementById('email').value;
+    const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
     const errorElement = document.getElementById('error');
     const btn = document.querySelector('.btn-primary');
 
+    // Очищаємо попередні помилки перед новою спробою
+    if (errorElement) {
+        errorElement.innerText = "";
+        errorElement.style.display = "none";
+    }
+
+    // 1. ПЕРЕВІРКА НА ПОРОЖНІ ПОЛЯ
     if(!email || !password) {
-        errorElement.innerText = "Введіть email та пароль";
+        showError("Введіть email та пароль");
         return;
     }
 
-    // Блокируем кнопку, чтобы понять, что процесс идет
-    btn.innerText = "Вход...";
+    // 2. ПЕРЕВІРКА ФОРМАТУ EMAIL
+    if (!email.includes('@') || !email.includes('.')) {
+        showError("Введіть правильний Email (наприклад: name@gmail.com)");
+        return;
+    }
+
+    // Блокуємо кнопку, щоб уникнути подвійних кліків
+    btn.innerText = "Вхід...";
     btn.disabled = true;
 
     const formData = new FormData();
@@ -23,7 +35,6 @@ async function login() {
     try {
         const response = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
-            // 👇 ДОБАВЛЯЕМ HEADER, НО ТОЛЬКО ДЛЯ NGROK
             headers: {
                 'ngrok-skip-browser-warning': 'true'
             },
@@ -33,15 +44,33 @@ async function login() {
         if (response.ok) {
             const data = await response.json();
             localStorage.setItem('access_token', data.access_token);
-            window.location.href = 'dashboard.html'; // Убрал /static/, обычно они в одной папке
+            window.location.href = 'dashboard.html'; 
         } else {
-            errorElement.innerText = "Помилка входу! Перевірте дані.";
+            showError("Невірний логін або пароль!");
             btn.innerText = "Увійти";
             btn.disabled = false;
         }
     } catch (e) {
-        errorElement.innerText = "Помилка мережі: " + e;
+        showError("Помилка мережі. Перевірте інтернет.");
         btn.innerText = "Увійти";
         btn.disabled = false;
+    }
+
+    // Допоміжна функція для виводу помилки
+    function showError(msg) {
+        if (errorElement) {
+            errorElement.innerText = msg;
+            errorElement.style.display = "block";
+            // Якщо у тебе в CSS немає кольору для помилки, додамо його тут:
+            errorElement.style.color = "#ff453a"; 
+            errorElement.style.background = "rgba(255, 69, 58, 0.1)";
+            errorElement.style.padding = "10px";
+            errorElement.style.borderRadius = "8px";
+            errorElement.style.marginBottom = "15px";
+            errorElement.style.fontSize = "14px";
+            errorElement.style.textAlign = "center";
+        } else {
+            alert(msg);
+        }
     }
 }

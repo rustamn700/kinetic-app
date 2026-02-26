@@ -1,52 +1,84 @@
-// 👇 ВАЖНО: Ставим адрес NGROK, а не 192.168...
 var API_URL = "https://kinetic-fp1n.onrender.com";
 
 async function register() {
-    const email = document.getElementById('regEmail').value;
+    // Зверни увагу: тут id відповідають твоєму HTML
+    const email = document.getElementById('regEmail').value.trim();
     const password = document.getElementById('regPassword').value;
-    const confirm = document.getElementById('regConfirmPassword').value;
-
-    if (!email || !password) {
-        alert("Заповніть всі поля");
-        return;
-    }
-
-    if (password !== confirm) {
-        alert("Паролі не співпадають");
-        return;
-    }
-
+    const confirmPassword = document.getElementById('regConfirmPassword').value;
+    
+    const errorElement = document.getElementById('error');
     const btn = document.querySelector('.btn-primary');
-    const oldText = btn.innerText;
-    btn.innerText = "⏳...";
+
+    // Очищаємо старі помилки
+    if (errorElement) {
+        errorElement.innerText = "";
+        errorElement.style.display = "none";
+    }
+
+    // --- 🛡️ СТРОГІ ПЕРЕВІРКИ ---
+    if (!email || !password || !confirmPassword) {
+        showError("Будь ласка, заповніть всі поля!");
+        return;
+    }
+
+    if (!email.includes('@') || !email.includes('.')) {
+        showError("Введіть дійсний Email (наприклад: name@gmail.com)");
+        return;
+    }
+    
+    if (password.length < 8) {
+        showError("Пароль занадто короткий! Мінімум 8 символів.");
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        showError("Паролі не співпадають!");
+        return;
+    }
+    // --- КІНЕЦЬ ПЕРЕВІРОК ---
+
+    btn.innerText = "Реєстрація...";
     btn.disabled = true;
 
     try {
         const response = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
-                // 👇 ДОБАВИЛИ КЛЮЧ, ЧТОБЫ ТЕЛЕФОН ПРОПУСТИЛ
-                'ngrok-skip-browser-warning': 'true' 
+                'ngrok-skip-browser-warning': 'true'
             },
-            body: JSON.stringify({ 
-                email: email, 
-                password: password 
-            })
+            body: JSON.stringify({ email: email, password: password }) 
         });
 
         if (response.ok) {
-            alert("Акаунт створено! Увійдіть.");
+            alert("Реєстрація успішна! Тепер ви можете увійти.");
             window.location.href = 'login.html';
         } else {
-            const data = await response.json();
-            alert("Помилка: " + (data.detail || "Щось пішло не так"));
+            const errorData = await response.json();
+            showError(errorData.detail || "Помилка реєстрації! Можливо, email вже зайнятий.");
+            btn.innerText = "Зареєструватися";
+            btn.disabled = false;
         }
-    } catch (error) {
-        console.error("Error:", error);
-        alert("Помилка з'єднання з сервером");
-    } finally {
-        btn.innerText = oldText;
+    } catch (e) {
+        showError("Помилка мережі. Перевірте інтернет.");
+        btn.innerText = "Зареєструватися";
         btn.disabled = false;
+    }
+
+    // Допоміжна функція для красивого виводу помилки
+    function showError(msg) {
+        if (errorElement) {
+            errorElement.innerText = msg;
+            errorElement.style.display = "block";
+            errorElement.style.color = "#ff453a"; 
+            errorElement.style.background = "rgba(255, 69, 58, 0.1)";
+            errorElement.style.padding = "10px";
+            errorElement.style.borderRadius = "8px";
+            errorElement.style.marginBottom = "15px";
+            errorElement.style.fontSize = "14px";
+            errorElement.style.textAlign = "center";
+        } else {
+            alert(msg);
+        }
     }
 }

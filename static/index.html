@@ -15,16 +15,18 @@
         <div class="glass-card">
             <h2>Створити акаунт</h2>
             
+            <div id="error" class="error-msg" style="display: none;"></div>
+            
             <div class="input-group">
-                <input type="email" id="regEmail" class="glass-input" placeholder="Email">
+                <input type="email" id="regEmail" class="glass-input" placeholder="Email" required>
             </div>
             
             <div class="input-group">
-                <input type="password" id="regPassword" class="glass-input" placeholder="Пароль">
+                <input type="password" id="regPassword" class="glass-input" placeholder="Пароль (мінімум 8 символів)" minlength="8" required>
             </div>
 
             <div class="input-group">
-                <input type="password" id="regConfirmPassword" class="glass-input" placeholder="Повторіть пароль">
+                <input type="password" id="regConfirmPassword" class="glass-input" placeholder="Повторіть пароль" minlength="8" required>
             </div>
 
             <button onclick="register()" class="btn-primary">Зареєструватися</button>
