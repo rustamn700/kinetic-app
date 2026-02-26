@@ -21,7 +21,26 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
 
-body { background-color: var(--bg); color: var(--text-primary); overflow-x: hidden; padding-bottom: 80px; }
+body { 
+    background-color: var(--bg); 
+    color: var(--text-primary); 
+    overflow-x: hidden; 
+    
+    /* Убиваем "браузерность" */
+    -webkit-user-select: none; /* Safari */
+    user-select: none; /* Запрещаем выделение текста */
+    -webkit-touch-callout: none; /* Убираем лупу на iOS */
+    overscroll-behavior-y: none; /* Убираем эффект резинки при скролле */
+    
+    /* Адаптация под нижнюю полоску iPhone */
+    padding-bottom: calc(80px + env(safe-area-inset-bottom)); 
+}
+
+/* Обязательно: разрешаем выделение и ввод текста только в инпутах, иначе не сможешь писать */
+input, textarea, select {
+    -webkit-user-select: auto;
+    user-select: auto;
+}
 
 .background-glow {
     position: fixed; top: -20vh; left: 50%; width: 100vw; height: 100vw;
@@ -36,7 +55,18 @@ body { background-color: var(--bg); color: var(--text-primary); overflow-x: hidd
 }
 
 /* NAV */
-.glass-nav { position: fixed; top: 0; width: 100%; z-index: 100; padding: 16px 20px; backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(5, 5, 5, 0.7); }
+.glass-nav { 
+    position: fixed; 
+    top: 0; 
+    width: 100%; 
+    z-index: 100; 
+    /* Добавляем отступ для челки/камеры */
+    padding: calc(16px + env(safe-area-inset-top)) 20px 16px; 
+    backdrop-filter: blur(20px); 
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.05); 
+    background: rgba(5, 5, 5, 0.7); 
+}
 .nav-content { max-width: 450px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
 .logo { font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
 .profile-wrapper { position: relative; }
