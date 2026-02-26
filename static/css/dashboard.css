@@ -52,6 +52,27 @@ body { background-color: var(--bg); color: var(--text-primary); overflow-x: hidd
 .dropdown-item:hover { background: rgba(255,255,255,0.1); }
 .text-danger { color: var(--danger); }
 
+/* ОГОНЁК */
+/* Стиль для вогника (неактивний, сірий стан) */
+.streak-fire {
+    font-size: 24px;
+    margin-right: 8px; /* Відступ від аватарки */
+    filter: grayscale(1) brightness(0.7); /* Робимо сірим і тьмяним */
+    opacity: 0.5;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Плавна анімація */
+    /* Якщо на iOS вогник виглядає як стандартний емодзі, ця властивість може допомогти */
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+}
+
+/* Стиль для вогника (АКТИВНИЙ стан 🔥) */
+.streak-fire.active {
+    filter: grayscale(0) brightness(1.2); /* Повертаємо колір і робимо яскравішим */
+    opacity: 1;
+    transform: scale(1.1); /* Трішки збільшуємо */
+    /* Додаємо гаряче світіння */
+    text-shadow: 0 0 10px rgba(255, 159, 10, 0.6), 0 0 20px rgba(255, 69, 58, 0.4);
+}
+
 /* MAIN */
 .main-container { max-width: 450px; margin: 80px auto 0; padding: 0 20px; opacity: 0; transform: translateY(20px); transition: 0.8s var(--ease-apple); }
 .main-container.reveal { opacity: 1; transform: translateY(0); }
@@ -1380,63 +1401,4 @@ button:active, .action-item:active, .category-card:active, .pill-btn:active {
 .btn-del-new:active { 
     background: #ff453a; 
     color: white; 
-}
-
-/* =========================================
-   🏆 СИСТЕМА ДОСЯГНЕНЬ
-   ========================================= */
-.badges-container { 
-    display: flex; 
-    gap: 12px; 
-    overflow-x: auto; 
-    padding-bottom: 10px; 
-    scrollbar-width: none; /* Ховаємо скроллбар */
-}
-.badges-container::-webkit-scrollbar { display: none; }
-
-.badge-card {
-    min-width: 100px; 
-    background: rgba(255, 255, 255, 0.02); 
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 16px; 
-    padding: 15px 10px; 
-    text-align: center; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    gap: 8px;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-/* Сіра іконка, якщо ачівка ще закрита */
-.badge-icon { 
-    font-size: 32px; 
-    filter: grayscale(1); 
-    opacity: 0.3; 
-    transition: 0.4s; 
-}
-
-.badge-title { 
-    font-size: 11px; 
-    font-weight: 600; 
-    color: #666; 
-    line-height: 1.2; 
-}
-
-/* 🌟 КОЛИ АЧІВКА РОЗБЛОКОВАНА 🌟 */
-.badge-card.unlocked {
-    background: linear-gradient(135deg, rgba(255, 159, 10, 0.15), rgba(255, 214, 10, 0.05));
-    border-color: rgba(255, 159, 10, 0.4);
-    box-shadow: 0 4px 15px rgba(255, 159, 10, 0.2);
-    transform: translateY(-2px);
-}
-
-.badge-card.unlocked .badge-icon { 
-    filter: grayscale(0); 
-    opacity: 1; 
-    transform: scale(1.15); 
-}
-
-.badge-card.unlocked .badge-title { 
-    color: #ffd60a; 
 }

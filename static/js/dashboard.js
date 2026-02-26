@@ -247,6 +247,16 @@ async function loadDailyHistory() {
             const meals = await res.json();
             window.TODAY_MEALS = meals; 
 
+            // --- 🔥 ПОЧАТОК НОВОГО КОДУ ДЛЯ ВОГНИКА ---
+            const fireIcon = document.getElementById('streakFire');
+            // Якщо сьогодні є хоча б один запис їжі - запалюємо вогонь!
+            if (meals.length > 0) {
+                fireIcon.classList.add('active');
+            } else {
+                fireIcon.classList.remove('active');
+            }
+            // --- 🔥 КІНЕЦЬ НОВОГО КОДУ ---
+
             const list = document.getElementById('mealsList');
             list.innerHTML = '';
             
@@ -1234,78 +1244,4 @@ function sendLocalNotification(title, body) {
             });
         });
     }
-}
-
-// =========================================
-// 🏆 СИСТЕМА ДОСЯГНЕНЬ
-// =========================================
-async function checkAchievements() {
-    const token = localStorage.getItem('access_token');
-    if(!token) return;
-
-    let isWeekPerfect = false;
-    let isWeightProgressing = false;
-    let currentGoal = 2500;
-    let goalType = 'gain'; // Твоя мета - набір маси
-
-    try {
-        // 1. Отримуємо твою ціль калорій
-        const meRes = await fetch(`${API_URL}/auth/me`, { headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }});
-        if(meRes.ok) {
-            const u = await meRes.json();
-            currentGoal = u.daily_goal || 2500;
-            goalType = u.goal_type || 'gain'; 
-        }
-
-        // 2. Перевіряємо ідеальний тиждень (всі 7 днів > 85% від норми калорій)
-        const weekRes = await fetch(`${API_URL}/meals/week`, { headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }});
-        if(weekRes.ok) {
-            const weekData = await weekRes.json();
-            if(weekData.length === 7) {
-                isWeekPerfect = weekData.every(d => d.total >= (currentGoal * 0.85));
-            }
-        }
-
-        // 3. Перевіряємо прогрес маси
-        const weightRes = await fetch(`${API_URL}/weight/history`, { headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }});
-        if(weightRes.ok) {
-            const history = await weightRes.json();
-            if(history.length >= 2) {
-                const first = history[0].weight;
-                const last = history[history.length - 1].weight;
-                
-                // Якщо мета "Набір маси" і вага зросла (наприклад, з 52 до 60)
-                if(goalType === 'gain' && last > first) isWeightProgressing = true;
-                // Якщо мета "Схуднення" і вага впала
-                if(goalType === 'lose' && last < first) isWeightProgressing = true;
-            }
-        }
-
-        // 4. Перевіряємо воду за сьогодні
-        const waterVal = parseInt(document.getElementById('waterCount').innerText) || 0;
-        const isAquaman = waterVal >= 2000;
-
-        // --- РЕНДЕРИМО АЧІВКИ ---
-        const container = document.getElementById('achievementsContainer');
-        if(!container) return;
-
-        const badges = [
-            { id: 'start', icon: '🚀', title: 'Перший крок', condition: true }, // Завжди відкрита
-            { id: 'water', icon: '🌊', title: 'Аквамен', condition: isAquaman }, // Відкриється, якщо випити 2л води
-            { id: 'weight', icon: '💪', title: 'Маса пішла!', condition: isWeightProgressing }, // Відкрита, бо ти виріс з 52 до 60
-            { id: 'week', icon: '🔥', title: 'Тиждень у цілі', condition: isWeekPerfect } // Потрібно їсти 7 днів поспіль
-        ];
-
-        container.innerHTML = '';
-        badges.forEach(b => {
-            const unlockedClass = b.condition ? 'unlocked' : '';
-            container.innerHTML += `
-                <div class="badge-card ${unlockedClass}">
-                    <div class="badge-icon">${b.icon}</div>
-                    <div class="badge-title">${b.title}</div>
-                </div>
-            `;
-        });
-
-    } catch (e) { console.error("Achievements error:", e); }
 }
