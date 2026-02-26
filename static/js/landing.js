@@ -21,8 +21,9 @@ async function register() {
         return;
     }
 
-    if (!email.includes('@') || !email.includes('.')) {
-        showError("Введіть дійсний Email (наприклад: name@gmail.com)");
+    // --- 🛡️ ЖОРСТКА ПЕРЕВІРКА НА GMAIL ---
+    if (!email.endsWith('@gmail.com')) {
+        showError("Будь ласка, використовуйте пошту @gmail.com");
         return;
     }
     

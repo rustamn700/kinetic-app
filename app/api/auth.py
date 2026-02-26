@@ -37,24 +37,17 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
 @router.post("/register")
 def register(user: UserCreate, db: Session = Depends(database.get_db)):
-    # --- 🛡️ 1. ПРОВЕРКА ПАРОЛЯ (Минимум 8 символов) ---
+    # --- 🛡️ 1. ПЕРЕВІРКА ПАРОЛЯ ---
     if len(user.password) < 8:
         raise HTTPException(status_code=400, detail="Пароль должен содержать минимум 8 символов")
         
-    # --- 🛡️ 2. ПРОВЕРКА EMAIL (Наличие @ и точки) ---
-    email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
-    if not re.match(email_regex, user.email):
-        raise HTTPException(status_code=400, detail="Введите действительный адрес электронной почты")
+    # --- 🛡️ 2. ЖОРСТКА ПЕРЕВІРКА НА GMAIL ---
+    if not user.email.endswith("@gmail.com"):
+        raise HTTPException(status_code=400, detail="Реєстрація дозволена лише для адрес @gmail.com")
 
     # --- 3. Проверка, не занят ли Email ---
     if db.query(models.User).filter(models.User.email == user.email).first():
         raise HTTPException(status_code=400, detail="Этот Email уже зарегистрирован")
-        
-    hashed_pw = security.get_password_hash(user.password)
-    new_user = models.User(email=user.email, hashed_password=hashed_pw)
-    db.add(new_user)
-    db.commit()
-    return {"msg": "User created"}
 
 @router.post("/login", response_model=Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
