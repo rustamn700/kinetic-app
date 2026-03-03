@@ -201,7 +201,7 @@ input, textarea, select {
 }
 
 .hero-percent { 
-    display: none; /* Прибираємо відсоток, бо цифра і так красива */
+    display: none; 
 }
 
 /* МАКРОСИ BENTO ROW */
@@ -214,7 +214,7 @@ input, textarea, select {
 .bento-macro { 
     background: var(--card-bg); 
     border-radius: var(--radius-md); 
-    padding: 16px; 
+    padding: 16px 8px; /* Зменшив бокові відступи щоб не переносило текст */
     text-align: center; 
     box-shadow: var(--shadow-sm); 
     border: 1px solid var(--glass-border); 
@@ -235,10 +235,11 @@ input, textarea, select {
 }
 
 .macro-val { 
-    font-size: 18px; 
+    font-size: 16px; 
     font-weight: 800; 
     color: var(--text-primary); 
     margin-bottom: 2px; 
+    white-space: nowrap; /* Заборона переносу рядка */
 }
 
 .macro-lbl { 
@@ -810,8 +811,9 @@ input, textarea, select {
 }
 
 /* ==========================================================================
-   🚨 РЕВОЛЮЦІЯ МОДАЛЬНИХ ВІКОН І ІНПУТІВ (ПОВНІСТЮ СВІТЛІ) 🚨
+   🚨 РЕВОЛЮЦІЯ МОДАЛЬНИХ ВІКОН (У СТИЛІ BOTTOM SHEET) 🚨
    ========================================================================== */
+
 .modal-backdrop { 
     position: fixed; 
     top: 0; 
@@ -822,26 +824,46 @@ input, textarea, select {
     backdrop-filter: blur(8px); 
     -webkit-backdrop-filter: blur(8px); 
     display: none; 
-    align-items: center; 
+    align-items: flex-end; /* ВАЖЛИВО: Вікно тепер прилипає до низу */
     justify-content: center; 
     z-index: 2000; 
 }
 
 .modal-content { 
-    width: 90%; 
-    max-width: 400px; 
+    width: 100%; 
+    max-width: 500px; 
+    margin: 0 auto;
     background: #FFFFFF !important; 
     border: none !important; 
-    border-radius: 32px !important; 
-    padding: 24px !important; 
-    box-shadow: 0 24px 48px rgba(0,0,0,0.15) !important; 
+    border-radius: 40px 40px 0 0 !important; /* Заокруглення тільки зверху */
+    padding: 32px 24px calc(32px + env(safe-area-inset-bottom)) !important; 
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.15) !important; 
     text-align: center; 
-    animation: modalPopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    max-height: 85vh; /* ВАЖЛИВО: Вікно ніколи не дійде до самого верху (залишається 15% для кліку) */
+    overflow-y: auto;
+    animation: sheetPopUp 0.4s cubic-bezier(0.32, 0.72, 0, 1); 
+    position: relative;
+}
+
+/* Красивий сірий повзунок зверху кожного вікна */
+.modal-content::before {
+    content: '';
+    display: block;
+    width: 48px;
+    height: 6px;
+    background: #E5E5EA;
+    border-radius: 6px;
+    margin: 0 auto 24px auto;
+}
+
+@keyframes sheetPopUp { 
+    from { transform: translateY(100%); } 
+    to { transform: translateY(0); } 
 }
 
 .modal-content h3 { 
     color: var(--text-primary) !important; 
-    font-size: 22px; 
+    font-size: 24px; 
     font-weight: 800; 
     margin-bottom: 24px; 
     letter-spacing: -0.5px; 
@@ -952,84 +974,26 @@ select:focus,
     background: #E5E5EA !important; 
 }
 
-/* =========================================
-   КАРТКА РЕЗУЛЬТАТУ ПОШУКУ
-   ========================================= */
-.result-card { 
-    background: #FFFFFF !important; 
-    padding: 24px; 
-    border-radius: 32px; 
-    box-shadow: var(--shadow-soft); 
-    margin-bottom: 24px; 
-}
 
-.meal-time-badge { 
-    background: #F2F2F7; 
-    color: var(--text-primary); 
-    font-weight: 700; 
-    padding: 6px 12px; 
-    border-radius: 12px;
-}
-
-#rName { 
-    color: var(--text-primary); 
-    font-size: 22px; 
-    font-weight: 800; 
-    letter-spacing: -0.5px;
-}
-
-.btn-close-result { 
-    background: #F2F2F7; 
-    color: var(--text-primary); 
-    font-weight: 800; 
-}
-
-.big-calories { 
-    color: var(--text-primary); 
-    font-size: 56px; 
-    font-weight: 900; 
-    letter-spacing: -2px; 
-    margin: 10px 0 30px;
-}
-
-.big-calories small { 
-    font-size: 18px; 
-    color: var(--text-secondary); 
-    font-weight: 700; 
-    letter-spacing: 0;
-}
-
-.bar-container { 
-    background: #F2F2F7; 
-    border-radius: 8px; 
-    width: 12px; 
-}
-
-.val { 
-    color: var(--text-primary); 
-    font-size: 16px; 
-    font-weight: 800;
-}
-
-/* =========================================
-   НАЛАШТУВАННЯ (PREMIUM PROFILE MODAL)
-   ========================================= */
+/* --- НАЛАШТУВАННЯ (PREMIUM PROFILE MODAL) --- */
+/* Тепер це теж частина екосистеми Bottom Sheet */
 .premium-modal { 
-    width: 100%; 
-    max-width: 420px; 
-    max-height: 85vh; 
-    padding: 0 !important; 
-    display: flex; 
-    flex-direction: column; 
-    overflow: hidden; 
+    padding: 0 !important; /* Внутрішні відступи робимо через скролл-контент */
+}
+.premium-modal::before {
+    display: none; /* Відключаємо загальний повзунок, бо тут є свій header */
 }
 
 .modal-header { 
-    padding: 24px; 
+    padding: 24px 24px 16px 24px; 
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
     border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
+}
+
+.modal-header h3 {
+    margin-bottom: 0 !important;
 }
 
 .btn-close-icon { 
@@ -1053,6 +1017,7 @@ select:focus,
     display: flex; 
     flex-direction: column; 
     gap: 32px; 
+    text-align: left;
 }
 
 .segmented-control { 
@@ -1086,8 +1051,8 @@ select:focus,
 
 .biometrics-grid { 
     display: grid; 
-    grid-template-columns: 1fr 1.2fr 1.2fr; 
-    gap: 15px; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 12px; 
 }
 
 .activity-grid { 
@@ -1210,6 +1175,66 @@ select:focus,
     border-top: 1px solid rgba(0, 0, 0, 0.05); 
     background: #FFFFFF; 
 }
+
+/* =========================================
+   КАРТКА РЕЗУЛЬТАТУ ПОШУКУ (RESULT CARD)
+   ========================================= */
+.result-card { 
+    background: #FFFFFF !important; 
+    padding: 24px; 
+    border-radius: 32px; 
+    box-shadow: var(--shadow-soft); 
+    margin-bottom: 24px; 
+}
+
+.meal-time-badge { 
+    background: #F2F2F7; 
+    color: var(--text-primary); 
+    font-weight: 700; 
+    padding: 6px 12px; 
+    border-radius: 12px;
+}
+
+#rName { 
+    color: var(--text-primary); 
+    font-size: 22px; 
+    font-weight: 800; 
+    letter-spacing: -0.5px;
+}
+
+.btn-close-result { 
+    background: #F2F2F7; 
+    color: var(--text-primary); 
+    font-weight: 800; 
+}
+
+.big-calories { 
+    color: var(--text-primary); 
+    font-size: 56px; 
+    font-weight: 900; 
+    letter-spacing: -2px; 
+    margin: 10px 0 30px;
+}
+
+.big-calories small { 
+    font-size: 18px; 
+    color: var(--text-secondary); 
+    font-weight: 700; 
+    letter-spacing: 0;
+}
+
+.bar-container { 
+    background: #F2F2F7; 
+    border-radius: 8px; 
+    width: 12px; 
+}
+
+.val { 
+    color: var(--text-primary); 
+    font-size: 16px; 
+    font-weight: 800;
+}
+
 
 /* =========================================
    📲 INSTALL BANNER PWA

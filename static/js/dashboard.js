@@ -481,10 +481,15 @@ async function loadWeightChart() {
         if (res.ok) {
             const data = await res.json();
             
-            // Робимо красиві короткі дати (MM-DD)
+            // Робимо красиві короткі дати (DD.MM) та лікуємо баг NaN
             const dates = data.map(d => {
-                const dateObj = new Date(d.date);
-                return `${dateObj.getDate()}.${dateObj.getMonth() + 1}`;
+                if (d.date && typeof d.date === 'string') {
+                    const parts = d.date.split('-'); // Розбиваємо "YYYY-MM-DD"
+                    if (parts.length === 3) {
+                        return `${parseInt(parts[2])}.${parseInt(parts[1])}`; // Повертає "3.3" або "25.10"
+                    }
+                }
+                return '';
             });
             const weights = data.map(d => d.weight);
 
