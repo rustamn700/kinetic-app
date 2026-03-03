@@ -509,7 +509,7 @@ async function loadWeeklyChart() {
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     scales: {
-                        x: { grid: { display: false }, border: { display: false }, ticks: { color: '#86868b', font: { size: 12, weight: '600' } } },
+                        x: { grid: { display: false }, border: { display: false }, ticks: { color: '#8E8E93', font: { size: 12, weight: '600' } } },
                         y: { display: false }
                     },
                     plugins: { legend: { display: false } }
@@ -553,12 +553,12 @@ async function loadWeightChart() {
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     scales: {
-                        x: { grid: { display: false }, border: { display: false }, ticks: { color: '#86868b', font: { size: 11, weight: '600' } } },
-                        y: { grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, border: { display: false }, ticks: { color: '#86868b', font: { size: 11 } }, min: 50, max: 80 }
+                        x: { grid: { display: false }, border: { display: false }, ticks: { color: '#8E8E93', font: { size: 11, weight: '600' } } },
+                        y: { grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false }, border: { display: false }, ticks: { color: '#8E8E93', font: { size: 11 } }, min: 50, max: 80 }
                     },
                     plugins: { 
                         legend: { display: false },
-                        tooltip: { backgroundColor: 'rgba(28, 28, 30, 0.9)', titleColor: '#888', bodyFont: { size: 14, weight: 'bold' }, padding: 12, cornerRadius: 8, displayColors: false, callbacks: { label: function(context) { return context.parsed.y + ' кг'; } } }
+                        tooltip: { backgroundColor: '#FFFFFF', titleColor: '#8E8E93', bodyColor: '#1C1C1E', bodyFont: { size: 14, weight: 'bold' }, padding: 12, cornerRadius: 12, displayColors: false, borderColor: 'rgba(0,0,0,0.05)', borderWidth: 1, callbacks: { label: function(context) { return context.parsed.y + ' кг'; } } }
                     },
                     interaction: { intersect: false, mode: 'index' }
                 }
