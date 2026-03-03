@@ -12,7 +12,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').then(registration => {
+                navigator.serviceWorker.register('sw.js').then(registration => {
                     registration.update(); 
                 }).catch(err => {
                     console.log('Помилка реєстрації ServiceWorker: ', err);
@@ -23,15 +23,15 @@
     
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#F2F2F7">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <link rel="icon" href="icons/icon-192.png"> 
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" href="icon.png"> 
     
-    <link rel="stylesheet" href="/css/dashboard.css?v=3.5">
+    <link rel="stylesheet" href="css/dashboard.css?v=5.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -43,7 +43,6 @@
         }
     </style>
 </head>
-<body>
     
     <div id="splashScreen" class="splash-screen">
         <div class="splash-logo">Kinetic.</div>
@@ -416,7 +415,7 @@
         </div>
     </div>
 
-    <script src="/js/dashboard.js?v=3.5"></script>
+    <script src="/js/dashboard.js?v=5.0"></script>
     <script src="/js/categories.js"></script>
     <script src="/js/translations.js"></script>
     
