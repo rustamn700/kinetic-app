@@ -172,7 +172,6 @@ async function loadDashboardData() {
     try {
         await Promise.all([
             updateHeroStats(),
-            loadWeeklyChart(),
             loadWeightChart(),
             loadDailyHistory(),
             loadWater()
@@ -467,56 +466,6 @@ async function saveMealEdit() {
         }
     } catch (e) { console.error(e); } 
     finally { btn.innerText = 'Зберегти'; }
-}
-
-async function loadWeeklyChart() {
-    const token = localStorage.getItem('access_token');
-    try {
-        const res = await fetch(`${API_URL}/meals/week`, { 
-            headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
-        });
-        if (!checkAuth(res)) return;
-        if(res.ok) {
-            const data = await res.json();
-            const ctx = document.getElementById('weeklyChart').getContext('2d');
-            const dayNames = {
-                'ua': ['Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
-                'en': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-                'az': ['Baz', 'B.E', 'Ç.A', 'Çər', 'C.A', 'Cum', 'Şən']
-            };
-
-            if(window.myWeeklyChart) window.myWeeklyChart.destroy();
-            
-            window.myWeeklyChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.map(d => {
-                        const date = new Date(d.date);
-                        return dayNames[currentLang][date.getDay()];
-                    }),
-                    datasets: [{
-                        data: data.map(d => d.total),
-                        backgroundColor: (context) => {
-                            const gradient = ctx.createLinearGradient(0, 0, 0, 200);
-                            gradient.addColorStop(0, '#0a84ff');
-                            gradient.addColorStop(1, 'rgba(10, 132, 255, 0.1)');
-                            return gradient;
-                        },
-                        borderRadius: 12,
-                        borderSkipped: false,
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    scales: {
-                        x: { grid: { display: false }, border: { display: false }, ticks: { color: '#8E8E93', font: { size: 12, weight: '600' } } },
-                        y: { display: false }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
-    } catch (e) { console.error(e); }
 }
 
 // --- 📈 ОНОВЛЕНИЙ APPLE HEALTH ГРАФІК ВАГИ ---
