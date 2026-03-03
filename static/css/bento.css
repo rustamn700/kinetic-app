@@ -1590,14 +1590,33 @@ body.sheet-open {
 }
 
 /* =========================================
-   AI CAMERA & RESULT 
+   AI CAMERA & RESULT (ВЕРНУЛИ ПО ПАЦАНСКИ)
    ========================================= */
+
+/* Главный фон: поверх всего, размытие, по центру */
+#aiResultModal { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0, 0, 0, 0.4); 
+    backdrop-filter: blur(15px); 
+    -webkit-backdrop-filter: blur(15px); 
+    z-index: 9999; 
+    display: none; /* Включается через JS */
+    align-items: center; 
+    justify-content: center; 
+}
+
+/* Сама белая карточка с результатами анализа */
 #aiResultContent { 
     background: #FFFFFF !important; 
-    box-shadow: var(--shadow-soft) !important; 
+    box-shadow: 0 24px 48px rgba(0,0,0,0.15) !important; 
     border: none !important; 
     border-radius: 40px !important; 
     padding: 32px !important;
+    animation: modalPopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 #aiResultContent p, 
@@ -1624,6 +1643,12 @@ body.sheet-open {
     width: 44px !important; 
     height: 44px !important; 
     border-radius: 16px !important;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-add-ai:active {
+    transform: scale(0.9);
 }
 
 /* =========================================
