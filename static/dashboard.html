@@ -31,8 +31,8 @@
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="icon" href="icons/icon-192.png"> 
     
-    <link rel="stylesheet" href="/css/dashboard.css?v=3.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/dashboard.css?v=3.1">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -49,6 +49,8 @@
         <div class="splash-logo">Kinetic.</div>
     </div>
 
+    <div class="background-glow"></div>
+
     <nav class="glass-nav">
         <div class="nav-content">
             <div class="logo">Kinetic.</div>
@@ -64,162 +66,189 @@
     <div class="main-container reveal">
         
         <div id="skeletonLoader" class="loading-overlay active">
-            <div style="display:flex; flex-direction:column; align-items:center; padding:30px;">
+            <div class="glass-card" style="display:flex; flex-direction:column; align-items:center; padding:30px;">
                 <div class="skeleton sk-circle"></div>
-                <div style="display:flex; gap:16px; margin-top:20px; width: 100%;">
-                    <div class="skeleton sk-card" style="flex: 1; height: 100px;"></div>
-                    <div class="skeleton sk-card" style="flex: 1; height: 100px;"></div>
-                    <div class="skeleton sk-card" style="flex: 1; height: 100px;"></div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <div class="skeleton sk-pill"></div>
+                    <div class="skeleton sk-pill"></div>
+                    <div class="skeleton sk-pill"></div>
+                </div>
+            </div>
+            <div style="margin-top:20px;">
+                <div class="skeleton sk-text" style="width: 100px; margin-bottom: 15px;"></div>
+                <div class="skeleton sk-card"></div>
+                <div class="skeleton sk-card"></div>
+                <div class="skeleton sk-card"></div>
+            </div>
+        </div>
+
+        <div class="hero-section glass-card">
+            <div class="progress-container">
+                <svg class="progress-ring-svg" width="220" height="220">
+                    <circle class="bg-ring" cx="110" cy="110" r="90"></circle>
+                    <circle class="progress-ring-stroke" id="heroProgress" cx="110" cy="110" r="90"></circle>
+                </svg>
+                <div class="hero-content">
+                    <span class="hero-label" data-i18n="hero_label">ккал</span>
+                    <span class="hero-value" id="currentCals">0</span>
+                    <span class="hero-percent" id="percentText">0%</span>
+                </div>
+            </div>
+            <div class="macros-pills">
+                <div class="pill pill-prot"><div class="dot"></div> <span id="heroProt">0</span><span data-i18n="unit_g">г</span></div>
+                <div class="pill pill-fat"><div class="dot"></div> <span id="heroFat">0</span><span data-i18n="unit_g">г</span></div>
+                <div class="pill pill-carb"><div class="dot"></div> <span id="heroCarb">0</span><span data-i18n="unit_g">г</span></div>
+            </div>
+
+            <div class="water-card" style="margin-top: 20px; background: rgba(0,122,255,0.1); border-radius: 16px; padding: 15px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,122,255,0.3); position: relative; overflow: hidden;">
+                <div id="waterCardFill" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: linear-gradient(to top, rgba(10,132,255,0.5), rgba(10,132,255,0.1)); transition: height 1s cubic-bezier(0.4, 0, 0.2, 1); z-index: 0;"></div>
+                
+                <div style="display: flex; align-items: center; gap: 12px; z-index: 1;">
+                    <div style="background: linear-gradient(135deg, #007aff, #32ade6); width: 44px; height: 44px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-size: 22px; box-shadow: 0 4px 15px rgba(0,122,255,0.4);">💧</div>
+                    <div style="margin-right: 15px;"> 
+                        <div style="font-size: 12px; color: #8ecae6; font-weight: 600;" data-i18n="water_label">Вода</div>
+                        <div style="font-size: 18px; font-weight: 700; color: white; white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
+                            <span id="waterCount">0</span> <small style="font-size:12px; font-weight:400;" data-i18n="unit_ml">мл</small>
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 12px; z-index: 1;"> 
+                    <button onclick="vibrate(); openWaterModal()" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1); color: white; width: 44px; height: 44px; border-radius: 12px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;">✏️</button>
+                    <button onclick="vibrate(); addWater(250)" style="background: #007aff; border: none; color: white; width: 44px; height: 44px; border-radius: 12px; font-size: 22px; cursor: pointer; font-weight: bold; transition: 0.2s; box-shadow: 0 4px 15px rgba(0,122,255,0.4);">+</button>
                 </div>
             </div>
         </div>
 
-        <div class="bento-dashboard">
-            
-            <div class="bento-card bento-hero">
-                <div class="progress-container">
-                    <svg class="progress-ring-svg" width="220" height="220">
-                        <circle class="bg-ring" cx="110" cy="110" r="90"></circle>
-                        <circle class="progress-ring-stroke" id="heroProgress" cx="110" cy="110" r="90"></circle>
-                    </svg>
-                    <div class="hero-content">
-                        <span class="hero-label" data-i18n="hero_label">ккал</span>
-                        <span class="hero-value" id="currentCals">0</span>
-                        <span class="hero-percent" id="percentText">0%</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bento-macros-row">
-                <div class="bento-macro prot-card">
-                    <div class="macro-emoji">🥩</div>
-                    <span class="macro-val"><span id="heroProt">0</span>г</span>
-                    <span class="macro-lbl" data-i18n="input_prot">Білки</span>
-                </div>
-                <div class="bento-macro fat-card">
-                    <div class="macro-emoji">🥑</div>
-                    <span class="macro-val"><span id="heroFat">0</span>г</span>
-                    <span class="macro-lbl" data-i18n="input_fat">Жири</span>
-                </div>
-                <div class="bento-macro carb-card">
-                    <div class="macro-emoji">🥐</div>
-                    <span class="macro-val"><span id="heroCarb">0</span>г</span>
-                    <span class="macro-lbl" data-i18n="input_carb">Вугл.</span>
-                </div>
-            </div>
-
-            <div class="bento-card water-bento">
-                <div id="waterCardFill" class="water-fill-layer"></div>
-                <div class="water-left">
-                    <div class="water-icon">💧</div>
-                    <div class="water-text">
-                        <div class="water-lbl" data-i18n="water_label">Вода</div>
-                        <div class="water-val"><span id="waterCount">0</span> <small data-i18n="unit_ml">мл</small></div>
-                    </div>
-                </div>
-                <div class="water-right">
-                    <button onclick="vibrate(); openWaterModal()" class="water-btn-edit">✏️</button>
-                    <button onclick="vibrate(); addWater(250)" class="water-btn-add">+</button>
-                </div>
-            </div>
-
-        </div> <div class="search-container-wrapper">
+        <div class="search-container-wrapper">
             <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handleImageSelect(this)">
             <input type="file" id="galleryInput" accept="image/*" multiple style="display: none;" onchange="handleImageSelect(this)">
 
             <div id="imagePreview" class="image-preview hidden">
                 <div id="previewList" class="preview-scroll"></div>
-                <button class="btn-clear-all" onclick="vibrate(); clearAllImages()">✕</button>
-            </div>
-
-            <div class="premium-search-bar">
-                <button id="btnPlus" class="ps-btn-plus" onclick="vibrate(); toggleActionMenu()">
-                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+                <button class="btn-clear-all" onclick="vibrate(); clearAllImages()">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
                 </button>
-                
-                <input type="text" id="dishInput" data-i18n-placeholder="search_placeholder" placeholder="Що з'їли?" autocomplete="off">
-                
-                <button id="aiBtn" class="ps-btn-ai" onclick="vibrate(); triggerAISearch()">➜</button>
             </div>
 
-            <div id="actionMenu" class="action-menu">
-                <div class="action-item" onclick="vibrate(); startScanner()">
-                    <div class="action-icon barcode"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5v14"/><path d="M8 5v14"/><path d="M12 5v14"/><path d="M17 5v14"/><path d="M21 5v14"/></svg></div>
-                    <span data-i18n="btn_barcode">Штрих-код</span>
+            <div class="search-container">
+                <div class="search-pill">
+                    <button class="pill-btn left" id="btnPlus" onclick="vibrate(); toggleActionMenu()">
+                        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </button>
+                    
+                    <input type="text" id="dishInput" data-i18n-placeholder="search_placeholder" placeholder="Що з'їли?" autocomplete="off">
+                    
+                    <button onclick="vibrate(); triggerAISearch()" class="pill-btn right" id="aiBtn">➜</button>
                 </div>
-                <div class="action-item" onclick="vibrate(); triggerCamera()">
-                    <div class="action-icon cam"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
-                    <span data-i18n="btn_camera">Камера</span>
-                </div>
-                <div class="action-item" onclick="vibrate(); triggerGallery()">
-                    <div class="action-icon gallery"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
-                    <span data-i18n="btn_gallery">Галерея</span>
-                </div>
-                <div class="action-item" onclick="vibrate(); openCreateProductModal()">
-                    <div class="action-icon custom"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
-                    <span data-i18n="btn_custom">Свій продукт</span>
-                </div>
-                <div class="action-item" onclick="vibrate(); openCatalogFromMenu()">
-                    <div class="action-icon book"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
-                    <span data-i18n="btn_catalog">Каталог</span>
+
+                <div id="actionMenu" class="action-menu">
+                    
+                    <div class="action-item" onclick="vibrate(); startScanner()">
+                        <div class="action-icon barcode">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 5v14"/><path d="M8 5v14"/><path d="M12 5v14"/><path d="M17 5v14"/><path d="M21 5v14"/>
+                            </svg>
+                        </div>
+                        <span data-i18n="btn_barcode">Штрих-код</span>
+                    </div>
+
+                    <div class="action-item" onclick="vibrate(); triggerCamera()">
+                        <div class="action-icon cam">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                        </div>
+                        <span data-i18n="btn_camera">Камера</span>
+                    </div>
+
+                    <div class="action-item" onclick="vibrate(); triggerGallery()">
+                        <div class="action-icon gallery">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        </div>
+                        <span data-i18n="btn_gallery">Галерея</span>
+                    </div>
+
+                    <div class="action-item" onclick="vibrate(); openCreateProductModal()">
+                        <div class="action-icon custom">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </div>
+                        <span data-i18n="btn_custom">Свій продукт</span>
+                    </div>
+
+                    <div class="action-item" onclick="vibrate(); openCatalogFromMenu()">
+                        <div class="action-icon book">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                        </div>
+                        <span data-i18n="btn_catalog">Каталог</span>
+                    </div>
                 </div>
             </div>
         </div>
         
         <div id="suggestionsBox" class="suggestions-box"></div>
 
-        <div id="resultCard" class="result-card" style="display: none;">
+        <div id="resultCard" class="glass-card result-card" style="display: none;">
             <div class="card-handle"></div>
             <div class="result-header">
                 <h3 id="rName">Страва</h3>
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <span class="meal-time-badge" id="rTime">--:--</span>
-                    <button class="btn-close-result" onclick="vibrate(); closeResultCard()">✕</button>
+                    <button class="btn-close-result" onclick="vibrate(); closeResultCard()">×</button>
                 </div>
             </div>
+            
             <div class="weight-input-wrapper">
                 <input type="number" id="rWeightInput" value="100"> 
                 <span class="unit" id="rUnit" data-i18n="unit_g">г</span>
             </div>
+            
             <div class="big-calories"><span id="rKcal">0</span> <small data-i18n="hero_label">ккал</small></div>
+            
             <div class="macros-grid">
                 <div class="macro-col prot"><div class="bar-container"><div class="bar" id="barProt"></div></div><span data-i18n="input_prot">Б</span><span class="val" id="rProt">0</span></div>
                 <div class="macro-col fat"><div class="bar-container"><div class="bar" id="barFat"></div></div><span data-i18n="input_fat">Ж</span><span class="val" id="rFats">0</span></div>
                 <div class="macro-col carb"><div class="bar-container"><div class="bar" id="barCarb"></div></div><span data-i18n="input_carb">В</span><span class="val" id="rCarb">0</span></div>
             </div>
-            <button onclick="vibrate(); addToDiary()" class="btn-primary" data-i18n="btn_add">Додати</button>
+            
+            <button onclick="vibrate(); addToDiary()" class="btn-primary full-width" data-i18n="btn_add">Додати</button>
         </div>
 
-        <div class="bento-card chart-section">
+        <div class="glass-card chart-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <h4 class="section-title" style="margin: 0;">Динаміка ваги</h4>
-                <div class="chart-badge">Мета: <span id="targetWeightDisplay">75</span> кг</div>
+                <div style="background: rgba(48, 209, 88, 0.15); color: #30d158; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; border: 1px solid rgba(48, 209, 88, 0.3);">
+                    Мета: <span id="targetWeightDisplay">75</span> кг
+                </div>
             </div>
             <div class="chart-container"><canvas id="weightChart"></canvas></div>
         </div>
 
         <div class="history-section">
-            <div class="date-navigator">
-                <button onclick="vibrate(); changeDate(-1)">❮</button>
-                <h2 id="currentDateDisplay" data-i18n="history_today">Сьогодні</h2>
-                <button onclick="vibrate(); changeDate(1)">❯</button>
+            <div class="date-navigator" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; padding: 0 10px;">
+                <button onclick="vibrate(); changeDate(-1)" style="background:none; border:none; color:var(--text-primary); font-size:24px; cursor:pointer; padding:5px;">❮</button>
+                <h2 id="currentDateDisplay" style="margin:0; font-size:18px;" data-i18n="history_today">Сьогодні</h2>
+                <button onclick="vibrate(); changeDate(1)" style="background:none; border:none; color:var(--text-primary); font-size:24px; cursor:pointer; padding:5px;">❯</button>
             </div>
             <div id="mealsList" class="history-list"></div>
         </div>
     </div>
 
     <div id="profileModal" class="modal-backdrop">
-        <div class="modal-content premium-modal">
+        <div class="modal-content glass-card premium-modal">
             <div class="modal-header">
                 <h3 data-i18n="modal_profile_title">Налаштування</h3>
-                <button onclick="vibrate(); closeProfileModal()" class="btn-close-icon">✕</button>
+                <button onclick="vibrate(); closeProfileModal()" class="btn-close-icon">×</button>
             </div>
             <div class="profile-scroll-content">
                 <div class="form-section">
                     <label data-i18n="lbl_gender" class="section-label">Стать</label>
                     <div class="segmented-control" id="genderSelector">
-                        <div class="segment-option active" data-value="male" onclick="vibrate(); selectGender(this, 'male')"><span class="icon">👨</span><span data-i18n="lbl_male">Чол</span></div>
-                        <div class="segment-option" data-value="female" onclick="vibrate(); selectGender(this, 'female')"><span class="icon">👩</span><span data-i18n="lbl_female">Жін</span></div>
+                        <div class="segment-option active" data-value="male" onclick="vibrate(); selectGender(this, 'male')">
+                            <span class="icon">👨</span><span data-i18n="lbl_male">Чол</span>
+                        </div>
+                        <div class="segment-option" data-value="female" onclick="vibrate(); selectGender(this, 'female')">
+                            <span class="icon">👩</span><span data-i18n="lbl_female">Жін</span>
+                        </div>
                     </div>
                     <input type="hidden" id="profGender" value="male">
                 </div>
@@ -252,75 +281,79 @@
 
                 <div class="form-section">
                     <label class="section-label">Сповіщення (PWA)</label>
-                    <button id="btnEnableNotifications" onclick="vibrate(); enableNotifications()" type="button" style="width: 100%; background: rgba(0, 122, 255, 0.1); border: 1px solid transparent; color: #007aff; padding: 16px; border-radius: 16px; font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.2s;">
+                    <button id="btnEnableNotifications" onclick="vibrate(); enableNotifications()" type="button" style="width: 100%; background: rgba(0, 122, 255, 0.1); border: 1px solid rgba(0, 122, 255, 0.1); color: #007aff; padding: 14px; border-radius: 16px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s;">
                         🔔 Увімкнути нагадування
                     </button>
+                    <p style="font-size: 11px; color: #8e8e93; margin-top: 8px; text-align: center;">Отримуйте нагадування про воду та прийоми їжі</p>
                 </div>
+
             </div> 
             <div class="modal-footer">
-                <button onclick="vibrate(); saveProfile()" class="btn-primary" data-i18n="btn_calc_save">Зберегти налаштування</button>
+                <button onclick="vibrate(); saveProfile()" class="btn-premium-save" data-i18n="btn_calc_save">Розрахувати та Зберегти</button>
             </div>
         </div> 
     </div>
 
     <div id="editMealModal" class="modal-backdrop">
-        <div class="modal-content">
-            <h3 data-i18n="modal_edit_meal">Редагувати запис</h3>
+        <div class="modal-content glass-card">
+            <h3 data-i18n="modal_edit_meal" style="margin-bottom: 20px; text-align: center;">Редагувати запис</h3>
             <div style="text-align: left; margin-bottom: 15px;">
-                <label>Назва страви</label>
-                <input type="text" id="editMealNameInput" class="glass-input-sm">
+                <label style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; display: block; font-weight: 600;">Назва страви</label>
+                <input type="text" id="editMealNameInput" class="glass-input-sm" style="width: 100%; font-size: 16px; padding: 12px;">
             </div>
             <div style="text-align: left; margin-bottom: 10px;">
-                <label>Кількість</label>
+                <label style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; display: block; font-weight: 600;">Кількість</label>
                 <div style="display: flex; gap: 10px;">
-                    <input type="number" id="editMealAmount" class="glass-input-sm" style="flex: 1; font-weight: 800; text-align: center;">
-                    <select id="editMealUnit" class="glass-input-sm" style="width: 90px; font-weight: 800; text-align: center;">
-                        <option value="г">г</option><option value="мл">мл</option><option value="шт">шт</option>
+                    <input type="number" id="editMealAmount" class="glass-input-sm" style="flex: 1; font-size: 18px; font-weight: bold; text-align: center;" placeholder="100">
+                    <select id="editMealUnit" class="glass-input-sm" style="width: 80px; font-size: 16px; font-weight: bold; text-align: center; appearance: none; cursor: pointer;">
+                        <option value="г" style="color: black;">г</option>
+                        <option value="мл" style="color: black;">мл</option>
+                        <option value="шт" style="color: black;">шт</option>
                     </select>
                 </div>
             </div>
-            <div class="modal-actions">
+            <div class="modal-actions" style="margin-top: 25px;">
                 <button onclick="vibrate(); closeEditMealModal()" class="btn-text" data-i18n="btn_cancel">Скасувати</button>
-                <button onclick="vibrate(); saveMealEdit()" class="btn-primary" style="flex: 1;" data-i18n="btn_save">Зберегти</button>
+                <button onclick="vibrate(); saveMealEdit()" class="btn-primary" data-i18n="btn_save">Зберегти</button>
             </div>
         </div>
     </div>
 
     <div id="scannerModal" class="modal-backdrop" style="background: black;">
-        <div class="modal-content" style="background: transparent !important; box-shadow: none !important; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center;">
-            <div id="reader" style="width: 100%; border-radius: 24px; overflow: hidden; border: 4px solid var(--accent);"></div>
-            <button onclick="vibrate(); stopScanner()" class="btn-text" style="color: white !important; margin-top: 20px; font-size: 18px;">Закрити камеру</button>
+        <div class="modal-content" style="background: transparent; box-shadow: none; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center;">
+            <div id="reader" style="width: 100%; border-radius: 20px; overflow: hidden; border: 2px solid #007aff;"></div>
+            <button onclick="vibrate(); stopScanner()" class="btn-text" style="color: white; margin-top: 20px; font-size: 18px;">Закрити камеру</button>
         </div>
     </div>
 
     <div id="waterModal" class="modal-backdrop">
-        <div class="modal-content">
+        <div class="modal-content glass-card" style="text-align: center;">
             <h3 data-i18n="modal_water_title">Вода (мл)</h3>
-            <input type="number" id="waterInput" class="glass-input-lg">
-            <div class="modal-actions">
+            <input type="number" id="waterInput" class="glass-input-lg" placeholder="1500" style="text-align: center; font-size: 24px;">
+            <div class="modal-actions" style="margin-top: 20px;">
                 <button onclick="vibrate(); closeWaterModal()" class="btn-text" data-i18n="btn_cancel">Скасувати</button>
-                <button onclick="vibrate(); saveWaterEdit()" class="btn-primary" style="flex: 1;" data-i18n="btn_save">Зберегти</button>
+                <button onclick="vibrate(); saveWaterEdit()" class="btn-primary" data-i18n="btn_save">Зберегти</button>
             </div>
         </div>
     </div>
 
     <div id="createProductModal" class="modal-backdrop">
-        <div class="modal-content">
+        <div class="modal-content glass-card">
             <h3 data-i18n="modal_create_title">Новий продукт</h3>
             <input type="hidden" id="cpBarcode">
-            <div style="display: flex; flex-direction: column; gap: 12px; text-align: left;">
-                <input type="text" id="cpName" class="glass-input-sm" data-i18n-placeholder="input_name" placeholder="Назва">
-                <label style="margin-top: 10px;">На 100 <span data-i18n="unit_g">г</span>:</label>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                    <input type="number" id="cpKcal" class="glass-input-sm" placeholder="Ккал">
-                    <input type="number" id="cpProt" class="glass-input-sm" placeholder="Білки">
-                    <input type="number" id="cpFat" class="glass-input-sm" placeholder="Жири">
-                    <input type="number" id="cpCarb" class="glass-input-sm" placeholder="Вуглеводи">
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <input type="text" id="cpName" data-i18n-placeholder="input_name" placeholder="Назва" class="glass-input-sm" style="text-align: left;">
+                <label style="font-size: 12px; color: var(--text-secondary); margin-bottom: -5px;">100 <span data-i18n="unit_g">г</span>:</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <input type="number" id="cpKcal" data-i18n-placeholder="input_kcal" placeholder="Ккал" class="glass-input-sm">
+                    <input type="number" id="cpProt" data-i18n-placeholder="input_prot" placeholder="Білки" class="glass-input-sm">
+                    <input type="number" id="cpFat" data-i18n-placeholder="input_fat" placeholder="Жири" class="glass-input-sm">
+                    <input type="number" id="cpCarb" data-i18n-placeholder="input_carb" placeholder="Вугл." class="glass-input-sm">
                 </div>
             </div>
-            <div class="modal-actions" style="margin-top: 24px;">
+            <div class="modal-actions" style="margin-top: 20px;">
                 <button onclick="vibrate(); closeCreateProductModal()" class="btn-text" data-i18n="btn_cancel">Скасувати</button>
-                <button onclick="vibrate(); saveCustomProduct()" class="btn-primary" style="flex: 1;" data-i18n="btn_create">Створити</button>
+                <button onclick="vibrate(); saveCustomProduct()" class="btn-primary" data-i18n="btn_create">Створити</button>
             </div>
         </div>
     </div>
@@ -328,8 +361,14 @@
     <div id="aiCameraModal" style="display: none;">
         <div class="camera-interface">
             <video id="cameraFeed" autoplay playsinline></video>
-            <div id="photoLimitBadge" class="limit-badge"><span class="limit-icon">⚡️</span><span id="limitText">...</span></div>
-            <div class="scan-overlay"><div class="corner t-l"></div><div class="corner t-r"></div><div class="corner b-l"></div><div class="corner b-r"></div><div class="scan-line"></div></div>
+            <div id="photoLimitBadge" class="limit-badge">
+                <span class="limit-icon">⚡️</span> 
+                <span id="limitText">...</span>
+            </div>
+            <div class="scan-overlay">
+                <div class="corner t-l"></div><div class="corner t-r"></div><div class="corner b-l"></div><div class="corner b-r"></div>
+                <div class="scan-line"></div>
+            </div>
             <div class="camera-controls">
                 <button class="btn-icon-round" onclick="vibrate(); closeAiCamera()">✕</button>
                 <div class="btn-shutter" onclick="vibrate(); takeAiSnapshot()"><div class="shutter-inner"></div></div>
@@ -339,8 +378,8 @@
     </div>
 
     <div id="aiResultModal" style="display: none;">
-        <div style="position: relative; width: 100%; max-width: 400px; padding: 20px;">
-            <button onclick="vibrate(); closeAiResult()" style="position: absolute; top: -20px; right: 20px; background: #FFFFFF; border: none; color: #1c1c1e; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 3000;">✕</button>
+        <div style="position: relative; width: 100%; max-width: 400px;">
+            <button onclick="vibrate(); closeAiResult()" style="position: absolute; top: -40px; right: 0; background: rgba(255,255,255,0.8); border: none; color: #1c1c1e; width: 32px; height: 32px; border-radius: 50%; font-size: 18px; cursor: pointer; font-weight: bold;">✕</button>
             <div id="aiResultContent"></div>
         </div>
     </div>
@@ -364,7 +403,10 @@
             <div class="neo-handle"></div>
             
             <div class="neo-profile-header">
-                <div class="neo-avatar"><span id="dropInitials">K</span><div class="neo-avatar-ring"></div></div>
+                <div class="neo-avatar">
+                    <span id="dropInitials">K</span>
+                    <div class="neo-avatar-ring"></div>
+                </div>
                 <h3 id="dropName">User</h3>
                 <p id="dropEmail">user@example.com</p>
             </div>
@@ -384,14 +426,23 @@
 
             <div class="neo-menu-group">
                 <button onclick="vibrate(); closeProfileSheet(); openProfileModal();" class="neo-menu-item">
-                    <div class="neo-menu-left"><div class="neo-icon-box bg-gray">⚙️</div><span data-i18n="nav_edit_goal">Налаштування</span></div>
+                    <div class="neo-menu-left">
+                        <div class="neo-icon-box bg-gray">⚙️</div>
+                        <span data-i18n="nav_edit_goal">Налаштування</span>
+                    </div>
                     <span class="neo-chevron">›</span>
                 </button>
+                
                 <div class="neo-divider"></div>
+                
                 <button onclick="vibrate(); toggleNeoLangSelector()" class="neo-menu-item">
-                    <div class="neo-menu-left"><div class="neo-icon-box bg-blue">🌍</div><span data-i18n="nav_lang">Мова</span></div>
+                    <div class="neo-menu-left">
+                        <div class="neo-icon-box bg-blue">🌍</div>
+                        <span data-i18n="nav_lang">Мова</span>
+                    </div>
                     <span id="neoLangArrow" class="neo-chevron">▼</span>
                 </button>
+                
                 <div id="neoLangSelector" style="display: none; padding: 12px 16px; justify-content: space-around; background: rgba(0,0,0,0.02); border-radius: 16px; margin: 0 8px 8px;">
                     <button onclick="vibrate(); setLanguage('ua'); closeProfileSheet();" class="lang-circle-mini">🇺🇦</button>
                     <button onclick="vibrate(); setLanguage('en'); closeProfileSheet();" class="lang-circle-mini">🇬🇧</button>
@@ -399,11 +450,14 @@
                     <button onclick="vibrate(); setLanguage('az'); closeProfileSheet();" class="lang-circle-mini">🇦🇿</button>
                 </div>
             </div>
-            <button onclick="vibrate(); logout()" class="neo-logout-btn" data-i18n="nav_logout">Вийти</button>
+
+            <button onclick="vibrate(); logout()" class="neo-logout-btn" data-i18n="nav_logout">
+                Вийти
+            </button>
         </div>
     </div>
 
-    <script src="/js/dashboard.js?v=3.0"></script>
+    <script src="/js/dashboard.js?v=3.1"></script>
     <script src="/js/categories.js"></script>
     <script src="/js/translations.js"></script>
     

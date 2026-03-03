@@ -519,4 +519,4 @@ body.sheet-open { background-color: #D1D1D6; } /* Затемняем систе�
     color: #ff3b30; font-size: 17px; font-weight: 700; border: none;
     border-radius: 24px; cursor: pointer; transition: 0.2s;
 }
-.neo-logout-btn:active { transform: scale(0.97); background: rgba(255, 59, 48, 0.15); }     
+.neo-logout-btn:active { transform: scale(0.97); background: rgba(255, 59, 48, 0.15); }
