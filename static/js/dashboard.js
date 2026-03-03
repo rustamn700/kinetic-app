@@ -1227,3 +1227,47 @@ async function enableNotifications() {
         alert("Сповіщення увімкнено!");
     }
 }
+
+// =========================================
+// 💎 NEO PROFILE SHEET LOGIC
+// =========================================
+
+function openProfileSheet() {
+    vibrate(15); // Очень короткий премиальный отклик
+    document.getElementById('profileSheetBackdrop').classList.add('active');
+    
+    // Включаем эффект глубины для главного экрана
+    document.body.classList.add('sheet-open');
+    const mainCont = document.querySelector('.main-container');
+    const nav = document.querySelector('.glass-nav');
+    if(mainCont) mainCont.classList.add('stacked');
+    if(nav) nav.classList.add('stacked');
+}
+
+function closeProfileSheet(e) {
+    // Закрываем только если кликнули по фону, а не по самой карточке
+    if (e && e.target.id !== 'profileSheetBackdrop') return;
+    
+    vibrate(10);
+    document.getElementById('profileSheetBackdrop').classList.remove('active');
+    
+    // Возвращаем главный экран на место
+    document.body.classList.remove('sheet-open');
+    const mainCont = document.querySelector('.main-container');
+    const nav = document.querySelector('.glass-nav');
+    if(mainCont) mainCont.classList.remove('stacked');
+    if(nav) nav.classList.remove('stacked');
+}
+
+function toggleNeoLangSelector() {
+    vibrate(15);
+    const sel = document.getElementById('neoLangSelector');
+    const arrow = document.getElementById('neoLangArrow');
+    if(sel.style.display === 'none') {
+        sel.style.display = 'flex';
+        arrow.style.transform = 'rotate(180deg)';
+    } else {
+        sel.style.display = 'none';
+        arrow.style.transform = 'rotate(0deg)';
+    }
+}

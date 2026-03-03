@@ -24,14 +24,14 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#F2F2F7">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="icon" href="icons/icon-192.png"> 
     
-    <link rel="stylesheet" href="/css/dashboard.css?v=2.1">
+    <link rel="stylesheet" href="/css/dashboard.css?v=2.2">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -56,68 +56,9 @@
             <div class="logo">Kinetic.</div>
             <div class="profile-wrapper" style="display: flex; align-items: center;">
                 <div id="streakFire" class="streak-fire">🔥</div>
-                <button id="profileBtn" class="profile-icon" onclick="vibrate()"><span id="navUserInitials">K</span></button>
-                
-                <div id="profileDropdown" class="profile-dropdown premium-dropdown">
-                    <div class="dropdown-header-premium">
-                        <div class="user-avatar-large">
-                            <span id="dropInitials">K</span>
-                        </div>
-                        <div class="user-info-premium">
-                            <h4 id="dropName">User</h4>
-                            <span id="dropEmail">user@example.com</span>
-                        </div>
-                    </div>
-
-                    <div class="dropdown-stats-row">
-                        <div class="stat-box">
-                            <span class="stat-label" data-i18n="nav_goal">Ціль</span>
-                            <span class="stat-value"><span id="dropGoal">2500</span> <small>ккал</small></span>
-                        </div>
-                        <div class="vertical-divider"></div>
-                        <div class="stat-box">
-                            <span class="stat-label" data-i18n="lbl_weight">Вага</span>
-                            <span class="stat-value"><span id="dropWeightDisplay">--</span> <small data-i18n="unit_g">кг</small></span>
-                        </div>
-                    </div>
-
-                    <div class="menu-divider"></div>
-
-                    <div class="dropdown-menu-list">
-                        <button onclick="vibrate(); openProfileModal()" class="menu-item-premium">
-                            <div class="menu-left">
-                                <div class="icon-box settings-color">⚙️</div>
-                                <span data-i18n="nav_edit_goal">Налаштування</span>
-                            </div>
-                            <span class="chevron">›</span>
-                        </button>
-
-                        <div class="menu-group">
-                            <button onclick="vibrate(); toggleLangSelector()" class="menu-item-premium">
-                                <div class="menu-left">
-                                    <div class="icon-box lang-color">🌍</div>
-                                    <span data-i18n="nav_lang">Мова</span>
-                                </div>
-                                <span id="langArrow" class="chevron" style="font-size: 12px;">▼</span>
-                            </button>
-                            <div id="langSelector" class="lang-selector-row" style="display: none;">
-                                <button onclick="vibrate(); setLanguage('ua')" class="lang-circle-mini" id="lang-ua">🇺🇦</button>
-                                <button onclick="vibrate(); setLanguage('en')" class="lang-circle-mini" id="lang-en">🇬🇧</button>
-                                <button onclick="vibrate(); setLanguage('ru')" class="lang-circle-mini" id="lang-ru">🇷🇺</button>
-                                <button onclick="vibrate(); setLanguage('az')" class="lang-circle-mini" id="lang-az">🇦🇿</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="menu-divider"></div>
-
-                    <button onclick="vibrate(); logout()" class="menu-item-premium logout-item">
-                        <div class="menu-left">
-                            <div class="icon-box logout-color">🚪</div>
-                            <span data-i18n="nav_logout">Вийти</span>
-                        </div>
-                    </button>
-                </div>
+                <button id="profileBtn" class="profile-icon" onclick="openProfileSheet()">
+                    <span id="navUserInitials">K</span>
+                </button>
             </div>
         </div>
     </nav>
@@ -340,10 +281,10 @@
 
                 <div class="form-section">
                     <label class="section-label">Сповіщення (PWA)</label>
-                    <button id="btnEnableNotifications" onclick="vibrate(); enableNotifications()" type="button" style="width: 100%; background: rgba(10, 132, 255, 0.1); border: 1px solid rgba(10, 132, 255, 0.3); color: #0a84ff; padding: 14px; border-radius: 16px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s;">
+                    <button id="btnEnableNotifications" onclick="vibrate(); enableNotifications()" type="button" style="width: 100%; background: rgba(0, 122, 255, 0.1); border: 1px solid rgba(0, 122, 255, 0.1); color: #007aff; padding: 14px; border-radius: 16px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s;">
                         🔔 Увімкнути нагадування
                     </button>
-                    <p style="font-size: 11px; color: #666; margin-top: 8px; text-align: center;">Отримуйте нагадування про воду та прийоми їжі</p>
+                    <p style="font-size: 11px; color: #8e8e93; margin-top: 8px; text-align: center;">Отримуйте нагадування про воду та прийоми їжі</p>
                 </div>
 
             </div> 
@@ -356,25 +297,21 @@
     <div id="editMealModal" class="modal-backdrop">
         <div class="modal-content glass-card">
             <h3 data-i18n="modal_edit_meal" style="margin-bottom: 20px; text-align: center;">Редагувати запис</h3>
-            
             <div style="text-align: left; margin-bottom: 15px;">
-                <label style="font-size: 12px; color: #888; margin-bottom: 6px; display: block;">Назва страви</label>
+                <label style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; display: block; font-weight: 600;">Назва страви</label>
                 <input type="text" id="editMealNameInput" class="glass-input-sm" style="width: 100%; font-size: 16px; padding: 12px;">
             </div>
-            
             <div style="text-align: left; margin-bottom: 10px;">
-                <label style="font-size: 12px; color: #888; margin-bottom: 6px; display: block;">Кількість</label>
+                <label style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; display: block; font-weight: 600;">Кількість</label>
                 <div style="display: flex; gap: 10px;">
                     <input type="number" id="editMealAmount" class="glass-input-sm" style="flex: 1; font-size: 18px; font-weight: bold; text-align: center;" placeholder="100">
-                    
-                    <select id="editMealUnit" class="glass-input-sm" style="width: 80px; font-size: 16px; font-weight: bold; text-align: center; appearance: none; background-color: rgba(255,255,255,0.05); cursor: pointer;">
+                    <select id="editMealUnit" class="glass-input-sm" style="width: 80px; font-size: 16px; font-weight: bold; text-align: center; appearance: none; cursor: pointer;">
                         <option value="г" style="color: black;">г</option>
                         <option value="мл" style="color: black;">мл</option>
                         <option value="шт" style="color: black;">шт</option>
                     </select>
                 </div>
             </div>
-            
             <div class="modal-actions" style="margin-top: 25px;">
                 <button onclick="vibrate(); closeEditMealModal()" class="btn-text" data-i18n="btn_cancel">Скасувати</button>
                 <button onclick="vibrate(); saveMealEdit()" class="btn-primary" data-i18n="btn_save">Зберегти</button>
@@ -406,7 +343,7 @@
             <input type="hidden" id="cpBarcode">
             <div style="display: flex; flex-direction: column; gap: 10px;">
                 <input type="text" id="cpName" data-i18n-placeholder="input_name" placeholder="Назва" class="glass-input-sm" style="text-align: left;">
-                <label style="font-size: 12px; color: #888; margin-bottom: -5px;">100 <span data-i18n="unit_g">г</span>:</label>
+                <label style="font-size: 12px; color: var(--text-secondary); margin-bottom: -5px;">100 <span data-i18n="unit_g">г</span>:</label>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <input type="number" id="cpKcal" data-i18n-placeholder="input_kcal" placeholder="Ккал" class="glass-input-sm">
                     <input type="number" id="cpProt" data-i18n-placeholder="input_prot" placeholder="Білки" class="glass-input-sm">
@@ -424,7 +361,6 @@
     <div id="aiCameraModal" style="display: none;">
         <div class="camera-interface">
             <video id="cameraFeed" autoplay playsinline></video>
-            
             <div id="photoLimitBadge" class="limit-badge">
                 <span class="limit-icon">⚡️</span> 
                 <span id="limitText">...</span>
@@ -433,7 +369,6 @@
                 <div class="corner t-l"></div><div class="corner t-r"></div><div class="corner b-l"></div><div class="corner b-r"></div>
                 <div class="scan-line"></div>
             </div>
-
             <div class="camera-controls">
                 <button class="btn-icon-round" onclick="vibrate(); closeAiCamera()">✕</button>
                 <div class="btn-shutter" onclick="vibrate(); takeAiSnapshot()"><div class="shutter-inner"></div></div>
@@ -444,7 +379,7 @@
 
     <div id="aiResultModal" style="display: none;">
         <div style="position: relative; width: 100%; max-width: 400px;">
-            <button onclick="vibrate(); closeAiResult()" style="position: absolute; top: -40px; right: 0; background: rgba(255,255,255,0.2); border: none; color: white; width: 30px; height: 30px; border-radius: 50%; font-size: 18px; cursor: pointer;">✕</button>
+            <button onclick="vibrate(); closeAiResult()" style="position: absolute; top: -40px; right: 0; background: rgba(255,255,255,0.8); border: none; color: #1c1c1e; width: 32px; height: 32px; border-radius: 50%; font-size: 18px; cursor: pointer; font-weight: bold;">✕</button>
             <div id="aiResultContent"></div>
         </div>
     </div>
@@ -463,7 +398,66 @@
         </div>
     </div>
 
-    <script src="/js/dashboard.js?v=2.1"></script>
+    <div id="profileSheetBackdrop" class="neo-backdrop" onclick="closeProfileSheet(event)">
+        <div class="neo-sheet" onclick="event.stopPropagation()">
+            <div class="neo-handle"></div>
+            
+            <div class="neo-profile-header">
+                <div class="neo-avatar">
+                    <span id="dropInitials">K</span>
+                    <div class="neo-avatar-ring"></div>
+                </div>
+                <h3 id="dropName">User</h3>
+                <p id="dropEmail">user@example.com</p>
+            </div>
+
+            <div class="neo-bento-grid">
+                <div class="neo-bento-card">
+                    <div class="neo-bento-icon icon-target">🎯</div>
+                    <div class="neo-bento-val" id="dropGoal">2500</div>
+                    <div class="neo-bento-lbl">ккал / день</div>
+                </div>
+                <div class="neo-bento-card">
+                    <div class="neo-bento-icon icon-weight">⚖️</div>
+                    <div class="neo-bento-val" id="dropWeightDisplay">--</div>
+                    <div class="neo-bento-lbl">Поточна вага</div>
+                </div>
+            </div>
+
+            <div class="neo-menu-group">
+                <button onclick="vibrate(); closeProfileSheet(); openProfileModal();" class="neo-menu-item">
+                    <div class="neo-menu-left">
+                        <div class="neo-icon-box bg-gray">⚙️</div>
+                        <span data-i18n="nav_edit_goal">Налаштування</span>
+                    </div>
+                    <span class="neo-chevron">›</span>
+                </button>
+                
+                <div class="neo-divider"></div>
+                
+                <button onclick="vibrate(); toggleNeoLangSelector()" class="neo-menu-item">
+                    <div class="neo-menu-left">
+                        <div class="neo-icon-box bg-blue">🌍</div>
+                        <span data-i18n="nav_lang">Мова</span>
+                    </div>
+                    <span id="neoLangArrow" class="neo-chevron">▼</span>
+                </button>
+                
+                <div id="neoLangSelector" style="display: none; padding: 12px 16px; justify-content: space-around; background: rgba(0,0,0,0.02); border-radius: 16px; margin: 0 8px 8px;">
+                    <button onclick="vibrate(); setLanguage('ua'); closeProfileSheet();" class="lang-circle-mini">🇺🇦</button>
+                    <button onclick="vibrate(); setLanguage('en'); closeProfileSheet();" class="lang-circle-mini">🇬🇧</button>
+                    <button onclick="vibrate(); setLanguage('ru'); closeProfileSheet();" class="lang-circle-mini">🇷🇺</button>
+                    <button onclick="vibrate(); setLanguage('az'); closeProfileSheet();" class="lang-circle-mini">🇦🇿</button>
+                </div>
+            </div>
+
+            <button onclick="vibrate(); logout()" class="neo-logout-btn" data-i18n="nav_logout">
+                Вийти
+            </button>
+        </div>
+    </div>
+
+    <script src="/js/dashboard.js?v=2.2"></script>
     <script src="/js/categories.js"></script>
     <script src="/js/translations.js"></script>
     
