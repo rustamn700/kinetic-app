@@ -348,35 +348,38 @@ input, textarea, select {
 }
 
 /* =========================================
-   🤖 FLOATING AI SEARCH (CHATGPT STYLE)
+   🤖 FLOATING AI SEARCH (ЯК У CHATGPT)
    ========================================= */
 
-/* ЗБІЛЬШУЄМО ВІДСТУП ЗНИЗУ ДЛЯ СТОРІНКИ, ЩОБ ПАНЕЛЬ НЕ ЗАКРИВАЛА КОНТЕНТ */
+/* Даємо сторінці великий відступ знизу, щоб останній запис можна було доскролити до кінця і він не ховався за панеллю навсегда */
 body {
     padding-bottom: calc(140px + env(safe-area-inset-bottom)) !important; 
 }
 
 .search-container-wrapper { 
-    position: sticky; /* 🔥 Стоїть на своєму місці, але прилипає при скролі */
-    bottom: calc(20px + env(safe-area-inset-bottom)); /* Відстань від низу, коли прилипне */
-    width: 100%; 
-    z-index: 150; 
+    position: fixed !important; /* 🔥 Жорстко фіксуємо ПОВЕРХ екрану */
+    bottom: calc(20px + env(safe-area-inset-bottom)) !important; /* Завжди внизу */
+    left: 50% !important; 
+    transform: translateX(-50%) !important; 
+    width: 100% !important; 
+    max-width: 450px !important; 
+    padding: 0 16px !important; 
+    z-index: 1000 !important; /* Робимо її найвищою над усім іншим контентом */
     display: flex; 
     flex-direction: column; 
     justify-content: flex-end; 
-    margin-top: 24px; /* Повертаємо відступ від Води */
-    margin-bottom: 24px; /* Повертаємо відступ від Графіку */
+    margin: 0 !important; /* Вбиваємо всі інші відступи */
 }
 
-/* М'який градієнт, який ховає контент ТІЛЬКИ коли ми скролимо під панель */
+/* Той самий ефект ChatGPT: градієнт, який плавно приховує текст, що заїжджає під панель */
 .search-container-wrapper::before {
     content: '';
     position: absolute;
-    bottom: -24px; 
-    left: -20px; /* Виходимо за межі контейнера, щоб розмити краї */
-    right: -20px;
-    height: 100px;
-    background: linear-gradient(to top, var(--bg) 30%, transparent);
+    bottom: -40px; 
+    left: 0;
+    width: 100%;
+    height: 160px;
+    background: linear-gradient(to top, var(--bg) 40%, transparent);
     pointer-events: none;
     z-index: -1;
 }
