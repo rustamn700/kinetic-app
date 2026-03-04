@@ -170,7 +170,9 @@ async function loadDashboardData() {
     const loader = document.getElementById('skeletonLoader');
     if(loader) loader.classList.add('active');
     try {
-        await Promise.all([
+        // Заменяем Promise.all на Promise.allSettled
+        // Теперь если один запрос упадет с 500 ошибкой, остальные все равно загрузятся!
+        await Promise.allSettled([
             updateHeroStats(),
             loadWeightChart(),
             loadDailyHistory(),
