@@ -1758,3 +1758,66 @@ body.sheet-open {
 
 .splash-screen { background-color: #FFFFFF; }
 .splash-logo { color: var(--text-primary); }
+
+/* =========================================
+   🍏 ФИКСЫ ДЛЯ iOS SAFARI (АНТИ-СПЛЮЩИВАНИЕ)
+   ========================================= */
+
+/* Запрещаем Safari сжимать кнопки */
+.ps-btn-plus, 
+.ps-btn-ai, 
+.water-btn-edit, 
+.water-btn-add, 
+.profile-icon, 
+.water-icon {
+    flex-shrink: 0 !important; /* ЗАПРЕТ НА СЖАТИЕ */
+    -webkit-appearance: none !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Исправляем высоту и отступы поля поиска на iPhone */
+#dishInput {
+    height: 48px !important;
+    margin: 0 !important;
+    -webkit-appearance: none !important;
+    border-radius: 0 !important;
+    line-height: normal !important;
+}
+
+/* Гарантируем, что контейнер поиска не схлопнется */
+.premium-search-bar {
+    min-height: 64px !important;
+}
+
+/* =========================================
+   🛠 ФИКС ДЛЯ СПЛЮЩЕННЫХ КНОПОК (ANDROID / IOS)
+   ========================================= */
+
+/* Запрещаем браузерам сжимать круглые/квадратные элементы */
+.ps-btn-plus, 
+.ps-btn-ai, 
+.water-btn-edit, 
+.water-btn-add, 
+.profile-icon, 
+.water-icon,
+.action-icon {
+    flex-shrink: 0 !important; /* 🔥 ЖЕСТКИЙ ЗАПРЕТ НА СЖАТИЕ */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Страховка размеров для кнопок поиска */
+.ps-btn-plus, 
+.ps-btn-ai {
+    min-width: 48px !important;
+    min-height: 48px !important;
+}
+
+/* Делаем инпут покорным, чтобы он не выдавливал кнопки */
+#dishInput {
+    min-width: 0 !important; /* 🔥 Обязательно, чтобы flex: 1 работал правильно */
+}
