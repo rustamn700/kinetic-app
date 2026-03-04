@@ -168,10 +168,15 @@ function getFormattedDate() {
 
 async function loadDashboardData() {
     const loader = document.getElementById('skeletonLoader');
-    if(loader) loader.classList.add('active');
+    if(loader) {
+        loader.style.display = 'flex';
+        loader.classList.add('active');
+        loader.style.opacity = '1';
+    }
+    
     try {
-        // Заменяем Promise.all на Promise.allSettled
-        // Теперь если один запрос упадет с 500 ошибкой, остальные все равно загрузятся!
+        // Promise.allSettled гарантує, що інтерфейс завантажиться, 
+        // навіть якщо один із запитів до БД впаде
         await Promise.allSettled([
             updateHeroStats(),
             loadWeightChart(),
@@ -186,7 +191,7 @@ async function loadDashboardData() {
                 loader.style.opacity = '0';
                 setTimeout(() => {
                     loader.classList.remove('active');
-                    loader.style.opacity = '1';
+                    loader.style.display = 'none'; // Жорстко ховаємо блок
                 }, 300); 
             }
         }, 500); 
