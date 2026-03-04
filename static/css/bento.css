@@ -42,11 +42,12 @@ body {
     background-color: var(--bg); 
     color: var(--text-primary); 
     overflow-x: hidden; 
-    -webkit-user-select: none; 
+    -webkit-user-select: none;
     user-select: none; 
     -webkit-touch-callout: none; 
     overscroll-behavior-y: none; 
-    padding-bottom: calc(80px + env(safe-area-inset-bottom)); 
+    /* ЗБІЛЬШИЛИ ВІДСТУП, ЩОБ ПАНЕЛЬ НЕ ЗАКРИВАЛА ОСТАННІ ЗАПИСИ */
+    padding-bottom: calc(140px + env(safe-area-inset-bottom)) !important; 
 }
 
 input, textarea, select { 
@@ -347,60 +348,120 @@ input, textarea, select {
 }
 
 /* =========================================
-   🔍 PREMIUM SEARCH BAR (SPOTLIGHT)
+   🤖 FLOATING AI SEARCH (CHATGPT STYLE)
    ========================================= */
-.search-container-wrapper { 
-    margin-bottom: 32px; 
-    position: relative; 
+
+/* ЗБІЛЬШУЄМО ВІДСТУП ЗНИЗУ ДЛЯ СТОРІНКИ, ЩОБ ПАНЕЛЬ НЕ ЗАКРИВАЛА КОНТЕНТ */
+body {
+    padding-bottom: calc(140px + env(safe-area-inset-bottom)) !important; 
 }
 
-.premium-search-bar { 
+.search-container-wrapper { 
+    position: fixed; /* 🔥 Приклеює до низу екрану */
+    bottom: calc(20px + env(safe-area-inset-bottom)); 
+    left: 50%; 
+    transform: translateX(-50%); 
+    width: 100%; 
+    max-width: 450px; 
+    padding: 0 16px; 
+    z-index: 150; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: flex-end; 
+}
+
+/* М'який градієнт-розмиття за панеллю (щоб контент плавно ховався) */
+.search-container-wrapper::before {
+    content: '';
+    position: absolute;
+    bottom: -40px;
+    left: 0;
+    width: 100%;
+    height: 180px;
+    background: linear-gradient(to top, var(--bg) 50%, transparent);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.search-container { 
+    margin-bottom: 0 !important; 
+    display: flex; 
+    align-items: center; 
+    width: 100%; 
+}
+
+/* Форма Пігулки (Pill) */
+.search-pill { 
+    flex: 1; 
+    min-width: 0; 
+    height: 56px; 
     display: flex; 
     align-items: center; 
     background: #FFFFFF; 
-    border-radius: 24px; 
-    padding: 8px; 
-    box-shadow: var(--shadow-soft); 
-    border: 1px solid rgba(0,0,0,0.03); 
+    border: 1px solid rgba(0,0,0,0.06); 
+    border-radius: 30px; /* Круглі краї як у ChatGPT */
+    padding: 6px 8px; 
     transition: 0.3s; 
-    gap: 8px; 
+    box-shadow: 0 12px 35px rgba(0,0,0,0.1); 
 }
 
-.premium-search-bar:focus-within { 
-    box-shadow: 0 8px 30px rgba(0, 122, 255, 0.15); 
-    border-color: rgba(0, 122, 255, 0.3); 
-    transform: translateY(-2px); 
+.search-pill:focus-within { 
+    border-color: rgba(0,122,255,0.3); 
+    box-shadow: 0 12px 35px rgba(0,122,255,0.15); 
 }
 
-.ps-btn-plus { 
-    width: 48px; 
-    height: 48px; 
-    border-radius: 16px; 
+/* Кнопки всередині */
+.pill-btn { 
+    width: 44px !important; 
+    height: 44px !important; 
+    min-width: 44px !important; 
+    min-height: 44px !important;
+    border-radius: 50% !important; 
     border: none; 
-    background: #F2F2F7; 
-    color: var(--accent); 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important; 
     cursor: pointer; 
-    transition: 0.3s; 
+    transition: 0.2s; 
+    flex-shrink: 0 !important; 
+    aspect-ratio: 1/1 !important;
 }
 
-.ps-btn-plus.active { 
-    transform: rotate(45deg); 
-    background: rgba(255, 59, 48, 0.1); 
-    color: var(--danger); 
+.pill-btn.left { 
+    background: transparent; 
+    color: var(--text-primary); 
+}
+
+.pill-btn.left:active { 
+    background: #F2F2F7; 
+}
+
+/* Чорна кнопка, яка стає синьою при введенні */
+.pill-btn.right { 
+    background: #1C1C1E; 
+    color: white; 
+}
+
+.pill-btn.right:active { 
+    transform: scale(0.9); 
+}
+
+#aiBtn.ready { 
+    background: var(--accent) !important; 
+    color: white !important; 
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3); 
 }
 
 #dishInput { 
     flex: 1; 
-    border: none; 
+    min-width: 0 !important; 
     background: transparent; 
-    font-size: 17px; 
-    font-weight: 500; 
+    border: none; 
+    padding: 0 12px; 
+    font-size: 16px; 
     color: var(--text-primary); 
-    padding: 0 8px; 
     outline: none; 
+    height: 100%; 
 }
 
 #dishInput::placeholder { 
@@ -408,51 +469,40 @@ input, textarea, select {
     font-weight: 500; 
 }
 
-.ps-btn-ai { 
-    width: 48px; 
-    height: 48px; 
-    border-radius: 16px; 
-    border: none; 
-    background: #F2F2F7; 
-    color: #C7C7CC; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    font-size: 20px; 
-    transition: 0.3s; 
-    pointer-events: none; 
+#btnPlus { 
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
 }
 
-.ps-btn-ai.ready { 
-    background: var(--accent); 
-    color: white; 
-    pointer-events: auto; 
-    box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3); 
+#btnPlus.active { 
+    transform: rotate(45deg); 
+    color: var(--text-secondary); 
+    background: #F2F2F7; 
 }
 
 /* =========================================
-   ДОДАТКОВЕ МЕНЮ (ПЛЮСИК)
+   ДОДАТКОВЕ МЕНЮ (ВІДКРИВАЄТЬСЯ ВГОРУ)
    ========================================= */
 .action-menu { 
     position: absolute; 
-    top: 75px; 
-    left: 0; 
+    bottom: 75px; /* Змінили top на bottom */
+    top: auto; 
+    left: 16px; 
     background: rgba(255, 255, 255, 0.95); 
     backdrop-filter: blur(25px); 
     border: 1px solid rgba(0,0,0,0.05); 
-    border-radius: 24px; 
-    padding: 12px; 
+    border-radius: 20px; 
+    padding: 8px; 
     display: flex; 
     flex-direction: column; 
     gap: 4px; 
-    min-width: 200px; 
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1); 
+    min-width: 180px; 
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.1); 
     z-index: 50; 
     opacity: 0; 
-    transform: scale(0.9) translateY(-10px); 
+    transform: scale(0.9) translateY(10px); 
     pointer-events: none; 
     transition: all 0.2s var(--ease-apple); 
-    transform-origin: top left; 
+    transform-origin: bottom left; /* Анімація з нижнього кута */
 }
 
 .action-menu.active { 
@@ -464,9 +514,9 @@ input, textarea, select {
 .action-item { 
     display: flex; 
     align-items: center; 
-    gap: 16px; 
-    padding: 12px; 
-    border-radius: 16px; 
+    gap: 12px; 
+    padding: 10px 12px; 
+    border-radius: 12px; 
     color: var(--text-primary); 
     cursor: pointer; 
     transition: background 0.2s; 
@@ -477,13 +527,14 @@ input, textarea, select {
 }
 
 .action-icon { 
-    width: 36px; 
-    height: 36px; 
-    border-radius: 12px; 
+    width: 32px; 
+    height: 32px; 
+    border-radius: 50%; 
     display: flex; 
     align-items: center; 
     justify-content: center; 
     color: white; 
+    flex-shrink: 0 !important; 
 }
 
 .action-icon.cam { background: var(--accent); } 
@@ -493,25 +544,76 @@ input, textarea, select {
 .action-icon.barcode { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
 
 .action-item span { 
-    font-size: 15px; 
+    font-size: 14px; 
     font-weight: 600; 
 }
 
 /* =========================================
-   ПОПЕРЕДНІЙ ПЕРЕГЛЯД ФОТО
+   ПІДКАЗКИ ПОШУКУ (ВІДКРИВАЮТЬСЯ ВГОРУ)
    ========================================= */
+.suggestions-box { 
+    position: absolute; 
+    bottom: 75px; /* Змінили top на bottom */
+    top: auto; 
+    left: 16px; 
+    width: calc(100% - 32px); 
+    background: rgba(255, 255, 255, 0.98); 
+    backdrop-filter: blur(25px); 
+    border: 1px solid rgba(0,0,0,0.05); 
+    border-radius: 20px; 
+    padding: 8px; 
+    z-index: 90; 
+    display: none; 
+    max-height: 250px; 
+    overflow-y: auto; 
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.1); 
+    animation: slideUpPop 0.2s ease; 
+}
+
+.suggestions-box.active { 
+    display: block; 
+}
+
+.suggestion-item { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 12px 16px; 
+    border-bottom: 1px solid rgba(0,0,0,0.03); 
+    color: var(--text-primary); 
+    font-size: 15px; 
+    font-weight: 500; 
+    cursor: pointer; 
+    transition: background 0.2s; 
+}
+
+.suggestion-item:last-child { 
+    border-bottom: none; 
+}
+
+.suggestion-item:active { 
+    background: #F2F2F7; 
+    border-radius: 12px; 
+}
+
+@keyframes slideUpPop { 
+    from { opacity: 0; transform: translateY(10px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
+
+/* ПРЕВЬЮ ФОТО (Над панеллю) */
 .image-preview { 
     width: 100%; 
     margin-bottom: 12px; 
     background: #FFFFFF; 
     border: 1px solid rgba(0,0,0,0.05); 
-    border-radius: 24px; 
-    padding: 12px; 
+    border-radius: 18px; 
+    padding: 10px; 
     display: flex; 
     align-items: center; 
     gap: 10px; 
     animation: slideDown 0.3s var(--ease-spring); 
-    box-shadow: var(--shadow-soft); 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
 }
 
 .image-preview.hidden { 
@@ -586,55 +688,8 @@ input, textarea, select {
 }
 
 @keyframes slideDown { 
-    from { opacity: 0; transform: translateY(10px) scale(0.95); } 
+    from { opacity: 0; transform: translateY(-10px) scale(0.95); } 
     to { opacity: 1; transform: translateY(0) scale(1); } 
-}
-
-/* =========================================
-   ПІДКАЗКИ ПОШУКУ (SUGGESTIONS)
-   ========================================= */
-.suggestions-box { 
-    position: absolute; 
-    top: 75px; 
-    left: 0; 
-    width: 100%; 
-    background: rgba(255, 255, 255, 0.98); 
-    backdrop-filter: blur(25px); 
-    border: 1px solid rgba(0,0,0,0.05); 
-    border-radius: 24px; 
-    padding: 8px; 
-    z-index: 90; 
-    display: none; 
-    max-height: 250px; 
-    overflow-y: auto; 
-    box-shadow: var(--shadow-soft); 
-    animation: slideDown 0.2s ease; 
-}
-
-.suggestions-box.active { 
-    display: block; 
-}
-
-.suggestion-item { 
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
-    padding: 16px; 
-    border-bottom: 1px solid rgba(0,0,0,0.03); 
-    color: var(--text-primary); 
-    font-size: 16px; 
-    font-weight: 600; 
-    cursor: pointer; 
-    transition: background 0.2s; 
-}
-
-.suggestion-item:last-child { 
-    border-bottom: none; 
-}
-
-.suggestion-item:active { 
-    background: #F2F2F7; 
-    border-radius: 16px; 
 }
 
 /* =========================================
