@@ -49,7 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const splash = document.getElementById('splashScreen');
         if (splash) splash.classList.add('hidden');
     }, 1500); 
+
     
+    initThemeIcon();
     applyLanguage(currentLang);
     updateDateDisplay();
     loadDashboardData();
@@ -1311,5 +1313,34 @@ function toggleNeoLangSelector() {
     } else {
         sel.style.display = 'none';
         arrow.style.transform = 'rotate(0deg)';
+    }
+}
+
+// =========================================
+// 🌗 ТЕМНА/СВІТЛА ТЕМА (DARK MODE TOGGLE)
+// =========================================
+
+function initThemeIcon() {
+    const theme = document.documentElement.getAttribute('data-theme') || 'light';
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn) btn.innerHTML = theme === 'dark' ? '☀️' : '🌙';
+}
+
+function toggleTheme() {
+    vibrate(15);
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    const nextTheme = current === 'light' ? 'dark' : 'light';
+    
+    // Змінюємо тему
+    document.documentElement.setAttribute('data-theme', nextTheme);
+    localStorage.setItem('theme', nextTheme);
+    
+    // Змінюємо іконку
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn) btn.innerHTML = nextTheme === 'dark' ? '☀️' : '🌙';
+    
+    // Оновлюємо кольори графіка, якщо він існує
+    if (window.myWeightChart) {
+        loadWeightChart();
     }
 }

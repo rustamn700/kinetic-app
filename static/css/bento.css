@@ -1861,3 +1861,71 @@ body.sheet-open {
 #dishInput {
     min-width: 0 !important; /* 🔥 Обязательно, чтобы flex: 1 работал правильно */
 }
+
+/* =========================================
+   🌙 ТЕМНА ТЕМА (DARK MODE)
+   ========================================= */
+[data-theme="dark"] {
+    --bg: #000000; /* Абсолютно чорний фон */
+    --card-bg: #1C1C1E; /* Темно-сірий для карток */
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --text-primary: #FFFFFF;
+    --text-secondary: #98989D;
+}
+
+[data-theme="dark"] body { background-color: var(--bg) !important; color: var(--text-primary); }
+[data-theme="dark"] .glass-nav { background: rgba(0, 0, 0, 0.85); border-color: rgba(255,255,255,0.05); }
+[data-theme="dark"] .bento-card, [data-theme="dark"] .glass-card { background: var(--card-bg); border-color: var(--glass-border); }
+[data-theme="dark"] .profile-icon { background: #2C2C2E; border-color: var(--glass-border); }
+
+/* Вода */
+[data-theme="dark"] .water-bento { background: #1C1C1E; border-color: var(--glass-border); }
+[data-theme="dark"] .water-btn-edit { background: #2C2C2E !important; color: #FFF !important; }
+
+/* Плаваюча панель пошуку */
+[data-theme="dark"] .search-pill { background: #1C1C1E; border-color: rgba(255,255,255,0.1); }
+[data-theme="dark"] .pill-btn.left { color: var(--text-primary); }
+[data-theme="dark"] .pill-btn.left:active { background: #2C2C2E; }
+[data-theme="dark"] .pill-btn.right { background: #FFFFFF; color: #000000; }
+[data-theme="dark"] .search-container-wrapper::before { background: linear-gradient(to top, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0) 100%); }
+
+/* Меню дій та підказки */
+[data-theme="dark"] .action-menu, [data-theme="dark"] .suggestions-box { background: rgba(28, 28, 30, 0.95); border-color: var(--glass-border); }
+[data-theme="dark"] .suggestion-item:active { background: #2C2C2E; }
+[data-theme="dark"] .image-preview { background: #1C1C1E; border-color: var(--glass-border); }
+[data-theme="dark"] .btn-clear-all { background: #2C2C2E; color: #FFF; }
+
+/* Історія (Свайпи) */
+[data-theme="dark"] .swipe-content { background: #1C1C1E; border-color: var(--glass-border); }
+[data-theme="dark"] .swipe-content:active { background: #2C2C2E; }
+[data-theme="dark"] .h-icon-box { background: #2C2C2E !important; }
+[data-theme="dark"] .h-macros { background: #2C2C2E; color: var(--text-secondary); }
+[data-theme="dark"] .h-grams { background: #2C2C2E; color: var(--text-primary); }
+[data-theme="dark"] .date-navigator button { background: #1C1C1E; border-color: var(--glass-border); color: #FFF; }
+
+/* Модальні вікна (Інпути) */
+[data-theme="dark"] .modal-content { background: #1C1C1E !important; }
+[data-theme="dark"] .modal-content::before { background: #3A3A3C; }
+[data-theme="dark"] .glass-input-lg, [data-theme="dark"] .glass-input-sm, [data-theme="dark"] #rWeightInput, [data-theme="dark"] select { background: #2C2C2E !important; color: #FFFFFF !important; border-color: transparent !important; }
+[data-theme="dark"] .btn-text { background: #2C2C2E !important; color: #FFFFFF !important; }
+[data-theme="dark"] .result-card { background: #1C1C1E !important; }
+[data-theme="dark"] .card-handle { background: #3A3A3C; }
+[data-theme="dark"] .meal-time-badge { background: #2C2C2E; color: #FFF; }
+[data-theme="dark"] .bar-container { background: #2C2C2E; }
+[data-theme="dark"] .btn-close-result { background: #2C2C2E; color: #FFF; }
+
+/* Профіль (Шторка) */
+[data-theme="dark"] .neo-sheet { background: rgba(28, 28, 30, 0.85); border-top-color: rgba(255,255,255,0.1); }
+[data-theme="dark"] .neo-bento-card { background: rgba(44, 44, 46, 0.7); border-color: rgba(255,255,255,0.05); }
+[data-theme="dark"] .neo-menu-group { background: rgba(44, 44, 46, 0.7); border-color: rgba(255,255,255,0.05); }
+[data-theme="dark"] .bg-gray { background: #3A3A3C; }
+[data-theme="dark"] .modal-header { border-bottom-color: rgba(255,255,255,0.05); }
+[data-theme="dark"] .btn-close-icon { background: #2C2C2E; color: #FFF; }
+[data-theme="dark"] .segmented-control { background: #2C2C2E; }
+[data-theme="dark"] .segment-option.active { background: #48484A; }
+[data-theme="dark"] .activity-card, [data-theme="dark"] .goal-card { background: #2C2C2E; }
+[data-theme="dark"] .modal-footer { background: #1C1C1E; border-top-color: rgba(255,255,255,0.05); }
+
+/* AI Result */
+[data-theme="dark"] #aiResultContent { background: #1C1C1E !important; }
+[data-theme="dark"] .btn-add-ai { background: #2C2C2E !important; }

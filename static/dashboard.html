@@ -31,7 +31,7 @@
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" href="icon.png">
     
-    <link rel="stylesheet" href="css/bento.css?v=11.0">
+    <link rel="stylesheet" href="css/bento.css?v=12.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -42,16 +42,32 @@
             font-family: 'Inter', 'Noto Color Emoji', sans-serif;
         }
     </style>
+
+    <script>
+        // Анти-моргание (FOUC fix) для темной темы
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+
 </head>
-<body> <div id="splashScreen" class="splash-screen">
+<body> 
+    <div id="splashScreen" class="splash-screen">
         <div class="splash-logo">Kinetic.</div>
     </div>
 
     <nav class="glass-nav">
         <div class="nav-content">
             <div class="logo">Kinetic.</div>
-            <div class="profile-wrapper" style="display: flex; align-items: center;">
-                <div id="streakFire" class="streak-fire">🔥</div>
+            <div class="profile-wrapper" style="display: flex; align-items: center; gap: 12px;">
+                
+                <button id="themeToggleBtn" onclick="toggleTheme()" style="background: none; border: none; color: var(--text-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; outline: none; transition: transform 0.2s;">
+                    <svg id="themeIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+                
+                <div id="streakFire" class="streak-fire" style="margin-right: 0;">🔥</div>
                 <button id="profileBtn" class="profile-icon" onclick="openProfileSheet()">
                     <span id="navUserInitials">K</span>
                 </button>
@@ -164,7 +180,9 @@
             </div>
             <div id="mealsList" class="history-list"></div>
         </div>
-    </div> <div class="search-container-wrapper">
+    </div> 
+    
+    <div class="search-container-wrapper">
         <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handleImageSelect(this)">
         <input type="file" id="galleryInput" accept="image/*" multiple style="display: none;" onchange="handleImageSelect(this)">
 
@@ -422,6 +440,43 @@
             <button onclick="vibrate(); logout()" class="neo-logout-btn" data-i18n="nav_logout">Вийти</button>
         </div>
     </div>
+
+    <script>
+        function initThemeIcon() {
+            const theme = document.documentElement.getAttribute('data-theme') || 'light';
+            updateThemeIcon(theme);
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('themeIcon');
+            if (!icon) return;
+            if (theme === 'dark') {
+                // Сонце (коли включена темна тема, показуємо кнопку для переходу на світлу)
+                icon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+            } else {
+                // Місяць (коли включена світла тема)
+                icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+            }
+        }
+
+        function toggleTheme() {
+            if(window.vibrate) vibrate(15);
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const nextTheme = current === 'light' ? 'dark' : 'light';
+            
+            document.documentElement.setAttribute('data-theme', nextTheme);
+            localStorage.setItem('theme', nextTheme);
+            updateThemeIcon(nextTheme);
+            
+            // Якщо графік існує - перемальовуємо його з новими кольорами
+            if (window.myWeightChart && typeof loadWeightChart === 'function') {
+                loadWeightChart();
+            }
+        }
+        
+        // Запускаємо перевірку іконки відразу після завантаження сторінки
+        document.addEventListener('DOMContentLoaded', initThemeIcon);
+    </script>
 
     <script src="js/app.js?v=10.0"></script>
     <script src="/js/categories.js"></script>
