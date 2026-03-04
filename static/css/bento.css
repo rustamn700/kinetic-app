@@ -357,28 +357,26 @@ body {
 }
 
 .search-container-wrapper { 
-    position: fixed; /* 🔥 Приклеює до низу екрану */
-    bottom: calc(20px + env(safe-area-inset-bottom)); 
-    left: 50%; 
-    transform: translateX(-50%); 
+    position: sticky; /* 🔥 Стоїть на своєму місці, але прилипає при скролі */
+    bottom: calc(20px + env(safe-area-inset-bottom)); /* Відстань від низу, коли прилипне */
     width: 100%; 
-    max-width: 450px; 
-    padding: 0 16px; 
     z-index: 150; 
     display: flex; 
     flex-direction: column; 
     justify-content: flex-end; 
+    margin-top: 24px; /* Повертаємо відступ від Води */
+    margin-bottom: 24px; /* Повертаємо відступ від Графіку */
 }
 
-/* М'який градієнт-розмиття за панеллю (щоб контент плавно ховався) */
+/* М'який градієнт, який ховає контент ТІЛЬКИ коли ми скролимо під панель */
 .search-container-wrapper::before {
     content: '';
     position: absolute;
-    bottom: -40px;
-    left: 0;
-    width: 100%;
-    height: 180px;
-    background: linear-gradient(to top, var(--bg) 50%, transparent);
+    bottom: -24px; 
+    left: -20px; /* Виходимо за межі контейнера, щоб розмити краї */
+    right: -20px;
+    height: 100px;
+    background: linear-gradient(to top, var(--bg) 30%, transparent);
     pointer-events: none;
     z-index: -1;
 }
