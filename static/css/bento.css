@@ -357,18 +357,17 @@ body {
 }
 
 .search-container-wrapper { 
-    position: fixed !important; /* 🔥 Жорстко фіксуємо ПОВЕРХ екрану */
-    bottom: calc(20px + env(safe-area-inset-bottom)) !important; /* Завжди внизу */
+    position: fixed !important; /* Намертво к экрану */
+    bottom: calc(20px + env(safe-area-inset-bottom)) !important; /* В самом низу телефона */
     left: 50% !important; 
     transform: translateX(-50%) !important; 
     width: 100% !important; 
     max-width: 450px !important; 
     padding: 0 16px !important; 
-    z-index: 1000 !important; /* Робимо її найвищою над усім іншим контентом */
+    z-index: 1000 !important; /* Поверх всего контента */
     display: flex; 
     flex-direction: column; 
     justify-content: flex-end; 
-    margin: 0 !important; /* Вбиваємо всі інші відступи */
 }
 
 /* Той самий ефект ChatGPT: градієнт, який плавно приховує текст, що заїжджає під панель */
