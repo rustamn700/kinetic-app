@@ -38,15 +38,24 @@
     -webkit-tap-highlight-color: transparent; 
 }
 
-body { 
-    background-color: var(--bg); 
+/* =========================================
+   🤖 УЛУЧШЕННЫЙ ФИКС ФОНА И СКРОЛЛА
+   ========================================= */
+
+/* Запрещаем браузеру показывать белый фон при оттягивании ленты на телефоне */
+html, body {
+    background-color: var(--bg) !important;
+    min-height: 100vh;
+}
+
+body {
     color: var(--text-primary); 
     overflow-x: hidden; 
     -webkit-user-select: none;
     user-select: none; 
     -webkit-touch-callout: none; 
     overscroll-behavior-y: none; 
-    /* ЗБІЛЬШИЛИ ВІДСТУП, ЩОБ ПАНЕЛЬ НЕ ЗАКРИВАЛА ОСТАННІ ЗАПИСИ */
+    /* Даем большой отступ снизу, чтобы контент не прятался под панелью */
     padding-bottom: calc(140px + env(safe-area-inset-bottom)) !important; 
 }
 
@@ -357,28 +366,29 @@ body {
 }
 
 .search-container-wrapper { 
-    position: fixed !important; /* Намертво к экрану */
-    bottom: calc(20px + env(safe-area-inset-bottom)) !important; /* В самом низу телефона */
+    position: fixed !important; 
+    bottom: calc(24px + env(safe-area-inset-bottom)) !important; 
     left: 50% !important; 
     transform: translateX(-50%) !important; 
     width: 100% !important; 
     max-width: 450px !important; 
     padding: 0 16px !important; 
-    z-index: 1000 !important; /* Поверх всего контента */
+    z-index: 1000 !important; 
     display: flex; 
     flex-direction: column; 
     justify-content: flex-end; 
+    margin: 0 !important; 
 }
 
 /* Той самий ефект ChatGPT: градієнт, який плавно приховує текст, що заїжджає під панель */
 .search-container-wrapper::before {
     content: '';
     position: absolute;
-    bottom: -40px; 
-    left: 0;
-    width: 100%;
-    height: 160px;
-    background: linear-gradient(to top, var(--bg) 40%, transparent);
+    bottom: -50px; /* Уводим глубоко вниз, чтобы перекрыть все щели экрана */
+    left: -20px;
+    right: -20px;
+    height: 180px;
+    background: linear-gradient(to top, rgba(242, 242, 247, 1) 40%, rgba(242, 242, 247, 0) 100%);
     pointer-events: none;
     z-index: -1;
 }
@@ -399,10 +409,10 @@ body {
     align-items: center; 
     background: #FFFFFF; 
     border: 1px solid rgba(0,0,0,0.06); 
-    border-radius: 30px; /* Круглі краї як у ChatGPT */
+    border-radius: 30px; 
     padding: 6px 8px; 
     transition: 0.3s; 
-    box-shadow: 0 12px 35px rgba(0,0,0,0.1); 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06); 
 }
 
 .search-pill:focus-within { 
