@@ -1,5 +1,16 @@
-venv/
-__pycache__/
-*.db
+# Environments
 .env
-fitness.db
+.venv
+env/
+venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# VS Code (как и советовал друг)
+.vscode/
+
+# Database (чтобы не слить базу с юзерами)
+*.db
+*.sqlite3
