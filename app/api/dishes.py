@@ -100,10 +100,8 @@ def delete_dish(dish_id: int, db: Session = Depends(database.get_db)):
         db.commit()
     return {"status": "deleted"}
 
-# (Твой старый router.get("/calculate") оставь здесь же)
 @router.get("/calculate")
 async def calculate_dish_by_name(query: str, db: Session = Depends(database.get_db)):
-    # ... старый код ...
     dish = db.query(models.Dish).filter(models.Dish.name.ilike(f"%{query}%")).first()
     if not dish: raise HTTPException(status_code=404, detail="Not found")
     return NutritionCalculator.calculate_dish(dish)

@@ -43,7 +43,7 @@ def register(user: UserCreate, db: Session = Depends(database.get_db)):
     if db.query(models.User).filter(models.User.email == user.email).first():
         raise HTTPException(status_code=400, detail="Цей Email вже зайнятий")
 
-    # 🔥 4. ЗБЕРЕЖЕННЯ В БАЗУ (це те, чого не вистачало)
+    # 4. ЗБЕРЕЖЕННЯ В БАЗУ
     hashed_pwd = security.get_password_hash(user.password)
     new_user = models.User(email=user.email, hashed_password=hashed_pwd)
     db.add(new_user)

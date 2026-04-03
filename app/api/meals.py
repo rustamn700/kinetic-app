@@ -47,7 +47,7 @@ class MealOut(BaseModel):
 class WaterUpdate(BaseModel):
     amount: int
 
-# --- 🔥 НОВИЙ ЕНДПОІНТ: АНАЛІЗ ФОТО (ВИПРАВЛЕНО ПОМИЛКУ 400) ---
+# --- НОВИЙ ЕНДПОІНТ: АНАЛІЗ ФОТО ---
 @router.post("/analyze-photo")
 async def analyze_photo(file: UploadFile = File(...), current_user: models.User = Depends(get_current_user)):
     """
@@ -71,7 +71,7 @@ async def analyze_photo(file: UploadFile = File(...), current_user: models.User 
         print(f"🔴 Critical Server Error during analysis: {e}")
         return {"error": "Критична помилка сервера. Спробуйте пізніше."}
 
-# --- 🔥 ПОШУК ПО ШТРИХ-КОДУ ---
+# --- ПОШУК ПО ШТРИХ-КОДУ ---
 @router.get("/barcode/{barcode}")
 async def get_product_by_barcode(barcode: str, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
     # Шукаємо в базі користувацьких продуктів

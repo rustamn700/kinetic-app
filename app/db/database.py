@@ -21,8 +21,8 @@ else:
     
     engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
-    pool_pre_ping=True,  # 🔥 Магия 1: Проверяет, жива ли база, перед каждым запросом
-    pool_recycle=1800    # 🔥 Магия 2: Переподключается каждые 30 минут, чтобы база не обрывала связь
+    pool_pre_ping=True, 
+    pool_recycle=1800  
 )   
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

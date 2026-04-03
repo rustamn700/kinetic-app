@@ -11,7 +11,7 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     
-    # --- 🔥 НОВІ ПОЛЯ ПРОФІЛЮ ---
+    # --- НОВІ ПОЛЯ ПРОФІЛЮ ---
     gender = Column(String, default="male")       # "male" / "female"
     age = Column(Integer, default=25)
     weight = Column(Float, default=70.0)

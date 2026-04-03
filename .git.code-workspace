@@ -1,0 +1,31 @@
+{
+	"folders": [
+		{
+			"name": ".git",
+			"path": "../../../Documents/kinetic-app/.git"
+		},
+		{
+			"name": ".vscode",
+			"path": "../../../Documents/kinetic-app/.vscode"
+		},
+		{
+			"name": "app",
+			"path": "../../../Documents/kinetic-app/app"
+		},
+		{
+			"name": "data",
+			"path": "../../../Documents/kinetic-app/data"
+		},
+		{
+			"name": "static",
+			"path": "../../../Documents/kinetic-app/static"
+		},
+		{
+			"name": "venv",
+			"path": "../../../Documents/kinetic-app/venv"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "static"
+	}
+}

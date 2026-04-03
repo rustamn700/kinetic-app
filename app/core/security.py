@@ -8,8 +8,6 @@ from passlib.context import CryptContext
 # Загружаем скрытые переменные
 load_dotenv()
 
-# Теперь берем ключ из безопасного места. 
-# Если его там нет (например, ты забыл добавить), используем запасной. 
 SECRET_KEY = "kinetic_app_super_secret_2026_key"
 print(f"🚀 СЕРВЕР ЗАПУЩЕНО З КЛЮЧЕМ: {SECRET_KEY[-4:]}") # Побачимо останні 4 символи
 ALGORITHM = "HS256"
@@ -34,7 +32,6 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-# --- 🔥 САМЕ ЦІЄЇ ФУНКЦІЇ НЕ ВИСТАЧАЛО ---
 def decode_access_token(token: str):
     try:
         # Цей принт покаже нам токен у терміналі
@@ -42,5 +39,5 @@ def decode_access_token(token: str):
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
     except JWTError as e:
-        print(f"🔴 Помилка декодування: {e}") # Тут ми побачимо причину (expired або invalid)
+        print(f"🔴 Помилка декодування: {e}")
         return None

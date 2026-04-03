@@ -11,7 +11,7 @@ router = APIRouter(prefix="/ai-search", tags=["AI Search"])
 class ParseMacrosRequest(BaseModel):
     text: str
 
-@router.post("/parse-macros")          # ← саме POST, не GET
+@router.post("/parse-macros")        
 async def parse_macros_from_text(
     payload: ParseMacrosRequest,
     current_user: models.User = Depends(get_current_user)
@@ -43,7 +43,7 @@ async def _analyze_text_with_gemini(text: str) -> dict:
     Окрема функція: відправляє текстовий запит до Gemini і парсить відповідь.
     """
     import google.generativeai as genai
-    from app.core.config import settings  # або звідки береш GEMINI_API_KEY
+    from app.core.config import settings
 
     try:
         genai.configure(api_key=settings.GEMINI_API_KEY)
