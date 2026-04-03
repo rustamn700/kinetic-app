@@ -24,6 +24,11 @@ self.addEventListener('activate', (event) => {
 
 // Головна магія: Стратегія "Network First"
 self.addEventListener('fetch', (event) => {
+    // 🛑 Ігнорувати запити до API та AI
+    if (event.request.url.includes('/ai-search') || event.request.url.includes('/api')) {
+        return; 
+    }
+     в
     // 🔥 НАЙГОЛОВНІШИЙ ФІКС: Ігноруємо POST, PUT, DELETE запити!
     // Кешувати можна тільки GET запити (сторінки, картинки, стилі). Відправка фото - це POST.
     if (event.request.method !== 'GET') {

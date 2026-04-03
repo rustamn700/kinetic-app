@@ -1,16 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from app.db import database, models
 from app.core import security
+from app.api.deps import get_current_user  # <-- Імпортуємо централізовано
 from pydantic import BaseModel
 from typing import Optional
-import re  # <-- ДОБАВИЛИ ИМПОРТ ДЛЯ ПРОВЕРКИ EMAIL
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
+# --- МОДЕЛІ ДАНИХ ---
 class UserCreate(BaseModel):
     email: str
     password: str
@@ -27,33 +27,39 @@ class UserProfileUpdate(BaseModel):
     activity_level: float
     goal_type: str  # lose, maintain, gain
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)):
-    payload = security.decode_access_token(token)
-    if payload is None: raise HTTPException(status_code=401, detail="Invalid token")
-    email: str = payload.get("sub")
-    user = db.query(models.User).filter(models.User.email == email).first()
-    if user is None: raise HTTPException(status_code=401, detail="User not found")
-    return user
+# --- РОУТИ ---
 
 @router.post("/register")
 def register(user: UserCreate, db: Session = Depends(database.get_db)):
-    # --- 🛡️ 1. ПЕРЕВІРКА ПАРОЛЯ ---
+    # 1. Перевірка пароля
     if len(user.password) < 8:
-        raise HTTPException(status_code=400, detail="Пароль должен содержать минимум 8 символов")
+        raise HTTPException(status_code=400, detail="Пароль має містити мінімум 8 символів")
         
-    # --- 🛡️ 2. ЖОРСТКА ПЕРЕВІРКА НА GMAIL ---
+    # 2. Перевірка на Gmail
     if not user.email.endswith("@gmail.com"):
-        raise HTTPException(status_code=400, detail="Реєстрація дозволена лише для адрес @gmail.com")
+        raise HTTPException(status_code=400, detail="Реєстрація дозволена лише для Gmail")
 
-    # --- 3. Проверка, не занят ли Email ---
+    # 3. Перевірка на унікальність
     if db.query(models.User).filter(models.User.email == user.email).first():
-        raise HTTPException(status_code=400, detail="Этот Email уже зарегистрирован")
+        raise HTTPException(status_code=400, detail="Цей Email вже зайнятий")
+
+    # 🔥 4. ЗБЕРЕЖЕННЯ В БАЗУ (це те, чого не вистачало)
+    hashed_pwd = security.get_password_hash(user.password)
+    new_user = models.User(email=user.email, hashed_password=hashed_pwd)
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    return {"message": "Користувача створено успішно"}
 
 @router.post("/login", response_model=Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
     user = db.query(models.User).filter(models.User.email == form_data.username).first()
+    
     if not user or not security.verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Incorrect credentials")
+        raise HTTPException(status_code=401, detail="Невірний логін або пароль")
+    
+    # Створюємо токен на 7 днів
     token = security.create_access_token(data={"sub": user.email}, expires_delta=timedelta(days=7))
     return {"access_token": token, "token_type": "bearer"}
 
@@ -71,10 +77,9 @@ def read_users_me(current_user: models.User = Depends(get_current_user)):
         "goal_type": current_user.goal_type
     }
 
-# --- 🔥 ОБНОВЛЕНИЕ ПРОФИЛЯ И РАСЧЕТ КАЛОРИЙ ---
 @router.put("/update-profile")
 def update_profile(data: UserProfileUpdate, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
-    # 1. Сохраняем данные
+    # 1. Оновлюємо дані користувача
     current_user.gender = data.gender
     current_user.age = data.age
     current_user.weight = data.weight
@@ -82,20 +87,19 @@ def update_profile(data: UserProfileUpdate, db: Session = Depends(database.get_d
     current_user.activity_level = data.activity_level
     current_user.goal_type = data.goal_type
 
-    # 2. Формула Миффлина-Сан Жеора
+    # 2. Розрахунок калорій (Миффлин-Сан Жеор)
     s = 5 if data.gender == 'male' else -161
     bmr = (10 * data.weight) + (6.25 * data.height) - (5 * data.age) + s
     
-    # 3. TDEE (С учетом активности)
     tdee = bmr * data.activity_level
 
-    # 4. Корректировка под цель
+    # 3. Коригування під ціль
     if data.goal_type == 'lose':
-        final_goal = int(tdee * 0.80) # Дефицит 20%
+        final_goal = int(tdee * 0.80)
     elif data.goal_type == 'gain':
-        final_goal = int(tdee * 1.15) # Профицит 15%
+        final_goal = int(tdee * 1.15)
     else:
-        final_goal = int(tdee)        # Поддержка
+        final_goal = int(tdee)
 
     current_user.daily_goal = final_goal
     db.commit()

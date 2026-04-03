@@ -9,8 +9,9 @@ from passlib.context import CryptContext
 load_dotenv()
 
 # Теперь берем ключ из безопасного места. 
-# Если его там нет (например, ты забыл добавить), используем запасной.
-SECRET_KEY = os.getenv("SECRET_KEY", "fallback_secret_key_change_me") 
+# Если его там нет (например, ты забыл добавить), используем запасной. 
+SECRET_KEY = "kinetic_app_super_secret_2026_key"
+print(f"🚀 СЕРВЕР ЗАПУЩЕНО З КЛЮЧЕМ: {SECRET_KEY[-4:]}") # Побачимо останні 4 символи
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 7
 
@@ -36,7 +37,10 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 # --- 🔥 САМЕ ЦІЄЇ ФУНКЦІЇ НЕ ВИСТАЧАЛО ---
 def decode_access_token(token: str):
     try:
+        # Цей принт покаже нам токен у терміналі
+        print(f"DEBUG: Декодую токен: {token[:10]}...") 
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
-    except JWTError:
+    except JWTError as e:
+        print(f"🔴 Помилка декодування: {e}") # Тут ми побачимо причину (expired або invalid)
         return None

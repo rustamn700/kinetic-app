@@ -6,7 +6,7 @@ let currentAiData = null;
 let GLOBAL_FOOD_DB = [];
 let SELECTED_DATE = new Date();
 let currentLang = localStorage.getItem('appLang') || 'ua';
-let attachedFiles = []; 
+let attachedFiles = [];
 let html5QrcodeScanner = null;
 let aiStream = null;
 
@@ -40,7 +40,7 @@ function installPWA() {
 
 function dismissInstallBanner() {
     const banner = document.getElementById('installBanner');
-    if(banner) banner.classList.remove('active');
+    if (banner) banner.classList.remove('active');
     localStorage.setItem('hideInstallBanner', 'true');
 }
 
@@ -48,15 +48,15 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         const splash = document.getElementById('splashScreen');
         if (splash) splash.classList.add('hidden');
-    }, 1500); 
+    }, 1500);
 
-    
+
     initThemeIcon();
     applyLanguage(currentLang);
     updateDateDisplay();
     loadDashboardData();
     loadFoodDatabase();
-    
+
     const input = document.getElementById('dishInput');
     const box = document.getElementById('suggestionsBox');
 
@@ -74,19 +74,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const weightInput = document.getElementById('rWeightInput');
-    if(weightInput) {
+    if (weightInput) {
         weightInput.addEventListener('input', recalculateResultCard);
     }
 
     const profileBtn = document.getElementById('profileBtn');
     const dropdown = document.getElementById('profileDropdown');
 
-    if(profileBtn && dropdown) {
+    if (profileBtn && dropdown) {
         profileBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); 
+            e.stopPropagation();
             dropdown.classList.toggle('active');
             const langSel = document.getElementById('langSelector');
-            if(langSel) langSel.style.display = 'none';
+            if (langSel) langSel.style.display = 'none';
         });
 
         document.addEventListener('click', (e) => {
@@ -129,7 +129,7 @@ function applyLanguage(lang) {
     });
     document.querySelectorAll('.lang-circle-mini').forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.getElementById(`lang-${lang}`);
-    if(activeBtn) activeBtn.classList.add('active');
+    if (activeBtn) activeBtn.classList.add('active');
 }
 
 function checkAuth(res) {
@@ -150,32 +150,32 @@ function changeDate(offset) {
 function updateDateDisplay() {
     const display = document.getElementById('currentDateDisplay');
     const today = new Date();
-    const d1 = new Date(SELECTED_DATE); d1.setHours(0,0,0,0);
-    const d2 = new Date(today); d2.setHours(0,0,0,0);
-    const t = translations[currentLang]; 
+    const d1 = new Date(SELECTED_DATE); d1.setHours(0, 0, 0, 0);
+    const d2 = new Date(today); d2.setHours(0, 0, 0, 0);
+    const t = translations[currentLang];
 
     if (d1.getTime() === d2.getTime()) {
         display.innerText = t.history_today || "Сьогодні";
     } else {
-        const langMap = {'en': 'en-GB', 'ru': 'ru-RU', 'az': 'az-AZ', 'ua': 'uk-UA'};
+        const langMap = { 'en': 'en-GB', 'ru': 'ru-RU', 'az': 'az-AZ', 'ua': 'uk-UA' };
         display.innerText = SELECTED_DATE.toLocaleDateString(langMap[currentLang] || 'uk-UA', { day: 'numeric', month: 'long' });
     }
 }
 
 function getFormattedDate() {
     const offset = SELECTED_DATE.getTimezoneOffset();
-    const date = new Date(SELECTED_DATE.getTime() - (offset*60*1000));
+    const date = new Date(SELECTED_DATE.getTime() - (offset * 60 * 1000));
     return date.toISOString().split('T')[0];
 }
 
 async function loadDashboardData() {
     const loader = document.getElementById('skeletonLoader');
-    if(loader) {
+    if (loader) {
         loader.style.display = 'flex';
         loader.classList.add('active');
         loader.style.opacity = '1';
     }
-    
+
     try {
         // Promise.allSettled гарантує, що інтерфейс завантажиться, 
         // навіть якщо один із запитів до БД впаде
@@ -189,14 +189,14 @@ async function loadDashboardData() {
         console.error("Помилка завантаження:", e);
     } finally {
         setTimeout(() => {
-            if(loader) {
+            if (loader) {
                 loader.style.opacity = '0';
                 setTimeout(() => {
                     loader.classList.remove('active');
                     loader.style.display = 'none'; // Жорстко ховаємо блок
-                }, 300); 
+                }, 300);
             }
-        }, 500); 
+        }, 500);
     }
 }
 
@@ -216,37 +216,37 @@ function animateValue(id, start, end, duration) {
 // --- 3️⃣ САЛЮТ ПРИ ДОСЯГНЕННІ ЦІЛІ ---
 async function updateHeroStats() {
     const token = localStorage.getItem('access_token');
-    if(!token) return;
+    if (!token) return;
 
     try {
-        const userRes = await fetch(`${API_URL}/auth/me`, { 
+        const userRes = await fetch(`${API_URL}/auth/me`, {
             headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
         });
         if (!checkAuth(userRes)) return;
 
-        if(userRes.ok) {
+        if (userRes.ok) {
             const u = await userRes.json();
             const goal = u.daily_goal || 2500;
 
-            if(document.getElementById('dropGoal')) document.getElementById('dropGoal').innerText = goal;
-            if(document.getElementById('dropWeightDisplay')) document.getElementById('dropWeightDisplay').innerText = u.weight || '--';
-            if(document.getElementById('dropName')) document.getElementById('dropName').innerText = u.email.split('@')[0];
-            if(document.getElementById('dropEmail')) document.getElementById('dropEmail').innerText = u.email;
-            
+            if (document.getElementById('dropGoal')) document.getElementById('dropGoal').innerText = goal;
+            if (document.getElementById('dropWeightDisplay')) document.getElementById('dropWeightDisplay').innerText = u.weight || '--';
+            if (document.getElementById('dropName')) document.getElementById('dropName').innerText = u.email.split('@')[0];
+            if (document.getElementById('dropEmail')) document.getElementById('dropEmail').innerText = u.email;
+
             const initials = u.email[0].toUpperCase();
-            if(document.getElementById('dropInitials')) document.getElementById('dropInitials').innerText = initials;
-            if(document.getElementById('navUserInitials')) document.getElementById('navUserInitials').innerText = initials;
-            
+            if (document.getElementById('dropInitials')) document.getElementById('dropInitials').innerText = initials;
+            if (document.getElementById('navUserInitials')) document.getElementById('navUserInitials').innerText = initials;
+
             const dateStr = getFormattedDate();
-            const mealsRes = await fetch(`${API_URL}/meals/stats?date=${dateStr}`, { 
+            const mealsRes = await fetch(`${API_URL}/meals/stats?date=${dateStr}`, {
                 headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
             });
 
-            if(mealsRes.ok) {
+            if (mealsRes.ok) {
                 const data = await mealsRes.json();
                 const current = data.total || 0;
                 animateValue('currentCals', 0, current, 1200);
-                
+
                 document.getElementById('heroProt').innerText = Math.round(data.protein || 0);
                 document.getElementById('heroFat').innerText = Math.round(data.fats || 0);
                 document.getElementById('heroCarb').innerText = Math.round(data.carbs || 0);
@@ -254,15 +254,15 @@ async function updateHeroStats() {
                 const percentRaw = (current / goal) * 100;
                 const percent = Math.min(percentRaw, 120);
                 document.getElementById('percentText').innerText = Math.round(percentRaw) + '%';
-                
+
                 const circle = document.getElementById('heroProgress');
                 if (circle) {
                     const circumference = 2 * Math.PI * 90;
                     circle.style.strokeDashoffset = circumference - (Math.min(percent, 100) / 100) * circumference;
-                    
+
                     if (percent >= 100) {
                         circle.style.stroke = "#30d158"; // Зелений, якщо досягли
-                        
+
                         // Запускаємо конфетті, якщо сьогодні ще не було
                         const todayStr = getFormattedDate();
                         if (localStorage.getItem('confettiFired') !== todayStr && typeof confetti === 'function') {
@@ -275,9 +275,9 @@ async function updateHeroStats() {
                             localStorage.setItem('confettiFired', todayStr);
                         }
                     } else if (percent > 85) {
-                        circle.style.stroke = "#ff9f0a"; 
+                        circle.style.stroke = "#ff9f0a";
                     } else {
-                        circle.style.stroke = "#0a84ff"; 
+                        circle.style.stroke = "#0a84ff";
                     }
                 }
             }
@@ -301,16 +301,16 @@ function handleTouchMove(e) {
 
     // Свайп вліво (більше 40 пікселів)
     if (diff > 40) {
-        if(currentSwipedEl && currentSwipedEl !== el) {
+        if (currentSwipedEl && currentSwipedEl !== el) {
             currentSwipedEl.style.transform = 'translateX(0)';
         }
         el.style.transform = 'translateX(-80px)';
         currentSwipedEl = el;
-    } 
+    }
     // Свайп вправо (закрити)
     else if (diff < -30) {
         el.style.transform = 'translateX(0)';
-        if(currentSwipedEl === el) currentSwipedEl = null;
+        if (currentSwipedEl === el) currentSwipedEl = null;
     }
 }
 
@@ -318,23 +318,23 @@ async function loadDailyHistory() {
     const token = localStorage.getItem('access_token');
     try {
         const dateStr = getFormattedDate();
-        const res = await fetch(`${API_URL}/meals/?date=${dateStr}`, { 
+        const res = await fetch(`${API_URL}/meals/?date=${dateStr}`, {
             headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
         });
         if (!checkAuth(res)) return;
 
-        if(res.ok) {
+        if (res.ok) {
             const meals = await res.json();
-            window.TODAY_MEALS = meals; 
+            window.TODAY_MEALS = meals;
 
             const fireIcon = document.getElementById('streakFire');
-            if (meals.length > 0) { fireIcon.classList.add('active'); } 
+            if (meals.length > 0) { fireIcon.classList.add('active'); }
             else { fireIcon.classList.remove('active'); }
 
             const list = document.getElementById('mealsList');
             list.innerHTML = '';
-            
-            if(meals.length === 0) {
+
+            if (meals.length === 0) {
                 list.innerHTML = `
                     <div style="text-align:center; padding: 40px 20px; background: rgba(255,255,255,0.02); border-radius: 20px; border: 1px dashed rgba(255,255,255,0.1);">
                         <div style="font-size:48px; margin-bottom:12px;">🍽️</div>
@@ -348,7 +348,7 @@ async function loadDailyHistory() {
                 const badge = m.cuisine === 'Azerbaijani' ? '🇦🇿' : (m.cuisine === 'Ukrainian' ? '🇺🇦' : '');
                 let timeIcon = '🍽️';
                 let timeColor = 'rgba(255,255,255,0.05)';
-                
+
                 if (m.created_at) {
                     const hour = new Date(m.created_at).getHours();
                     if (hour >= 5 && hour < 12) { timeIcon = '🍳'; timeColor = 'rgba(255, 159, 10, 0.15)'; }
@@ -380,14 +380,14 @@ async function loadDailyHistory() {
 }
 
 async function deleteMeal(event, id) {
-    if(event) event.stopPropagation(); 
-    if(!confirm("Видалити?")) {
-        if(currentSwipedEl) currentSwipedEl.style.transform = 'translateX(0)';
+    if (event) event.stopPropagation();
+    if (!confirm("Видалити?")) {
+        if (currentSwipedEl) currentSwipedEl.style.transform = 'translateX(0)';
         return;
     }
     const token = localStorage.getItem('access_token');
-    await fetch(`${API_URL}/meals/${id}`, { 
-        method: 'DELETE', 
+    await fetch(`${API_URL}/meals/${id}`, {
+        method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
     });
     updateHeroStats(); loadDailyHistory();
@@ -396,25 +396,25 @@ async function deleteMeal(event, id) {
 let currentEditMealId = null;
 
 function openEditMealModal(id) {
-    if(currentSwipedEl) {
+    if (currentSwipedEl) {
         currentSwipedEl.style.transform = 'translateX(0)';
         currentSwipedEl = null;
-        return; 
+        return;
     }
 
     const meal = window.TODAY_MEALS.find(m => m.id === id);
     if (!meal) return;
-    
+
     currentEditMealId = id;
-    let cleanName = meal.name.replace(/🇦🇿 |🇺🇦 /g, ''); 
+    let cleanName = meal.name.replace(/🇦🇿 |🇺🇦 /g, '');
     let unit = 'г';
     if (cleanName.includes('(мл)')) { unit = 'мл'; cleanName = cleanName.replace(' (мл)', ''); }
     else if (cleanName.includes('(шт)')) { unit = 'шт'; cleanName = cleanName.replace(' (шт)', ''); }
-    
+
     document.getElementById('editMealNameInput').value = cleanName;
     document.getElementById('editMealAmount').value = meal.grams;
     document.getElementById('editMealUnit').value = unit;
-    
+
     document.getElementById('editMealModal').style.display = 'flex';
 }
 
@@ -425,7 +425,7 @@ function closeEditMealModal() {
 
 async function saveMealEdit() {
     if (!currentEditMealId) return;
-    
+
     const newName = document.getElementById('editMealNameInput').value.trim();
     const newAmount = parseFloat(document.getElementById('editMealAmount').value);
     const unit = document.getElementById('editMealUnit').value;
@@ -442,7 +442,7 @@ async function saveMealEdit() {
 
     const payload = {
         product_name: finalName,
-        grams: newAmount, 
+        grams: newAmount,
         total_kcal: Math.round(mealToEdit.total_kcal * ratio),
         total_protein: mealToEdit.total_protein * ratio,
         total_fats: mealToEdit.total_fats * ratio,
@@ -473,7 +473,7 @@ async function saveMealEdit() {
         } else {
             alert('Помилка оновлення');
         }
-    } catch (e) { console.error(e); } 
+    } catch (e) { console.error(e); }
     finally { btn.innerText = 'Зберегти'; }
 }
 
@@ -483,13 +483,13 @@ async function loadWeightChart() {
     if (!token) return;
 
     try {
-        const res = await fetch(`${API_URL}/weight/history`, { 
+        const res = await fetch(`${API_URL}/weight/history`, {
             headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
         });
-        
+
         if (res.ok) {
             const data = await res.json();
-            
+
             // Робимо красиві короткі дати (DD.MM) та лікуємо баг NaN
             const dates = data.map(d => {
                 if (d.date && typeof d.date === 'string') {
@@ -507,30 +507,30 @@ async function loadWeightChart() {
             const maxWeight = Math.ceil(Math.max(...weights)) + 1;
 
             const ctx = document.getElementById('weightChart').getContext('2d');
-            
+
             // Соковитий градієнт
             const gradient = ctx.createLinearGradient(0, 0, 0, 200);
             gradient.addColorStop(0, 'rgba(52, 199, 89, 0.2)'); // Apple Green прозорий
             gradient.addColorStop(1, 'rgba(52, 199, 89, 0)');
 
-            if(window.myWeightChart) window.myWeightChart.destroy();
-            
+            if (window.myWeightChart) window.myWeightChart.destroy();
+
             window.myWeightChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: dates,
                     datasets: [{
-                        label: 'Вага (кг)', 
-                        data: weights, 
-                        borderColor: '#34C759', 
+                        label: 'Вага (кг)',
+                        data: weights,
+                        borderColor: '#34C759',
                         backgroundColor: gradient,
-                        borderWidth: 3, 
-                        pointBackgroundColor: '#FFFFFF', 
+                        borderWidth: 3,
+                        pointBackgroundColor: '#FFFFFF',
                         pointBorderColor: '#34C759',
-                        pointBorderWidth: 2, 
-                        pointRadius: 4, 
-                        pointHoverRadius: 6, 
-                        fill: true, 
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: true,
                         tension: 0.4 // 🔥 Робить лінію плавною кривою!
                     }]
                 },
@@ -538,17 +538,17 @@ async function loadWeightChart() {
                     responsive: true, maintainAspectRatio: false,
                     scales: {
                         x: { grid: { display: false }, border: { display: false }, ticks: { color: '#8E8E93', font: { size: 11, weight: '600' } } },
-                        y: { 
-                            grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, 
-                            border: { display: false }, 
-                            ticks: { color: '#8E8E93', font: { size: 11, weight: '600' } }, 
+                        y: {
+                            grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+                            border: { display: false },
+                            ticks: { color: '#8E8E93', font: { size: 11, weight: '600' } },
                             min: minWeight, // Застосовуємо динамічний мінімум
                             max: maxWeight  // Застосовуємо динамічний максимум
                         }
                     },
-                    plugins: { 
+                    plugins: {
                         legend: { display: false },
-                        tooltip: { backgroundColor: '#FFFFFF', titleColor: '#8E8E93', bodyColor: '#1C1C1E', bodyFont: { size: 14, weight: 'bold' }, padding: 12, cornerRadius: 12, displayColors: false, borderColor: 'rgba(0,0,0,0.05)', borderWidth: 1, callbacks: { label: function(context) { return context.parsed.y + ' кг'; } } }
+                        tooltip: { backgroundColor: '#FFFFFF', titleColor: '#8E8E93', bodyColor: '#1C1C1E', bodyFont: { size: 14, weight: 'bold' }, padding: 12, cornerRadius: 12, displayColors: false, borderColor: 'rgba(0,0,0,0.05)', borderWidth: 1, callbacks: { label: function (context) { return context.parsed.y + ' кг'; } } }
                     },
                     interaction: { intersect: false, mode: 'index' }
                 }
@@ -562,11 +562,11 @@ function openWeightModal() {
     // Показуємо користувачу, за яку дату він вносить вагу (Беремо з твого календаря)
     const dateStr = SELECTED_DATE.toLocaleDateString(currentLang === 'ua' ? 'uk-UA' : 'ru-RU', { day: 'numeric', month: 'long' });
     document.getElementById('weightModalDate').innerText = dateStr;
-    
+
     // Підставляємо поточну відому вагу в інпут
     const currentWeight = document.getElementById('dropWeightDisplay').innerText;
-    document.getElementById('weightLogInput').value = currentWeight !== '--' ? currentWeight : ''; 
-    
+    document.getElementById('weightLogInput').value = currentWeight !== '--' ? currentWeight : '';
+
     document.getElementById('weightLogModal').style.display = 'flex';
 }
 
@@ -579,9 +579,9 @@ async function saveDailyWeight() {
     const weightVal = parseFloat(document.getElementById('weightLogInput').value);
     const dateStr = getFormattedDate(); // Беремо дату з твого календаря (на яку перемкнувся юзер)
 
-    if (isNaN(weightVal) || weightVal <= 30) { 
-        alert("Будь ласка, введіть коректну вагу"); 
-        return; 
+    if (isNaN(weightVal) || weightVal <= 30) {
+        alert("Будь ласка, введіть коректну вагу");
+        return;
     }
 
     const btn = document.querySelector('#weightLogModal .btn-primary');
@@ -592,20 +592,20 @@ async function saveDailyWeight() {
         const res = await fetch(`${API_URL}/weight/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS },
-            body: JSON.stringify({ weight: weightVal, date: dateStr }) 
+            body: JSON.stringify({ weight: weightVal, date: dateStr })
         });
 
         if (res.ok) {
             closeWeightModal();
             loadWeightChart(); // Миттєво перемальовуємо графік
-            
+
             // Оновлюємо цифру в інтерфейсі (Бенто-картка)
-            if(document.getElementById('dropWeightDisplay')) document.getElementById('dropWeightDisplay').innerText = weightVal;
+            if (document.getElementById('dropWeightDisplay')) document.getElementById('dropWeightDisplay').innerText = weightVal;
         } else {
             alert("Помилка збереження ваги. Перевірте з'єднання.");
         }
-    } catch (e) { 
-        console.error(e); 
+    } catch (e) {
+        console.error(e);
     } finally {
         btn.innerText = 'Зберегти';
     }
@@ -615,25 +615,25 @@ async function loadFoodDatabase() {
     const token = localStorage.getItem('access_token');
     if (!token) return;
     try {
-        const res = await fetch(`${API_URL}/meals/database`, { 
+        const res = await fetch(`${API_URL}/meals/database`, {
             headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
         });
-        if(res.ok) GLOBAL_FOOD_DB = await res.json();
-    } catch(e) { console.error(e); }
+        if (res.ok) GLOBAL_FOOD_DB = await res.json();
+    } catch (e) { console.error(e); }
 }
 
 function handleAutocomplete(query) {
     const box = document.getElementById('suggestionsBox');
     const val = query.trim().toLowerCase();
-    if(val.length === 0) { box.classList.remove('active'); return; }
+    if (val.length === 0) { box.classList.remove('active'); return; }
     const matches = GLOBAL_FOOD_DB.filter(f => f.name.toLowerCase().includes(val)).slice(0, 5);
     if (matches.length > 0) {
         box.innerHTML = '';
         matches.forEach(m => {
             let flag = m.cuisine === 'Ukrainian' ? '🇺🇦 ' : (m.cuisine === 'Azerbaijani' ? '🇦🇿 ' : '');
             let icon = m.icon || '🍽️';
-            if (m.cuisine === 'Custom') icon = '⭐️'; 
-            
+            if (m.cuisine === 'Custom') icon = '⭐️';
+
             const div = document.createElement('div');
             div.className = 'suggestion-item';
             div.innerHTML = `<span>${flag}${icon} ${m.name}</span> <small style="color:#666">${m.calories} ккал</small>`;
@@ -661,35 +661,35 @@ function openResultCardFromDB(data) {
     };
     let prefix = data.cuisine === 'Ukrainian' ? '🇺🇦 ' : (data.cuisine === 'Azerbaijani' ? '🇦🇿 ' : '');
     document.getElementById('rName').innerText = prefix + data.name;
-    document.getElementById('rTime').innerText = new Date().toLocaleTimeString().slice(0,5);
-    
+    document.getElementById('rTime').innerText = new Date().toLocaleTimeString().slice(0, 5);
+
     document.getElementById('rWeightInput').value = 100;
     currentAIResult.unit = data.unit || 'г';
     recalculateResultCard();
     document.getElementById('actionMenu').classList.remove('active');
     document.getElementById('btnPlus').classList.remove('active');
-    card.scrollIntoView({behavior: 'smooth'});
+    card.scrollIntoView({ behavior: 'smooth' });
 }
 
 function recalculateResultCard() {
-    if(!currentAIResult) return;
+    if (!currentAIResult) return;
     const userQty = parseFloat(document.getElementById('rWeightInput').value) || 0;
     let ratio = 0;
     if (currentAIResult.unit === 'шт') {
         const pieceWeight = currentAIResult.weight_per_piece || 0;
         ratio = (pieceWeight > 0 ? userQty * pieceWeight : userQty * 100) / 100;
     } else { ratio = userQty / 100; }
-    
+
     const k = Math.round(currentAIResult.calories * ratio);
     const p = (currentAIResult.protein * ratio).toFixed(1);
     const f = (currentAIResult.fat * ratio).toFixed(1);
     const c = (currentAIResult.carbs * ratio).toFixed(1);
-    
+
     document.getElementById('rKcal').innerText = k;
     document.getElementById('rProt').innerText = Math.round(p);
     document.getElementById('rFats').innerText = Math.round(f);
     document.getElementById('rCarb').innerText = Math.round(c);
-    
+
     document.getElementById('barProt').style.height = Math.min(p * 2, 60) + 'px';
     document.getElementById('barFat').style.height = Math.min(f * 2, 60) + 'px';
     document.getElementById('barCarb').style.height = Math.min(c, 60) + 'px';
@@ -699,39 +699,39 @@ async function triggerAISearch() {
     const input = document.getElementById('dishInput');
     const query = input.value.trim();
     const btn = document.getElementById('aiBtn');
-    
+
     if (attachedFiles && attachedFiles.length > 0) {
-        const fileToAnalyze = attachedFiles[0]; 
-        const originalBtn = btn.innerHTML; 
+        const fileToAnalyze = attachedFiles[0];
+        const originalBtn = btn.innerHTML;
         btn.innerHTML = '<div class="spinner" style="width:14px; height:14px; border:2px solid white; border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;"></div>';
-        
+
         await analyzeImageFile(fileToAnalyze);
-        
+
         clearAllImages();
         input.value = '';
         document.getElementById('actionMenu').classList.remove('active');
         document.getElementById('btnPlus').classList.remove('active');
-        btn.innerHTML = originalBtn; 
+        btn.innerHTML = originalBtn;
         updateSendButtonState();
-        return; 
+        return;
     }
 
     if (query.length === 0) return;
-    
-    const originalBtn = btn.innerHTML; 
+
+    const originalBtn = btn.innerHTML;
     btn.innerHTML = "🔍";
-    
+
     const match = GLOBAL_FOOD_DB.find(f => f.name.toLowerCase() === query.toLowerCase());
     if (match) {
         openResultCardFromDB(match);
     } else {
         openResultCardFromDB({ name: query, calories: 0, protein: 0, fat: 0, carbs: 0, unit: 'г', ingredients: "Не знайдено в базі.", cuisine: 'Other', weight_per_piece: 0 });
     }
-    
-    input.value = ''; 
+
+    input.value = '';
     document.getElementById('actionMenu').classList.remove('active');
     document.getElementById('btnPlus').classList.remove('active');
-    btn.innerHTML = originalBtn; 
+    btn.innerHTML = originalBtn;
     updateSendButtonState();
 }
 
@@ -754,17 +754,17 @@ async function addToDiary() {
         total_protein: prot, total_fats: fats, total_carbs: carbs,
         cuisine: currentAIResult.cuisine || "Unknown", confidence: 1.0, ingredients: currentAIResult.ingredients
     };
-    
+
     try {
         const res = await fetch(`${API_URL}/meals/`, {
-            method: 'POST', 
+            method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS },
             body: JSON.stringify(payload)
         });
         if (!checkAuth(res)) return;
-        if(res.ok) { closeResultCard(); updateHeroStats(); loadDailyHistory(); }
+        if (res.ok) { closeResultCard(); updateHeroStats(); loadDailyHistory(); }
         else { alert("Помилка збереження"); }
-    } catch(e) { console.error(e); }
+    } catch (e) { console.error(e); }
 }
 
 function closeResultCard() {
@@ -781,12 +781,12 @@ function updateSendButtonState() {
     } else { btn.classList.remove('ready'); btn.style.opacity = "0.5"; btn.style.pointerEvents = "none"; }
 }
 
-function triggerCamera() { if(attachedFiles.length >= 10) return; toggleActionMenu(); document.getElementById('cameraInput').click(); }
-function triggerGallery() { if(attachedFiles.length >= 10) return; toggleActionMenu(); document.getElementById('galleryInput').click(); }
-function handleImageSelect(input) { if (input.files) { Array.from(input.files).forEach(f => attachedFiles.push(f)); renderPreviews(); input.value=''; updateSendButtonState(); } }
+function triggerCamera() { if (attachedFiles.length >= 10) return; toggleActionMenu(); document.getElementById('cameraInput').click(); }
+function triggerGallery() { if (attachedFiles.length >= 10) return; toggleActionMenu(); document.getElementById('galleryInput').click(); }
+function handleImageSelect(input) { if (input.files) { Array.from(input.files).forEach(f => attachedFiles.push(f)); renderPreviews(); input.value = ''; updateSendButtonState(); } }
 
 function renderPreviews() {
-    const box = document.getElementById('imagePreview'); 
+    const box = document.getElementById('imagePreview');
     const list = document.getElementById('previewList');
     if (attachedFiles.length === 0) { box.classList.add('hidden'); return; }
     box.classList.remove('hidden'); list.innerHTML = '';
@@ -804,22 +804,22 @@ function renderPreviews() {
 function removeOneImage(i) { attachedFiles.splice(i, 1); renderPreviews(); updateSendButtonState(); }
 function clearAllImages() { attachedFiles = []; renderPreviews(); updateSendButtonState(); }
 function toggleActionMenu() { document.getElementById('actionMenu').classList.toggle('active'); document.getElementById('btnPlus').classList.toggle('active'); }
-function openCatalogFromMenu() { toggleActionMenu(); if(window.openCatalogRoot) openCatalogRoot(); }
+function openCatalogFromMenu() { toggleActionMenu(); if (window.openCatalogRoot) openCatalogRoot(); }
 
 // --- 5️⃣ АНІМАЦІЯ ВОДИ ---
 async function loadWater() {
     const token = localStorage.getItem('access_token');
     const dateStr = getFormattedDate();
     try {
-        const res = await fetch(`${API_URL}/meals/water/today?date=${dateStr}`, { 
+        const res = await fetch(`${API_URL}/meals/water/today?date=${dateStr}`, {
             headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
         });
         if (res.ok) {
             const data = await res.json();
             document.getElementById('waterCount').innerText = data.total_ml;
-            
+
             // Анімація колби
-            const fillPercentage = Math.min((data.total_ml / 2500) * 100, 100); 
+            const fillPercentage = Math.min((data.total_ml / 2500) * 100, 100);
             const fillLayer = document.getElementById('waterCardFill');
             if (fillLayer) fillLayer.style.height = `${fillPercentage}%`;
         }
@@ -861,7 +861,7 @@ async function saveWaterEdit() {
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS },
             body: JSON.stringify({ amount: newVal })
         });
-        if (res.ok) { closeWaterModal(); loadWater(); } 
+        if (res.ok) { closeWaterModal(); loadWater(); }
         else { alert("Помилка збереження"); }
     } catch (e) { console.error(e); }
 }
@@ -881,31 +881,63 @@ function closeCreateProductModal() {
 }
 
 async function saveCustomProduct() {
-    const name = document.getElementById('cpName').value;
-    const kcal = parseInt(document.getElementById('cpKcal').value);
+    const name = document.getElementById('cpName').value.trim();
     const prot = parseFloat(document.getElementById('cpProt').value) || 0;
     const fat = parseFloat(document.getElementById('cpFat').value) || 0;
     const carb = parseFloat(document.getElementById('cpCarb').value) || 0;
-    const barcode = document.getElementById('cpBarcode').value || null;
+    const kcal = parseFloat(document.getElementById('cpKcal').value) || 0;
 
-    if (!name || isNaN(kcal)) { alert("Введіть назву та калорії!"); return; }
+    if (!name) {
+        alert("Введіть назву страви!");
+        return;
+    }
 
-    const payload = { name: name, calories: kcal, protein: prot, fat: fat, carbs: carb, barcode: barcode };
-    const token = localStorage.getItem('access_token');
+    // 🔥 ОЦЕЙ РЯДОК — ВИРІШАЛЬНИЙ 🔥
+    // Беремо саме access_token, як ти знайшов у консолі
+    const rawToken = localStorage.getItem('access_token') || localStorage.getItem('token');
     
+    // Прибираємо слово "Bearer", якщо воно вже є в рядку, щоб не було дублювання
+    const cleanToken = rawToken ? rawToken.replace('Bearer ', '') : null;
+
+    if (!cleanToken) {
+        alert("Токен не знайдено! Перезайдіть в акаунт.");
+        return;
+    }
+
     try {
-        const res = await fetch(`${API_URL}/meals/custom`, {
+        const response = await fetch('/meals/', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS },
-            body: JSON.stringify(payload)
+            headers: { 
+                'Content-Type': 'application/json',
+                // Тепер тут точно буде один Bearer і один токен
+                'Authorization': `Bearer ${cleanToken}` 
+            },
+            body: JSON.stringify({
+                name: name,
+                calories: kcal,
+                protein: prot,
+                fat: fat,
+                carbs: carb,
+                amount: 100,
+                unit: 'г'
+            })
         });
-        if (res.ok) {
+        
+        if (response.ok) {
+            alert("✅ Страву успішно додано!");
             closeCreateProductModal();
-            document.getElementById('cpBarcode').value = ""; 
-            await loadFoodDatabase(); 
-            alert(`Продукт "${name}" збережено!`);
-        } else { alert("Помилка створення"); }
-    } catch (e) { console.error(e); }
+            
+            // Якщо у тебе є функція оновлення списку — виклич її, 
+            // якщо ні — просто перезавантаж сторінку:
+            location.reload(); 
+        } else {
+            const errData = await response.json();
+            alert("Помилка при збереженні: " + (errData.detail || "Невідома помилка"));
+        }
+    } catch (error) {
+        console.error("Помилка запиту:", error);
+        alert("Не вдалося з'єднатися з сервером 😔");
+    }
 }
 
 function selectGender(element, value) {
@@ -929,21 +961,21 @@ function selectGoal(element, value) {
 function initProfileUI(userData) {
     const gender = userData.gender || 'male';
     const genderEl = document.querySelector(`.segment-option[data-value="${gender}"]`);
-    if(genderEl) selectGender(genderEl, gender);
+    if (genderEl) selectGender(genderEl, gender);
 
     const act = userData.activity_level || 1.2;
     const actCards = document.querySelectorAll('.activity-card');
     if (actCards.length >= 4) {
-        if(act < 1.3) selectActivity(actCards[0], 1.2);
-        else if(act < 1.5) selectActivity(actCards[1], 1.375);
-        else if(act < 1.7) selectActivity(actCards[2], 1.55);
+        if (act < 1.3) selectActivity(actCards[0], 1.2);
+        else if (act < 1.5) selectActivity(actCards[1], 1.375);
+        else if (act < 1.7) selectActivity(actCards[2], 1.55);
         else selectActivity(actCards[3], 1.725);
     }
 
     const goal = userData.goal_type || 'maintain';
     const goalEl = document.querySelector(`.goal-card[data-goal="${goal}"]`);
-    if(goalEl) selectGoal(goalEl, goal);
-    
+    if (goalEl) selectGoal(goalEl, goal);
+
     document.getElementById('profAge').value = userData.age || 25;
     document.getElementById('profWeight').value = userData.weight || 70;
     document.getElementById('profHeight').value = userData.height || 175;
@@ -952,15 +984,15 @@ function initProfileUI(userData) {
 async function openProfileModal() {
     const token = localStorage.getItem('access_token');
     try {
-        const res = await fetch(`${API_URL}/auth/me`, { 
+        const res = await fetch(`${API_URL}/auth/me`, {
             headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
         });
-        if(res.ok) {
+        if (res.ok) {
             const u = await res.json();
             initProfileUI(u);
             document.getElementById('profileModal').style.display = 'flex';
         }
-    } catch(e) { console.error(e); }
+    } catch (e) { console.error(e); }
 }
 
 function closeProfileModal() {
@@ -970,7 +1002,7 @@ function closeProfileModal() {
 async function saveProfile() {
     const token = localStorage.getItem('access_token');
     const weightVal = parseFloat(document.getElementById('profWeight').value);
-    
+
     const payload = {
         gender: document.getElementById('profGender').value,
         age: parseInt(document.getElementById('profAge').value),
@@ -986,7 +1018,7 @@ async function saveProfile() {
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS },
             body: JSON.stringify(payload)
         });
-        
+
         await fetch(`${API_URL}/weight/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS },
@@ -997,10 +1029,10 @@ async function saveProfile() {
             const data = await res.json();
             alert(`Вашу нову ціль розраховано: ${data.new_goal} ккал`);
             closeProfileModal();
-            updateHeroStats(); 
-            loadWeightChart(); 
+            updateHeroStats();
+            loadWeightChart();
         } else { alert("Помилка збереження"); }
-    } catch(e) { console.error(e); }
+    } catch (e) { console.error(e); }
 }
 
 function logout() {
@@ -1012,9 +1044,9 @@ function startScanner() {
     document.getElementById('scannerModal').style.display = 'flex';
     html5QrcodeScanner = new Html5Qrcode("reader");
     const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-    
+
     html5QrcodeScanner.start(
-        { facingMode: "environment" }, config, onScanSuccess, (err) => {}
+        { facingMode: "environment" }, config, onScanSuccess, (err) => { }
     ).catch(err => {
         alert("Помилка камери: " + err);
         stopScanner();
@@ -1055,7 +1087,7 @@ async function onScanSuccess(decodedText, decodedResult) {
 async function analyzeImageFile(file) {
     const resultModal = document.getElementById('aiResultModal');
     const contentBox = document.getElementById('aiResultContent');
-    resultModal.style.display = 'flex'; 
+    resultModal.style.display = 'flex';
 
     contentBox.innerHTML = `
         <div style="text-align:center; padding: 40px;">
@@ -1077,7 +1109,7 @@ async function analyzeImageFile(file) {
         });
 
         const data = await res.json();
-        
+
         if (data.limit_reached) {
             contentBox.innerHTML = `
                 <div style="text-align:center; padding: 30px;">
@@ -1106,11 +1138,11 @@ async function triggerCameraAI() {
     document.getElementById('actionMenu').classList.remove('active');
     document.getElementById('btnPlus').classList.remove('active');
 
-    updateCameraLimits(); 
+    updateCameraLimits();
 
     try {
-        aiStream = await navigator.mediaDevices.getUserMedia({ 
-            video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } } 
+        aiStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } }
         });
         video.srcObject = aiStream;
         modal.style.display = 'flex';
@@ -1129,16 +1161,16 @@ async function updateCameraLimits() {
     const badge = document.getElementById('photoLimitBadge');
     const text = document.getElementById('limitText');
     const token = localStorage.getItem('access_token');
-    if(!text) return;
+    if (!text) return;
 
     try {
-        const res = await fetch(`${API_URL}/meals/limits`, { 
+        const res = await fetch(`${API_URL}/meals/limits`, {
             headers: { 'Authorization': `Bearer ${token}`, ...NGROK_HEADERS }
         });
         if (res.ok) {
             const data = await res.json();
             text.innerText = `${data.remaining} з ${data.limit}`;
-            if (data.remaining === 0) { badge.classList.add('low'); text.innerText = "Ліміт 0"; } 
+            if (data.remaining === 0) { badge.classList.add('low'); text.innerText = "Ліміт 0"; }
             else { badge.classList.remove('low'); }
         }
     } catch (e) { console.error(e); }
@@ -1150,7 +1182,7 @@ async function takeAiSnapshot() {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-    
+
     canvas.toBlob(async (blob) => {
         closeAiCamera();
         await analyzeImageFile(blob);
@@ -1159,7 +1191,7 @@ async function takeAiSnapshot() {
 
 function renderAiResults(data) {
     const contentBox = document.getElementById('aiResultContent');
-    contentBox.innerHTML = ''; 
+    contentBox.innerHTML = '';
 
     if (!data || !data.items || data.items.length === 0) {
         contentBox.innerHTML = `<p style="text-align: center; color: #aaa; padding: 20px;">AI не знайшов їжі на фото 🤷‍♂️</p>`;
@@ -1221,7 +1253,7 @@ async function addAiItemToDiary(index) {
     if (!currentAiData || !currentAiData.items[index]) return;
     const item = currentAiData.items[index];
     const token = localStorage.getItem('access_token');
-    
+
     const btn = document.querySelectorAll('.btn-add-ai')[index];
     btn.innerHTML = '<div class="spinner" style="width:14px; height:14px; border:2px solid #4CAF50; border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;"></div>';
 
@@ -1279,35 +1311,35 @@ async function enableNotifications() {
 function openProfileSheet() {
     vibrate(15); // Очень короткий премиальный отклик
     document.getElementById('profileSheetBackdrop').classList.add('active');
-    
+
     // Включаем эффект глубины для главного экрана
     document.body.classList.add('sheet-open');
     const mainCont = document.querySelector('.main-container');
     const nav = document.querySelector('.glass-nav');
-    if(mainCont) mainCont.classList.add('stacked');
-    if(nav) nav.classList.add('stacked');
+    if (mainCont) mainCont.classList.add('stacked');
+    if (nav) nav.classList.add('stacked');
 }
 
 function closeProfileSheet(e) {
     // Закрываем только если кликнули по фону, а не по самой карточке
     if (e && e.target.id !== 'profileSheetBackdrop') return;
-    
+
     vibrate(10);
     document.getElementById('profileSheetBackdrop').classList.remove('active');
-    
+
     // Возвращаем главный экран на место
     document.body.classList.remove('sheet-open');
     const mainCont = document.querySelector('.main-container');
     const nav = document.querySelector('.glass-nav');
-    if(mainCont) mainCont.classList.remove('stacked');
-    if(nav) nav.classList.remove('stacked');
+    if (mainCont) mainCont.classList.remove('stacked');
+    if (nav) nav.classList.remove('stacked');
 }
 
 function toggleNeoLangSelector() {
     vibrate(15);
     const sel = document.getElementById('neoLangSelector');
     const arrow = document.getElementById('neoLangArrow');
-    if(sel.style.display === 'none') {
+    if (sel.style.display === 'none') {
         sel.style.display = 'flex';
         arrow.style.transform = 'rotate(180deg)';
     } else {
@@ -1330,17 +1362,329 @@ function toggleTheme() {
     vibrate(15);
     const current = document.documentElement.getAttribute('data-theme') || 'light';
     const nextTheme = current === 'light' ? 'dark' : 'light';
-    
+
     // Змінюємо тему
     document.documentElement.setAttribute('data-theme', nextTheme);
     localStorage.setItem('theme', nextTheme);
-    
+
     // Змінюємо іконку
     const btn = document.getElementById('themeToggleBtn');
     if (btn) btn.innerHTML = nextTheme === 'dark' ? '☀️' : '🌙';
-    
+
     // Оновлюємо кольори графіка, якщо він існує
     if (window.myWeightChart) {
         loadWeightChart();
+    }
+}
+
+// =========================================
+// 📚 ДИНАМІЧНИЙ КАТАЛОГ ПРОДУКТІВ (З JSON)
+// =========================================
+
+let globalCatalogData = []; // Змінна для зберігання завантаженої бази
+
+// Відкрити вікно каталогу
+async function openCatalogFromMenu() {
+    if (window.vibrate) vibrate(15);
+
+    // Ховаємо спливаюче меню AI пошуку (кнопку +)
+    const actionMenu = document.getElementById('actionMenu');
+    const btnPlus = document.getElementById('btnPlus');
+    if (actionMenu) actionMenu.classList.remove('active');
+    if (btnPlus) btnPlus.classList.remove('active');
+
+    const modal = document.getElementById('catalogModal');
+    const container = document.getElementById('catalogContent');
+
+    if (modal) {
+        modal.style.display = 'flex';
+        document.getElementById('catalogSearchInput').value = ''; // Очищаємо пошук
+
+        // Якщо база ще не завантажена — вантажимо її з файлу
+        if (globalCatalogData.length === 0) {
+            if (container) container.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--text-secondary); font-weight: 600;">Завантаження бази продуктів... ⏳</div>';
+
+            try {
+                const response = await fetch('/data/products.json'); // Завантажуємо файл
+                if (!response.ok) throw new Error('Network response was not ok');
+                globalCatalogData = await response.json();
+            } catch (e) {
+                console.error("Помилка завантаження каталогу:", e);
+                if (container) container.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--danger); font-weight: 600;">Помилка завантаження. Перевір файл products.json 😔</div>';
+                return;
+            }
+        }
+
+        renderCatalog(globalCatalogData); // Малюємо товари
+    }
+}
+
+// Закрити вікно каталогу
+function closeCatalogModal() {
+    const modal = document.getElementById('catalogModal');
+    if (modal) modal.style.display = 'none';
+}
+
+// Функція малювання карток у HTML
+function renderCatalog(data) {
+    const container = document.getElementById('catalogContent');
+    if (!container) return;
+
+    container.innerHTML = ''; // Очищаємо екран
+    let hasItems = false;
+
+    data.forEach(cat => {
+        let catHasItems = false;
+
+        // Створюємо велику білу картку категорії
+        const catDiv = document.createElement('div');
+        catDiv.className = 'catalog-category';
+
+        // Заголовок (з іконкою)
+        const catHeader = document.createElement('div');
+        catHeader.className = 'catalog-category-header';
+        catHeader.innerHTML = `<span>${cat.icon || '🍽️'} ${cat.category}</span>`;
+        catDiv.appendChild(catHeader);
+
+        // Проходимось по підкатегоріях
+        if (cat.subcategories) {
+            cat.subcategories.forEach(sub => {
+                if (sub.products && sub.products.length > 0) {
+                    catHasItems = true;
+                    hasItems = true;
+
+                    // Міні-заголовок підкатегорії (наприклад "М'ясо" або "Риба")
+                    const subLabel = document.createElement('div');
+                    subLabel.style.cssText = 'padding: 16px 16px 8px; font-size: 13px; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;';
+                    subLabel.innerText = sub.name;
+                    catDiv.appendChild(subLabel);
+
+                    // Самі продукти
+                    sub.products.forEach(item => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'catalog-item';
+
+                        // Захист від апострофів у назвах (наприклад: М'ясо)
+                        const safeName = item.name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+
+                        itemDiv.innerHTML = `
+                            <div class="catalog-item-info">
+                                <span class="catalog-item-name">${item.name}</span>
+                                <span class="catalog-item-macros">🔥 ${item.calories} ккал • Б:${item.protein} Ж:${item.fat} В:${item.carbs}</span>
+                            </div>
+                            <button class="btn-add-catalog" onclick="selectCatalogItem('${safeName}', ${item.calories}, ${item.protein}, ${item.fat}, ${item.carbs})">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        `;
+                        catDiv.appendChild(itemDiv);
+                    });
+                }
+            });
+        }
+
+        // Якщо в категорії є хоч один продукт — додаємо її на екран
+        if (catHasItems) {
+            container.appendChild(catDiv);
+        }
+    });
+
+    if (!hasItems) {
+        container.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--text-secondary); font-weight: 600;">Нічого не знайдено 😔</div>';
+    }
+}
+
+// Пошук (тепер шукає по новій структурі)
+function filterCatalog() {
+    const query = document.getElementById('catalogSearchInput').value.toLowerCase();
+
+    if (!query) {
+        renderCatalog(globalCatalogData);
+        return;
+    }
+
+    const filteredData = globalCatalogData.map(cat => {
+        const filteredSubcategories = cat.subcategories.map(sub => {
+            const filteredProducts = sub.products.filter(p => p.name.toLowerCase().includes(query));
+            return { ...sub, products: filteredProducts };
+        }).filter(sub => sub.products.length > 0);
+
+        return { ...cat, subcategories: filteredSubcategories };
+    }).filter(cat => cat.subcategories.length > 0);
+
+    renderCatalog(filteredData);
+}
+
+// Вибір товару (закидає дані в існуючу картку результату)
+function selectCatalogItem(name, kcal, prot, fat, carb) {
+    if (window.vibrate) vibrate(15);
+    closeCatalogModal();
+
+    const resultCard = document.getElementById('resultCard');
+    if (resultCard) {
+        resultCard.style.display = 'block';
+
+        document.getElementById('rName').innerText = name;
+        document.getElementById('rWeightInput').value = 100; // Стандартна вага 100г
+
+        document.getElementById('rKcal').innerText = kcal;
+        document.getElementById('rProt').innerText = prot;
+        document.getElementById('rFats').innerText = fat;
+        document.getElementById('rCarb').innerText = carb;
+
+        const weightInput = document.getElementById('rWeightInput');
+        weightInput.dataset.baseKcal = kcal;
+        weightInput.dataset.baseProt = prot;
+        weightInput.dataset.baseFat = fat;
+        weightInput.dataset.baseCarb = carb;
+    }
+}
+
+// =========================================
+// ✨ AI АВТОЗАПОВНЕННЯ СТРАВИ (GEMINI)
+// =========================================
+
+// Зберігаємо дані AI глобально, щоб saveAiResultDirectly мала доступ
+let _aiPendingResult = null;
+
+async function runSmartAiSearch() {
+    const aiInput = document.getElementById('aiSmartInput');
+    const btn = document.querySelector('.btn-ai-gradient');
+    const preview = document.getElementById('aiResultPreview');
+
+    if (!aiInput || aiInput.value.trim() === '') {
+        if (window.vibrate) vibrate(20);
+        return;
+    }
+
+    const text = aiInput.value.trim();
+    const originalBtnText = btn.innerHTML;
+
+    // Ховаємо попередній результат, поки грузиться новий
+    if (preview) preview.style.display = 'none';
+    _aiPendingResult = null;
+
+    try {
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Аналізую...';
+        btn.disabled = true;
+        btn.style.opacity = '0.8';
+
+        const token = localStorage.getItem('access_token');
+
+        const response = await fetch(`${API_URL}/ai-search/parse-macros`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                ...NGROK_HEADERS
+            },
+            body: JSON.stringify({ text })
+        });
+
+        // 🔒 Обробка 401 — сесія закінчилась
+        if (response.status === 401) {
+            alert('⚠️ Сесія закінчилася, будь ласка, перезайдіть в акаунт.');
+            localStorage.removeItem('access_token');
+            window.location.href = '/login.html';
+            return;
+        }
+
+        if (!response.ok) throw new Error(`Помилка сервера: ${response.status}`);
+
+        const data = await response.json();
+        if (data.error) throw new Error(data.error);
+
+        // ✅ Зберігаємо результат та показуємо preview-контейнер
+        _aiPendingResult = {
+            name:     data.name     || text,
+            protein:  Math.round(data.protein  || 0),
+            fat:      Math.round(data.fat      || 0),
+            carbs:    Math.round(data.carbs    || 0),
+            calories: Math.round(data.calories || 0),
+            grams:    data.grams   || 100,
+        };
+
+        document.getElementById('aiPreviewName').innerText  = _aiPendingResult.name;
+        document.getElementById('aiPreviewKcal').innerText  = _aiPendingResult.calories;
+        document.getElementById('aiPreviewProt').innerText  = _aiPendingResult.protein + ' г';
+        document.getElementById('aiPreviewFat').innerText   = _aiPendingResult.fat + ' г';
+        document.getElementById('aiPreviewCarb').innerText  = _aiPendingResult.carbs + ' г';
+
+        if (preview) preview.style.display = 'block';
+        aiInput.value = '';
+
+        if (window.vibrate) vibrate([30, 50, 30]);
+
+    } catch (error) {
+        console.error('Помилка AI:', error);
+        alert('Не вдалося розпізнати страву 😔. Спробуйте ще раз або введіть вручну.');
+    } finally {
+        btn.innerHTML = originalBtnText;
+        btn.disabled = false;
+        btn.style.opacity = '1';
+    }
+}
+
+async function saveAiResultDirectly() {
+    if (!_aiPendingResult) return;
+
+    const token = localStorage.getItem('access_token');
+
+    // 🔒 Захист перед відправкою — перевіряємо наявність токена
+    if (!token) {
+        alert('⚠️ Сесія закінчилася, будь ласка, перезайдіть в акаунт.');
+        window.location.href = '/login.html';
+        return;
+    }
+
+    const saveBtn = document.querySelector('#aiResultPreview .btn-primary');
+    const originalText = saveBtn ? saveBtn.innerHTML : '';
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; }
+
+    try {
+        const payload = {
+            product_name:  _aiPendingResult.name,
+            grams:         _aiPendingResult.grams,
+            total_kcal:    _aiPendingResult.calories,
+            total_protein: _aiPendingResult.protein,
+            total_fats:    _aiPendingResult.fat,
+            total_carbs:   _aiPendingResult.carbs,
+            cuisine:       'AI',
+        };
+
+        const response = await fetch(`${API_URL}/meals/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,   // ← Критично: саме цей формат
+                ...NGROK_HEADERS
+            },
+            body: JSON.stringify(payload)
+        });
+
+        // 🔒 Обробка 401
+        if (response.status === 401) {
+            alert('⚠️ Сесія закінчилася, будь ласка, перезайдіть в акаунт.');
+            localStorage.removeItem('access_token');
+            window.location.href = '/login.html';
+            return;
+        }
+
+        if (!response.ok) throw new Error(`Помилка збереження: ${response.status}`);
+
+        // Все ок — закриваємо модалку та оновлюємо дашборд
+        _aiPendingResult = null;
+        const preview = document.getElementById('aiResultPreview');
+        if (preview) preview.style.display = 'none';
+
+        closeCreateProductModal();
+        if (window.vibrate) vibrate([50, 30, 80]);
+
+        await Promise.all([updateHeroStats(), loadDailyHistory()]);
+
+    } catch (error) {
+        console.error('Помилка збереження AI результату:', error);
+        alert('Не вдалося зберегти. Спробуйте ще раз.');
+    } finally {
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = originalText; }
     }
 }
