@@ -37,8 +37,7 @@ FULL_DB = load_products_db()
 # --- 🔥 AI VISION: GEMINI 2.5 FLASH ---
 
 # Беремо ключ з безпечного місця (.env або Render Environment)
-# Якщо ключа там немає, використовуємо твій (але краще сховай його!)
-API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyDgSUNyxFs5uJ_nmD3Yx2wM_uqCJ08ZskE") 
+# Якщо ключа там немає, використовуємо твій (але краще сховай його!) 
 MODEL_NAME = "gemini-2.5-flash"
 
 async def analyze_food_with_gemini(image_bytes: bytes):
